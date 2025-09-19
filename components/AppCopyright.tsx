@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Colors } from '../constants/colors';
+import APP_CONFIG from '../config/environment';
 
 interface AppCopyrightProps {
   year?: number;
@@ -12,9 +13,9 @@ interface AppCopyrightProps {
 
 const AppCopyright: React.FC<AppCopyrightProps> = ({
   year = new Date().getFullYear(),
-  companyName = 'NovaApp',
-  showVersion = false,
-  version = '1.0.0',
+  companyName = APP_CONFIG.COMPANY_NAME,
+  showVersion = APP_CONFIG.SHOW_VERSION,
+  version = APP_CONFIG.APP_VERSION,
 }) => {
   return (
     <View style={styles.container}>

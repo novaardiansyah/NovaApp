@@ -66,7 +66,6 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
         >
           <Surface style={styles.card} elevation={2}>
             <AppHeader
-              title="NovaApp"
               subtitle="Create Your Account"
               iconName="account-plus"
             />

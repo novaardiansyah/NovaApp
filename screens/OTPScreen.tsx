@@ -87,7 +87,6 @@ const OTPScreen: React.FC<OTPScreenProps> = ({ navigation, route }) => {
         >
           <Surface style={styles.card} elevation={2}>
             <AppHeader
-              title="NovaApp"
               subtitle="Verification"
               iconName="shield-check"
             />

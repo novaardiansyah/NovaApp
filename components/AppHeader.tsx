@@ -2,14 +2,19 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Avatar, Text } from 'react-native-paper';
 import { Colors } from '../constants/colors';
+import APP_CONFIG from '../config/environment';
 
 interface AppHeaderProps {
-  title: string;
+  title?: string;
   subtitle?: string;
   iconName?: string;
 }
 
-const AppHeader: React.FC<AppHeaderProps> = ({ title, subtitle, iconName = 'account-circle' }) => {
+const AppHeader: React.FC<AppHeaderProps> = ({
+  title = APP_CONFIG.APP_NAME,
+  subtitle,
+  iconName = 'account-circle'
+}) => {
   return (
     <View style={styles.header}>
       <View style={styles.brandContainer}>

@@ -76,7 +76,6 @@ const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({ navigation, r
         >
           <Surface style={styles.card} elevation={2}>
             <AppHeader
-              title="NovaApp"
               subtitle="Reset Password"
               iconName="lock-plus"
             />

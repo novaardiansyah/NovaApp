@@ -21,41 +21,46 @@ const FormButton: React.FC<FormButtonProps> = ({
   icon,
 }) => {
   const getButtonStyle = () => {
-    const baseStyle = [styles.button];
+    const baseStyle = { ...styles.button };
+
     if (fullWidth) {
-      baseStyle.push(styles.fullWidth);
+      Object.assign(baseStyle, styles.fullWidth);
     }
 
     switch (variant) {
       case 'secondary':
-        baseStyle.push(styles.secondaryButton);
+        Object.assign(baseStyle, styles.secondaryButton);
         break;
       case 'outline':
-        baseStyle.push(styles.outlineButton);
+        Object.assign(baseStyle, styles.outlineButton);
         break;
       default:
-        baseStyle.push(styles.primaryButton);
+        Object.assign(baseStyle, styles.primaryButton);
     }
 
     return baseStyle;
   };
 
   const getLabelStyle = () => {
-    const baseStyle = [styles.buttonLabel];
+    const baseStyle = { ...styles.buttonLabel };
 
     switch (variant) {
       case 'outline':
-        baseStyle.push(styles.outlineLabel);
+        Object.assign(baseStyle, styles.outlineLabel);
         break;
       default:
-        baseStyle.push(styles.primaryLabel);
+        Object.assign(baseStyle, styles.primaryLabel);
     }
 
     return baseStyle;
   };
 
   const getContentStyle = () => {
-    return [styles.buttonContent, fullWidth && styles.fullWidthContent];
+    const contentStyle = { ...styles.buttonContent };
+    if (fullWidth) {
+      Object.assign(contentStyle, styles.fullWidthContent);
+    }
+    return contentStyle;
   };
 
   const getDisabledStyle = () => {
@@ -65,13 +70,18 @@ const FormButton: React.FC<FormButtonProps> = ({
     return {};
   };
 
+  const buttonStyle = { ...getButtonStyle() };
+  if (disabled) {
+    Object.assign(buttonStyle, styles.disabledButton);
+  }
+
   return (
     <Button
       mode={variant === 'outline' ? 'outlined' : 'contained'}
       onPress={onPress}
       loading={loading}
       disabled={disabled || loading}
-      style={[getButtonStyle(), getDisabledStyle()]}
+      style={buttonStyle}
       labelStyle={getLabelStyle()}
       contentStyle={getContentStyle()}
       icon={icon}

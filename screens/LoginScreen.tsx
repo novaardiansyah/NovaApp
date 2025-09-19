@@ -50,7 +50,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         >
           <Surface style={styles.card} elevation={2}>
             <AppHeader
-              title="NovaApp"
               subtitle="Finance Management"
               iconName="account-circle"
             />
