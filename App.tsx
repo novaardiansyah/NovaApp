@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import AuthNavigator from './navigation/AuthNavigator';
+import AuthNavigator from '@/navigation/AuthNavigator';
 
 export default function App() {
   return (

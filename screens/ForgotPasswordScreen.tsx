@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, Text } from 'react-native';
 import { PaperProvider, Surface, Divider } from 'react-native-paper';
-import { Theme } from '../constants/colors';
-import { AppHeader, FormInput, FormButton, AppCopyright } from '../components';
+import { Theme } from '@/constants/colors';
+import { AppHeader, FormInput, FormButton, AppCopyright } from '@/components';
 
 // Props type for navigation
 interface ForgotPasswordScreenProps {

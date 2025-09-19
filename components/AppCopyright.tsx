@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
-import { Colors } from '../constants/colors';
-import APP_CONFIG from '../config/environment';
+import { Colors } from '@/constants/colors';
+import APP_CONFIG from '@/config/environment';
 
 interface AppCopyrightProps {
   year?: number;

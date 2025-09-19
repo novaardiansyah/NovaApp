@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Button, ButtonProps } from 'react-native-paper';
-import { Colors } from '../constants/colors';
+import { Colors } from '@/constants/colors';
 
 interface FormButtonProps extends Omit<ButtonProps, 'mode' | 'style' | 'labelStyle' | 'contentStyle' | 'children'> {
   title: string;

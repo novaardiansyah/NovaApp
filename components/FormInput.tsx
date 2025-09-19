@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, HelperText, TextInputProps } from 'react-native-paper';
-import { Colors } from '../constants/colors';
+import { Colors } from '@/constants/colors';
 
 interface FormInputProps extends Omit<TextInputProps, 'mode' | 'outlineColor' | 'activeOutlineColor'> {
   label: string;
