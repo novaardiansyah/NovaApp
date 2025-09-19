@@ -1,16 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import {
-  PaperProvider,
-  Text,
-  TextInput,
-  Button,
-  HelperText,
-  Surface,
-  Avatar,
-  Divider
-} from 'react-native-paper';
+import { View, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, Text } from 'react-native';
+import { PaperProvider, Surface, Divider, TextInput, HelperText } from 'react-native-paper';
 import { Theme } from '../constants/colors';
+import { AppHeader, FormInput, FormButton, AppCopyright } from '../components';
 
 // Props type for navigation
 interface ResetPasswordScreenProps {
@@ -83,20 +75,11 @@ const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({ navigation, r
           keyboardShouldPersistTaps="handled"
         >
           <Surface style={styles.card} elevation={2}>
-            <View style={styles.header}>
-              <View style={styles.brandContainer}>
-                <View style={styles.brandCircle}>
-                  <Avatar.Icon
-                    size={32}
-                    icon="lock-plus"
-                    color="white"
-                    style={styles.brandIcon}
-                  />
-                </View>
-                <Text style={styles.brandName}>NovaApp</Text>
-              </View>
-              <Text style={styles.brandTagline}>Reset Password</Text>
-            </View>
+            <AppHeader
+              title="NovaApp"
+              subtitle="Reset Password"
+              iconName="lock-plus"
+            />
 
             <Divider style={styles.divider} />
 
@@ -106,64 +89,42 @@ const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({ navigation, r
                 Your new password must be different from previous passwords
               </Text>
 
-              <View style={styles.inputContainer}>
-                <TextInput
-                  label="New Password"
-                  value={password}
-                  onChangeText={setPassword}
-                  mode="outlined"
-                  secureTextEntry={secureTextEntry}
-                  style={styles.input}
-                  outlineColor="#e5e7eb"
-                  activeOutlineColor={Theme.colors.primary}
-                  left={<TextInput.Icon icon="lock-outline" color="#9ca3af" />}
-                  right={
-                    <TextInput.Icon
-                      icon={secureTextEntry ? "eye-outline" : "eye-off-outline"}
-                      onPress={() => setSecureTextEntry(!secureTextEntry)}
-                      color="#9ca3af"
-                    />
-                  }
-                />
-                {hasPasswordErrors() && (
-                  <HelperText type="error" visible={!!hasPasswordErrors()}>
-                    Password must be at least 6 characters
-                  </HelperText>
-                )}
-                {password && !hasPasswordErrors() && (
-                  <HelperText type="info" visible={!hasPasswordErrors()}>
-                    {isPasswordStrong(password)
-                      ? "Strong password"
-                      : "Add uppercase letter and number for stronger password"}
-                  </HelperText>
-                )}
-              </View>
+              <FormInput
+                label="New Password"
+                value={password}
+                onChangeText={setPassword}
+                error={hasPasswordErrors() ? "Password must be at least 6 characters" : undefined}
+                secureTextEntry={secureTextEntry}
+                right={
+                  <TextInput.Icon
+                    icon={secureTextEntry ? "eye-outline" : "eye-off-outline"}
+                    onPress={() => setSecureTextEntry(!secureTextEntry)}
+                    color="#9ca3af"
+                  />
+                }
+              />
+              {password && !hasPasswordErrors() && (
+                <HelperText type="info" visible={!hasPasswordErrors()}>
+                  {isPasswordStrong(password)
+                    ? "Strong password"
+                    : "Add uppercase letter and number for stronger password"}
+                </HelperText>
+              )}
 
-              <View style={styles.inputContainer}>
-                <TextInput
-                  label="Confirm New Password"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  mode="outlined"
-                  secureTextEntry={secureConfirmTextEntry}
-                  style={styles.input}
-                  outlineColor="#e5e7eb"
-                  activeOutlineColor={Theme.colors.primary}
-                  left={<TextInput.Icon icon="lock-check-outline" color="#9ca3af" />}
-                  right={
-                    <TextInput.Icon
-                      icon={secureConfirmTextEntry ? "eye-outline" : "eye-off-outline"}
-                      onPress={() => setSecureConfirmTextEntry(!secureConfirmTextEntry)}
-                      color="#9ca3af"
-                    />
-                  }
-                />
-                {hasConfirmPasswordErrors() && (
-                  <HelperText type="error" visible={!!hasConfirmPasswordErrors()}>
-                    Passwords do not match
-                  </HelperText>
-                )}
-              </View>
+              <FormInput
+                label="Confirm New Password"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                error={hasConfirmPasswordErrors() ? "Passwords do not match" : undefined}
+                secureTextEntry={secureConfirmTextEntry}
+                right={
+                  <TextInput.Icon
+                    icon={secureConfirmTextEntry ? "eye-outline" : "eye-off-outline"}
+                    onPress={() => setSecureConfirmTextEntry(!secureConfirmTextEntry)}
+                    color="#9ca3af"
+                  />
+                }
+              />
 
               <View style={styles.requirementsContainer}>
                 <Text style={styles.requirementsTitle}>Password Requirements:</Text>
@@ -178,17 +139,12 @@ const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({ navigation, r
                 </Text>
               </View>
 
-              <Button
-                mode="contained"
+              <FormButton
+                title={loading ? 'Resetting Password...' : 'Reset Password'}
                 onPress={handleResetPassword}
                 loading={loading}
                 disabled={loading || !password || !confirmPassword || password !== confirmPassword}
-                style={styles.button}
-                labelStyle={styles.buttonLabel}
-                contentStyle={styles.buttonContent}
-              >
-                {loading ? 'Resetting Password...' : 'Reset Password'}
-              </Button>
+              />
 
               <View style={styles.footer}>
                 <Text
@@ -201,9 +157,7 @@ const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({ navigation, r
             </View>
           </Surface>
 
-          <View style={styles.bottomText}>
-            <Text style={styles.copyright}>© 2024 NovaApp. All rights reserved.</Text>
-          </View>
+          <AppCopyright />
         </ScrollView>
       </KeyboardAvoidingView>
     </PaperProvider>
@@ -227,38 +181,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#ffffff',
   },
-  header: {
-    padding: 32,
-    alignItems: 'center',
-    backgroundColor: '#f9fafb',
-  },
-  brandContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  brandCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#6366f1',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  brandIcon: {
-    backgroundColor: 'transparent',
-  },
-  brandName: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1f2937',
-    marginLeft: 12,
-  },
-  brandTagline: {
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '500',
-  },
   divider: {
     height: 1,
     backgroundColor: '#e5e7eb',
@@ -279,12 +201,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 32,
     lineHeight: 24,
-  },
-  inputContainer: {
-    marginBottom: 16,
-  },
-  input: {
-    backgroundColor: '#ffffff',
   },
   requirementsContainer: {
     marginBottom: 24,
@@ -308,20 +224,6 @@ const styles = StyleSheet.create({
     color: '#10b981',
     marginBottom: 4,
   },
-  button: {
-    backgroundColor: '#6366f1',
-    borderRadius: 8,
-    marginTop: 8,
-    marginBottom: 24,
-  },
-  buttonLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  buttonContent: {
-    height: 48,
-  },
   footer: {
     alignItems: 'center',
   },
@@ -329,15 +231,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6366f1',
     fontWeight: '500',
-  },
-  bottomText: {
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  copyright: {
-    fontSize: 12,
-    color: '#9ca3af',
   },
 });
 

@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import {
-  PaperProvider,
-  Text,
-  TextInput,
-  Button,
-  HelperText,
-  Surface,
-  Avatar,
-  Divider
-} from 'react-native-paper';
+import { View, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, Text } from 'react-native';
+import { PaperProvider, Surface, Divider, TextInput } from 'react-native-paper';
 import { Theme } from '../constants/colors';
+import { AppHeader, FormInput, FormButton, AppCopyright } from '../components';
 
 // Props type for navigation
 interface OTPScreenProps {
@@ -94,20 +86,11 @@ const OTPScreen: React.FC<OTPScreenProps> = ({ navigation, route }) => {
           keyboardShouldPersistTaps="handled"
         >
           <Surface style={styles.card} elevation={2}>
-            <View style={styles.header}>
-              <View style={styles.brandContainer}>
-                <View style={styles.brandCircle}>
-                  <Avatar.Icon
-                    size={32}
-                    icon="shield-check"
-                    color="white"
-                    style={styles.brandIcon}
-                  />
-                </View>
-                <Text style={styles.brandName}>NovaApp</Text>
-              </View>
-              <Text style={styles.brandTagline}>Verification</Text>
-            </View>
+            <AppHeader
+              title="NovaApp"
+              subtitle="Verification"
+              iconName="shield-check"
+            />
 
             <Divider style={styles.divider} />
 
@@ -118,43 +101,27 @@ const OTPScreen: React.FC<OTPScreenProps> = ({ navigation, route }) => {
               </Text>
               <Text style={styles.emailText}>{email}</Text>
 
-              <View style={styles.otpContainer}>
-                <TextInput
-                  label="Enter 6-digit OTP"
-                  value={otp}
-                  onChangeText={(text) => {
-                    // Only allow numbers and limit to 6 digits
-                    const numericText = text.replace(/[^0-9]/g, '');
-                    if (numericText.length <= 6) {
-                      setOTP(numericText);
-                    }
-                  }}
-                  mode="outlined"
-                  keyboardType="numeric"
-                  maxLength={6}
-                  style={styles.otpInput}
-                  outlineColor="#e5e7eb"
-                  activeOutlineColor={Theme.colors.primary}
-                  left={<TextInput.Icon icon="key" color="#9ca3af" />}
-                />
-                {hasOTPErrors() && (
-                  <HelperText type="error" visible={!!hasOTPErrors()}>
-                    OTP must be exactly 6 digits
-                  </HelperText>
-                )}
-              </View>
+              <FormInput
+                label="Enter 6-digit OTP"
+                value={otp}
+                onChangeText={(text) => {
+                  // Only allow numbers and limit to 6 digits
+                  const numericText = text.replace(/[^0-9]/g, '');
+                  if (numericText.length <= 6) {
+                    setOTP(numericText);
+                  }
+                }}
+                error={hasOTPErrors() ? "OTP must be exactly 6 digits" : undefined}
+                numeric={true}
+                maxLength={6}
+              />
 
-              <Button
-                mode="contained"
+              <FormButton
+                title={loading ? 'Verifying...' : 'Verify OTP'}
                 onPress={handleVerifyOTP}
                 loading={loading}
                 disabled={loading || otp.length !== 6}
-                style={styles.button}
-                labelStyle={styles.buttonLabel}
-                contentStyle={styles.buttonContent}
-              >
-                {loading ? 'Verifying...' : 'Verify OTP'}
-              </Button>
+              />
 
               <View style={styles.resendContainer}>
                 <Text style={styles.resendText}>Didn't receive the code? </Text>
@@ -181,9 +148,7 @@ const OTPScreen: React.FC<OTPScreenProps> = ({ navigation, route }) => {
             </View>
           </Surface>
 
-          <View style={styles.bottomText}>
-            <Text style={styles.copyright}>© 2024 NovaApp. All rights reserved.</Text>
-          </View>
+          <AppCopyright />
         </ScrollView>
       </KeyboardAvoidingView>
     </PaperProvider>
@@ -206,38 +171,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     backgroundColor: '#ffffff',
-  },
-  header: {
-    padding: 32,
-    alignItems: 'center',
-    backgroundColor: '#f9fafb',
-  },
-  brandContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  brandCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#6366f1',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  brandIcon: {
-    backgroundColor: 'transparent',
-  },
-  brandName: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1f2937',
-    marginLeft: 12,
-  },
-  brandTagline: {
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '500',
   },
   divider: {
     height: 1,
@@ -265,29 +198,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     marginBottom: 32,
-  },
-  otpContainer: {
-    marginBottom: 24,
-  },
-  otpInput: {
-    backgroundColor: '#ffffff',
-    fontSize: 18,
-    letterSpacing: 2,
-    textAlign: 'center',
-  },
-  button: {
-    backgroundColor: '#6366f1',
-    borderRadius: 8,
-    marginTop: 8,
-    marginBottom: 24,
-  },
-  buttonLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  buttonContent: {
-    height: 48,
   },
   resendContainer: {
     flexDirection: 'row',
@@ -317,15 +227,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6366f1',
     fontWeight: '500',
-  },
-  bottomText: {
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  copyright: {
-    fontSize: 12,
-    color: '#9ca3af',
   },
 });
 

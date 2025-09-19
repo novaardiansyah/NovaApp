@@ -1,16 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import {
-  PaperProvider,
-  Text,
-  TextInput,
-  Button,
-  HelperText,
-  Surface,
-  Avatar,
-  Divider
-} from 'react-native-paper';
+import { View, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, Text } from 'react-native';
+import { PaperProvider, Surface, Divider } from 'react-native-paper';
 import { Theme } from '../constants/colors';
+import { AppHeader, FormInput, FormButton, AppCopyright } from '../components';
 
 // Props type for navigation
 interface ForgotPasswordScreenProps {
@@ -65,20 +57,11 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
           keyboardShouldPersistTaps="handled"
         >
           <Surface style={styles.card} elevation={2}>
-            <View style={styles.header}>
-              <View style={styles.brandContainer}>
-                <View style={styles.brandCircle}>
-                  <Avatar.Icon
-                    size={32}
-                    icon="lock-reset"
-                    color="white"
-                    style={styles.brandIcon}
-                  />
-                </View>
-                <Text style={styles.brandName}>NovaApp</Text>
-              </View>
-              <Text style={styles.brandTagline}>Reset Password</Text>
-            </View>
+            <AppHeader
+              title="NovaApp"
+              subtitle="Reset Password"
+              iconName="lock-reset"
+            />
 
             <Divider style={styles.divider} />
 
@@ -88,37 +71,19 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
                 Enter your email address and we'll send you a code to reset your password
               </Text>
 
-              <View style={styles.inputContainer}>
-                <TextInput
-                  label="Email address"
-                  value={email}
-                  onChangeText={setEmail}
-                  mode="outlined"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  style={styles.input}
-                  outlineColor="#e5e7eb"
-                  activeOutlineColor={Theme.colors.primary}
-                  left={<TextInput.Icon icon="email-outline" color="#9ca3af" />}
-                />
-                {hasEmailErrors() && (
-                  <HelperText type="error" visible={!!hasEmailErrors()}>
-                    Please enter a valid email address
-                  </HelperText>
-                )}
-              </View>
+              <FormInput
+                label="Email address"
+                value={email}
+                onChangeText={setEmail}
+                error={hasEmailErrors() ? "Please enter a valid email address" : undefined}
+              />
 
-              <Button
-                mode="contained"
+              <FormButton
+                title={loading ? 'Sending OTP...' : 'Send OTP'}
                 onPress={handleSendOTP}
                 loading={loading}
                 disabled={loading}
-                style={styles.button}
-                labelStyle={styles.buttonLabel}
-                contentStyle={styles.buttonContent}
-              >
-                {loading ? 'Sending OTP...' : 'Send OTP'}
-              </Button>
+              />
 
               <View style={styles.footer}>
                 <View style={styles.backContainer}>
@@ -134,9 +99,7 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
             </View>
           </Surface>
 
-          <View style={styles.bottomText}>
-            <Text style={styles.copyright}>© 2024 NovaApp. All rights reserved.</Text>
-          </View>
+          <AppCopyright />
         </ScrollView>
       </KeyboardAvoidingView>
     </PaperProvider>
@@ -160,38 +123,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#ffffff',
   },
-  header: {
-    padding: 32,
-    alignItems: 'center',
-    backgroundColor: '#f9fafb',
-  },
-  brandContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  brandCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#6366f1',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  brandIcon: {
-    backgroundColor: 'transparent',
-  },
-  brandName: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1f2937',
-    marginLeft: 12,
-  },
-  brandTagline: {
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '500',
-  },
   divider: {
     height: 1,
     backgroundColor: '#e5e7eb',
@@ -213,26 +144,6 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     lineHeight: 24,
   },
-  inputContainer: {
-    marginBottom: 16,
-  },
-  input: {
-    backgroundColor: '#ffffff',
-  },
-  button: {
-    backgroundColor: '#6366f1',
-    borderRadius: 8,
-    marginTop: 8,
-    marginBottom: 24,
-  },
-  buttonLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  buttonContent: {
-    height: 48,
-  },
   footer: {
     alignItems: 'center',
   },
@@ -250,15 +161,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6366f1',
     fontWeight: '600',
-  },
-  bottomText: {
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  copyright: {
-    fontSize: 12,
-    color: '#9ca3af',
   },
 });
 
