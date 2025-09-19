@@ -13,37 +13,45 @@ import {
 import { Theme } from '../constants/colors';
 
 // Props type for navigation
-interface LoginScreenProps {
+interface ForgotPasswordScreenProps {
   navigation: any;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [secureTextEntry, setSecureTextEntry] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Email dan password harus diisi');
+  const handleSendOTP = async () => {
+    if (!email) {
+      Alert.alert('Error', 'Email harus diisi');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      Alert.alert('Error', 'Format email tidak valid');
       return;
     }
 
     setLoading(true);
 
-    // Simulasi login - ganti dengan logic yang sebenarnya
+    // Simulasi kirim OTP - ganti dengan logic yang sebenarnya
     setTimeout(() => {
       setLoading(false);
-      Alert.alert('Success', 'Login berhasil!');
+      Alert.alert(
+        'OTP Terkirim',
+        'Kode OTP telah dikirim ke email Anda',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('OTP', { email }),
+          },
+        ]
+      );
     }, 2000);
   };
 
   const hasEmailErrors = () => {
     return email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
-
-  const hasPasswordErrors = () => {
-    return password && password.length < 6;
   };
 
   return (
@@ -62,21 +70,23 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 <View style={styles.brandCircle}>
                   <Avatar.Icon
                     size={32}
-                    icon="account-circle"
+                    icon="lock-reset"
                     color="white"
                     style={styles.brandIcon}
                   />
                 </View>
                 <Text style={styles.brandName}>NovaApp</Text>
               </View>
-              <Text style={styles.brandTagline}>Finance Management</Text>
+              <Text style={styles.brandTagline}>Reset Password</Text>
             </View>
 
             <Divider style={styles.divider} />
 
             <View style={styles.formContainer}>
-              <Text style={styles.title}>Welcome Back</Text>
-              <Text style={styles.subtitle}>Sign in to your account</Text>
+              <Text style={styles.title}>Forgot Password?</Text>
+              <Text style={styles.subtitle}>
+                Enter your email address and we'll send you a code to reset your password
+              </Text>
 
               <View style={styles.inputContainer}>
                 <TextInput
@@ -88,7 +98,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                   autoCapitalize="none"
                   style={styles.input}
                   outlineColor="#e5e7eb"
-                  activeOutlineColor="#6366f1"
+                  activeOutlineColor={Theme.colors.primary}
                   left={<TextInput.Icon icon="email-outline" color="#9ca3af" />}
                 />
                 {hasEmailErrors() && (
@@ -98,58 +108,26 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 )}
               </View>
 
-              <View style={styles.inputContainer}>
-                <TextInput
-                  label="Password"
-                  value={password}
-                  onChangeText={setPassword}
-                  mode="outlined"
-                  secureTextEntry={secureTextEntry}
-                  style={styles.input}
-                  outlineColor="#e5e7eb"
-                  activeOutlineColor="#6366f1"
-                  left={<TextInput.Icon icon="lock-outline" color="#9ca3af" />}
-                  right={
-                    <TextInput.Icon
-                      icon={secureTextEntry ? "eye-outline" : "eye-off-outline"}
-                      onPress={() => setSecureTextEntry(!secureTextEntry)}
-                      color="#9ca3af"
-                    />
-                  }
-                />
-                {hasPasswordErrors() && (
-                  <HelperText type="error" visible={!!hasPasswordErrors()}>
-                    Password must be at least 6 characters
-                  </HelperText>
-                )}
-              </View>
-
               <Button
                 mode="contained"
-                onPress={handleLogin}
+                onPress={handleSendOTP}
                 loading={loading}
                 disabled={loading}
                 style={styles.button}
                 labelStyle={styles.buttonLabel}
                 contentStyle={styles.buttonContent}
               >
-                {loading ? 'Signing in...' : 'Sign in'}
+                {loading ? 'Sending OTP...' : 'Send OTP'}
               </Button>
 
               <View style={styles.footer}>
-                <Text
-                  style={styles.forgotPassword}
-                  onPress={() => navigation.navigate('ForgotPassword')}
-                >
-                  Forgot your password?
-                </Text>
-                <View style={styles.signupContainer}>
-                  <Text style={styles.signupText}>Don't have an account? </Text>
+                <View style={styles.backContainer}>
+                  <Text style={styles.backText}>Remember your password? </Text>
                   <Text
-                    style={styles.signupLink}
-                    onPress={() => navigation.navigate('Signup')}
+                    style={styles.backLink}
+                    onPress={() => navigation.goBack()}
                   >
-                    Sign up
+                    Back to Login
                   </Text>
                 </View>
               </View>
@@ -233,6 +211,7 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     textAlign: 'center',
     marginBottom: 32,
+    lineHeight: 24,
   },
   inputContainer: {
     marginBottom: 16,
@@ -257,21 +236,17 @@ const styles = StyleSheet.create({
   footer: {
     alignItems: 'center',
   },
-  forgotPassword: {
-    color: '#6366f1',
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 16,
-  },
-  signupContainer: {
+  backContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
   },
-  signupText: {
+  backText: {
     fontSize: 14,
     color: '#6b7280',
   },
-  signupLink: {
+  backLink: {
     fontSize: 14,
     color: '#6366f1',
     fontWeight: '600',
@@ -287,4 +262,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default ForgotPasswordScreen;
