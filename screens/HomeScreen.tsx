@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Text, Alert, RefreshControl } from 'react-native';
-import { PaperProvider, Surface, Divider, Button, Avatar, List } from 'react-native-paper';
+import { PaperProvider, Button, Avatar, List } from 'react-native-paper';
 import { Theme } from '@/constants/colors';
-import { AppHeader, AppCopyright } from '@/components';
+import { AppCopyright } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface HomeScreenProps {
@@ -66,76 +66,63 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
         >
-          <Surface style={styles.card} elevation={2}>
-            <AppHeader
-              subtitle="Welcome to NovaApp"
-              iconName="home"
+          {/* Profile Section */}
+          <View style={styles.profileSection}>
+            <Avatar.Icon size={64} icon="account" style={styles.avatar} />
+            <View style={styles.profileInfo}>
+              <Text style={styles.userName}>{user?.name || 'User'}</Text>
+              <Text style={styles.userEmail}>{user?.email || ''}</Text>
+              <Text style={styles.userId}>ID: {user?.id || ''}</Text>
+            </View>
+          </View>
+
+          {/* User Info */}
+          <View style={styles.infoSection}>
+            <List.Item
+              title="Token Status"
+              description={token ? 'Active' : 'Inactive'}
+              left={props => <List.Icon {...props} icon="key" />}
+              right={props => (
+                <View style={[styles.statusDot, token ? styles.active : styles.inactive]} />
+              )}
             />
 
-            <Divider style={styles.divider} />
+            <List.Item
+              title="Account ID"
+              description={user?.id?.toString() || 'N/A'}
+              left={props => <List.Icon {...props} icon="identifier" />}
+            />
 
-            {/* Profile Section */}
-            <View style={styles.profileSection}>
-              <Avatar.Icon size={80} icon="account" style={styles.avatar} />
-              <View style={styles.profileInfo}>
-                <Text style={styles.userName}>{user?.name || 'User'}</Text>
-                <Text style={styles.userEmail}>{user?.email || ''}</Text>
-                <Text style={styles.userId}>ID: {user?.id || ''}</Text>
-              </View>
-            </View>
+            <List.Item
+              title="Email"
+              description={user?.email || 'N/A'}
+              left={props => <List.Icon {...props} icon="email" />}
+            />
+          </View>
 
-            <Divider style={styles.divider} />
+          {/* Actions */}
+          <View style={styles.actionsSection}>
+            <Button
+              mode="outlined"
+              icon="refresh"
+              onPress={handleRefresh}
+              style={styles.actionButton}
+              loading={refreshing}
+              disabled={refreshing}
+            >
+              Refresh Profile
+            </Button>
 
-            {/* User Info */}
-            <View style={styles.infoSection}>
-              <List.Item
-                title="Token Status"
-                description={token ? 'Active' : 'Inactive'}
-                left={props => <List.Icon {...props} icon="key" />}
-                right={props => (
-                  <View style={[styles.statusDot, token ? styles.active : styles.inactive]} />
-                )}
-              />
-
-              <List.Item
-                title="Account ID"
-                description={user?.id?.toString() || 'N/A'}
-                left={props => <List.Icon {...props} icon="identifier" />}
-              />
-
-              <List.Item
-                title="Email"
-                description={user?.email || 'N/A'}
-                left={props => <List.Icon {...props} icon="email" />}
-              />
-            </View>
-
-            <Divider style={styles.divider} />
-
-            {/* Actions */}
-            <View style={styles.actionsSection}>
-              <Button
-                mode="outlined"
-                icon="refresh"
-                onPress={handleRefresh}
-                style={styles.actionButton}
-                loading={refreshing}
-                disabled={refreshing}
-              >
-                Refresh Profile
-              </Button>
-
-              <Button
-                mode="contained"
-                icon="logout"
-                onPress={handleLogout}
-                style={styles.logoutButton}
-                buttonColor={Theme.colors.error}
-              >
-                Logout
-              </Button>
-            </View>
-          </Surface>
+            <Button
+              mode="contained"
+              icon="logout"
+              onPress={handleLogout}
+              style={styles.logoutButton}
+              buttonColor="#ef4444"
+            >
+              Logout
+            </Button>
+          </View>
 
           <AppCopyright />
         </ScrollView>
@@ -155,19 +142,12 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     minHeight: '100%',
   },
-  card: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    backgroundColor: '#ffffff',
-    marginBottom: 24,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#e5e7eb',
-  },
   profileSection: {
     padding: 32,
     alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    marginBottom: 16,
   },
   avatar: {
     backgroundColor: '#6366f1',
@@ -194,6 +174,9 @@ const styles = StyleSheet.create({
   },
   infoSection: {
     paddingVertical: 8,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    marginBottom: 16,
   },
   statusDot: {
     width: 12,
@@ -208,8 +191,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#ef4444',
   },
   actionsSection: {
-    padding: 32,
+    padding: 24,
     gap: 12,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    marginBottom: 16,
   },
   actionButton: {
     marginBottom: 8,
