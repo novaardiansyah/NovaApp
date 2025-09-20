@@ -61,7 +61,7 @@ Get a glimpse of NovaApp's enchanting world by exploring the key features and im
 
 ```
 NovaApp/
-├── components/          # Reusable UI components
+├── components/         # Reusable UI components
 ├── contexts/           # React contexts (Auth, etc.)
 ├── navigation/         # Navigation setup
 ├── screens/            # App screens
