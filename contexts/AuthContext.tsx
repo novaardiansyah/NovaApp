@@ -82,7 +82,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setToken(token);
 
           // Fetch user data with the token
-          const userFetched = await fetchUser();
+          const userFetched = await fetchUser(token);
           return userFetched;
         }
       }
@@ -93,13 +93,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const fetchUser = async (): Promise<boolean> => {
-    if (!token) return false;
+  const fetchUser = async (currentToken?: string | null): Promise<boolean> => {
+    const tokenToUse = currentToken || token;
+    if (!tokenToUse) return false;
 
     try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${tokenToUse}`,
+      };
+
       const response = await fetch(`${APP_CONFIG.API_BASE_URL}/user`, {
         method: 'GET',
-        headers: getAuthHeader(),
+        headers,
       });
 
       const data = await response.json();

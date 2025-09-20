@@ -26,7 +26,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
     if (success) {
       Alert.alert('Success', 'Login berhasil!');
-      // TODO: Navigate to home screen
+      // Navigation will be handled automatically by RootNavigator
     } else {
       Alert.alert('Error', 'Login gagal. Periksa email dan password Anda.');
     }
@@ -38,6 +38,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
   const hasPasswordErrors = () => {
     return password && password.length < 6;
+  };
+
+  const isFormValid = () => {
+    return email && password && !hasEmailErrors() && !hasPasswordErrors();
   };
 
   return (
@@ -87,7 +91,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               <FormButton
                 title="Sign in"
                 onPress={handleLogin}
-                disabled={Boolean(!email || !password || hasEmailErrors() || hasPasswordErrors())}
+                disabled={!isFormValid()}
               />
 
               <View style={styles.footer}>
