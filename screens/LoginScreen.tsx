@@ -14,6 +14,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [secureTextEntry, setSecureTextEntry] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
   const handleLogin = async () => {
@@ -22,13 +23,21 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       return;
     }
 
-    const success = await login(email, password);
+    setLoading(true);
 
-    if (success) {
-      Alert.alert('Success', 'Login berhasil!');
-      // Navigation will be handled automatically by RootNavigator
-    } else {
-      Alert.alert('Error', 'Login gagal. Periksa email dan password Anda.');
+    try {
+      const success = await login(email, password);
+
+      if (success) {
+        Alert.alert('Success', 'Login berhasil!');
+        // Navigation will be handled automatically by RootNavigator
+      } else {
+        Alert.alert('Error', 'Login gagal. Periksa email dan password Anda.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Terjadi kesalahan. Silakan coba lagi.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,10 +47,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
   const hasPasswordErrors = () => {
     return password && password.length < 6;
-  };
-
-  const isFormValid = () => {
-    return email && password && !hasEmailErrors() && !hasPasswordErrors();
   };
 
   return (
@@ -89,9 +94,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               />
 
               <FormButton
-                title="Sign in"
+                title={loading ? 'Signing in...' : 'Sign in'}
                 onPress={handleLogin}
-                disabled={!isFormValid()}
+                loading={loading}
               />
 
               <View style={styles.footer}>

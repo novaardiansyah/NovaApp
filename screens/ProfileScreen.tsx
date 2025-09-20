@@ -108,7 +108,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 title="Change Password"
                 description="Update your password"
                 left={props => <List.Icon {...props} icon="lock-reset" />}
-                onPress={() => navigation.navigate('ResetPassword')}
+                onPress={() => Alert.alert('Info', 'Change password feature coming soon!')}
               />
 
               <List.Item
