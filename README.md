@@ -36,6 +36,8 @@ Need to chat? Feel free to drop me a line via [Email](mailto:novaardiansyah78@gm
 
 Get a glimpse of NovaApp's enchanting world by exploring the key features and implementation:
 
+<img src="./assets/preview-1.png" width="500" />
+
 ### 🔐 Authentication System
 - Secure login with Laravel Sanctum
 - Token-based authentication
