@@ -16,6 +16,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   isAuthenticated: boolean;
   getAuthHeader: () => { Authorization: string } | {};
+  fetchUser: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -74,20 +75,45 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const responseJson = await response.json();
 
       if (response.ok) {
-        const token = responseJson.data?.token || null
-        const userData = responseJson.data?.user || null
+        const token = responseJson.data?.token || null;
 
-        await AsyncStorage.setItem('auth_token', token);
-        await AsyncStorage.setItem('auth_user', JSON.stringify(userData));
+        if (token) {
+          await AsyncStorage.setItem('auth_token', token);
+          setToken(token);
 
-        setToken(token);
-        setUser(userData);
-
-        return true;
+          // Fetch user data with the token
+          const userFetched = await fetchUser();
+          return userFetched;
+        }
       }
       return false;
     } catch (error) {
       console.error('Login error:', error);
+      return false;
+    }
+  };
+
+  const fetchUser = async (): Promise<boolean> => {
+    if (!token) return false;
+
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/user`, {
+        method: 'GET',
+        headers: getAuthHeader(),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const userData = data.data || data;
+
+        await AsyncStorage.setItem('auth_user', JSON.stringify(userData));
+        setUser(userData);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Fetch user error:', error);
       return false;
     }
   };
@@ -104,7 +130,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const getAuthHeader = () => {
-    return token ? { Authorization: `Bearer ${token}` } : {};
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return headers;
   };
 
   const value: AuthContextType = {
@@ -115,6 +150,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     isAuthenticated: !!token,
     getAuthHeader,
+    fetchUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
