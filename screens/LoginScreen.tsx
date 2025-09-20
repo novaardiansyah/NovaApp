@@ -3,6 +3,7 @@ import { View, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, Te
 import { PaperProvider, Surface, Divider, TextInput } from 'react-native-paper';
 import { Theme } from '@/constants/colors';
 import { AppHeader, FormInput, FormButton, AppCopyright } from '@/components';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Props type for navigation
 interface LoginScreenProps {
@@ -13,7 +14,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [secureTextEntry, setSecureTextEntry] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -21,13 +22,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       return;
     }
 
-    setLoading(true);
+    const success = await login(email, password);
 
-    // Simulasi login - ganti dengan logic yang sebenarnya
-    setTimeout(() => {
-      setLoading(false);
+    if (success) {
       Alert.alert('Success', 'Login berhasil!');
-    }, 2000);
+      // TODO: Navigate to home screen
+    } else {
+      Alert.alert('Error', 'Login gagal. Periksa email dan password Anda.');
+    }
   };
 
   const hasEmailErrors = () => {
@@ -83,10 +85,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               />
 
               <FormButton
-                title={loading ? 'Signing in...' : 'Sign in'}
+                title="Sign in"
                 onPress={handleLogin}
-                loading={loading}
-                disabled={loading}
+                disabled={Boolean(!email || !password || hasEmailErrors() || hasPasswordErrors())}
               />
 
               <View style={styles.footer}>
