@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Text, Alert, RefreshControl } from 'react-native';
-import { PaperProvider, Button, Avatar, List } from 'react-native-paper';
+import { PaperProvider, Button, Avatar, Card } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { AppCopyright } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,6 +13,22 @@ interface HomeScreenProps {
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { user, token, logout, fetchUser, isAuthenticated } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
+
+  // Sample financial data
+  const financialData = {
+    totalBalance: 12500000,
+    income: 8500000,
+    expenses: 3200000,
+    savings: 4500000,
+  };
+
+  const recentTransactions = [
+    { id: 1, title: 'Salary', amount: 8500000, type: 'income', date: '2024-01-15', category: 'Income' },
+    { id: 2, title: 'Grocery Shopping', amount: -450000, type: 'expense', date: '2024-01-14', category: 'Food' },
+    { id: 3, title: 'Electric Bill', amount: -280000, type: 'expense', date: '2024-01-13', category: 'Utilities' },
+    { id: 4, title: 'Freelance Project', amount: 2500000, type: 'income', date: '2024-01-12', category: 'Work' },
+    { id: 5, title: 'Transportation', amount: -150000, type: 'expense', date: '2024-01-11', category: 'Transport' },
+  ];
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -57,6 +74,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     );
   }
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
   return (
     <PaperProvider theme={Theme}>
       <View style={styles.container}>
@@ -66,62 +91,101 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
         >
-          {/* Profile Section */}
-          <View style={styles.profileSection}>
-            <Avatar.Icon size={64} icon="account" style={styles.avatar} />
-            <View style={styles.profileInfo}>
+          {/* Welcome Header */}
+          <View style={styles.welcomeSection}>
+            <View>
+              <Text style={styles.welcomeText}>Welcome back,</Text>
               <Text style={styles.userName}>{user?.name || 'User'}</Text>
-              <Text style={styles.userEmail}>{user?.email || ''}</Text>
-              <Text style={styles.userId}>ID: {user?.id || ''}</Text>
+            </View>
+            <Avatar.Icon size={48} icon="account" style={styles.avatar} />
+          </View>
+
+          {/* Balance Card */}
+          <Card style={styles.balanceCard}>
+            <Card.Content>
+              <Text style={styles.balanceLabel}>Total Balance</Text>
+              <Text style={styles.balanceAmount}>{formatCurrency(financialData.totalBalance)}</Text>
+              <View style={styles.balanceRow}>
+                <View style={styles.balanceItem}>
+                  <Text style={styles.incomeText}>{formatCurrency(financialData.income)}</Text>
+                  <Text style={styles.balanceItemLabel}>Income</Text>
+                </View>
+                <View style={styles.balanceItem}>
+                  <Text style={styles.expenseText}>{formatCurrency(financialData.expenses)}</Text>
+                  <Text style={styles.balanceItemLabel}>Expenses</Text>
+                </View>
+              </View>
+            </Card.Content>
+          </Card>
+
+          {/* Quick Actions */}
+          <View style={styles.quickActionsSection}>
+            <Text style={styles.sectionTitle}>Quick Actions</Text>
+            <View style={styles.quickActionsGrid}>
+              <Card style={styles.actionCard} onPress={() => Alert.alert('Info', 'Add Transaction feature coming soon!')}>
+                <Card.Content style={styles.actionCardContent}>
+                  <Ionicons name="add-circle" size={24} color="#6366f1" />
+                  <Text style={styles.actionText}>Add</Text>
+                </Card.Content>
+              </Card>
+
+              <Card style={styles.actionCard} onPress={() => Alert.alert('Info', 'Transfer feature coming soon!')}>
+                <Card.Content style={styles.actionCardContent}>
+                  <Ionicons name="swap-horizontal" size={24} color="#6366f1" />
+                  <Text style={styles.actionText}>Transfer</Text>
+                </Card.Content>
+              </Card>
+
+              <Card style={styles.actionCard} onPress={() => Alert.alert('Info', 'Reports feature coming soon!')}>
+                <Card.Content style={styles.actionCardContent}>
+                  <Ionicons name="bar-chart" size={24} color="#6366f1" />
+                  <Text style={styles.actionText}>Reports</Text>
+                </Card.Content>
+              </Card>
+
+              <Card style={styles.actionCard} onPress={() => Alert.alert('Info', 'Budget feature coming soon!')}>
+                <Card.Content style={styles.actionCardContent}>
+                  <Ionicons name="wallet" size={24} color="#6366f1" />
+                  <Text style={styles.actionText}>Budget</Text>
+                </Card.Content>
+              </Card>
             </View>
           </View>
 
-          {/* User Info */}
-          <View style={styles.infoSection}>
-            <List.Item
-              title="Token Status"
-              description={token ? 'Active' : 'Inactive'}
-              left={props => <List.Icon {...props} icon="key" />}
-              right={props => (
-                <View style={[styles.statusDot, token ? styles.active : styles.inactive]} />
-              )}
-            />
-
-            <List.Item
-              title="Account ID"
-              description={user?.id?.toString() || 'N/A'}
-              left={props => <List.Icon {...props} icon="identifier" />}
-            />
-
-            <List.Item
-              title="Email"
-              description={user?.email || 'N/A'}
-              left={props => <List.Icon {...props} icon="email" />}
-            />
-          </View>
-
-          {/* Actions */}
-          <View style={styles.actionsSection}>
-            <Button
-              mode="outlined"
-              icon="refresh"
-              onPress={handleRefresh}
-              style={styles.actionButton}
-              loading={refreshing}
-              disabled={refreshing}
-            >
-              Refresh Profile
-            </Button>
-
-            <Button
-              mode="contained"
-              icon="logout"
-              onPress={handleLogout}
-              style={styles.logoutButton}
-              buttonColor="#ef4444"
-            >
-              Logout
-            </Button>
+          {/* Recent Transactions */}
+          <View style={styles.transactionsSection}>
+            <View style={styles.transactionsHeader}>
+              <Text style={styles.sectionTitle}>Recent Transactions</Text>
+              <Text style={styles.seeAllText}>See all</Text>
+            </View>
+            <Card style={styles.transactionsCard}>
+              {recentTransactions.map((transaction) => (
+                <View key={transaction.id} style={styles.transactionItem}>
+                  <View style={styles.transactionLeft}>
+                    <View style={[
+                      styles.transactionIcon,
+                      { backgroundColor: transaction.type === 'income' ? '#10b981' : '#ef4444' }
+                    ]}>
+                      <Ionicons
+                        name={transaction.type === 'income' ? 'arrow-down' : 'arrow-up'}
+                        size={16}
+                        color="white"
+                      />
+                    </View>
+                    <View style={styles.transactionInfo}>
+                      <Text style={styles.transactionTitle}>{transaction.title}</Text>
+                      <Text style={styles.transactionDate}>{transaction.date}</Text>
+                    </View>
+                  </View>
+                  <Text style={[
+                    styles.transactionAmount,
+                    { color: transaction.type === 'income' ? '#10b981' : '#ef4444' }
+                  ]}>
+                    {formatCurrency(transaction.amount)}
+                  </Text>
+                </View>
+              ))}
+            </Card>
           </View>
 
           <AppCopyright />
@@ -142,66 +206,149 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     minHeight: '100%',
   },
-  profileSection: {
-    padding: 32,
+  welcomeSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    marginBottom: 16,
+    marginBottom: 24,
   },
-  avatar: {
-    backgroundColor: '#6366f1',
-    marginBottom: 16,
-  },
-  profileInfo: {
-    alignItems: 'center',
+  welcomeText: {
+    fontSize: 16,
+    color: '#6b7280',
+    marginBottom: 4,
   },
   userName: {
     fontSize: 24,
     fontWeight: '700',
     color: '#1f2937',
+  },
+  avatar: {
+    backgroundColor: '#6366f1',
+  },
+  balanceCard: {
+    marginBottom: 24,
+    borderRadius: 16,
+    backgroundColor: '#6366f1',
+  },
+  balanceLabel: {
+    fontSize: 14,
+    color: '#e5e7eb',
+    marginBottom: 8,
+  },
+  balanceAmount: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#ffffff',
+    marginBottom: 16,
+  },
+  balanceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  balanceItem: {
+    flex: 1,
+  },
+  incomeText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#dcfce7',
     marginBottom: 4,
   },
-  userEmail: {
+  expenseText: {
     fontSize: 16,
-    color: '#6b7280',
-    marginBottom: 2,
+    fontWeight: '600',
+    color: '#fee2e2',
+    marginBottom: 4,
   },
-  userId: {
-    fontSize: 14,
+  balanceItemLabel: {
+    fontSize: 12,
     color: '#9ca3af',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 16,
+  },
+  quickActionsSection: {
+    marginBottom: 24,
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  actionCard: {
+    width: '48%',
+    borderRadius: 12,
+    backgroundColor: '#ffffff',
+  },
+  actionCardContent: {
+    alignItems: 'center',
+    paddingVertical: 16,
+  },
+  actionText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#1f2937',
+    marginTop: 8,
+  },
+  transactionsSection: {
+    marginBottom: 24,
+  },
+  transactionsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  seeAllText: {
+    fontSize: 14,
+    color: '#6366f1',
     fontWeight: '500',
   },
-  infoSection: {
-    paddingVertical: 8,
-    backgroundColor: '#ffffff',
+  transactionsCard: {
     borderRadius: 16,
-    marginBottom: 16,
-  },
-  statusDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginTop: 16,
-  },
-  active: {
-    backgroundColor: '#10b981',
-  },
-  inactive: {
-    backgroundColor: '#ef4444',
-  },
-  actionsSection: {
-    padding: 24,
-    gap: 12,
     backgroundColor: '#ffffff',
-    borderRadius: 16,
-    marginBottom: 16,
   },
-  actionButton: {
-    marginBottom: 8,
+  transactionItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
   },
-  logoutButton: {
-    marginBottom: 8,
+  transactionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  transactionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  transactionInfo: {
+    flex: 1,
+  },
+  transactionTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#1f2937',
+    marginBottom: 2,
+  },
+  transactionDate: {
+    fontSize: 12,
+    color: '#9ca3af',
+  },
+  transactionAmount: {
+    fontSize: 16,
+    fontWeight: '600',
   },
   loginButton: {
     marginTop: 16,
