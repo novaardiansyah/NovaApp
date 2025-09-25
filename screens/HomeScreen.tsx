@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Text, Alert, RefreshControl } from 'react-native';
 import { PaperProvider, Button, Avatar, Card } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Theme } from '@/constants/colors';
 import { AppCopyright } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
@@ -102,20 +103,27 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
           {/* Balance Card */}
           <Card style={styles.balanceCard}>
-            <Card.Content>
-              <Text style={styles.balanceLabel}>Total Balance</Text>
-              <Text style={styles.balanceAmount}>{formatCurrency(financialData.totalBalance)}</Text>
-              <View style={styles.balanceRow}>
-                <View style={styles.balanceItem}>
-                  <Text style={styles.incomeText}>{formatCurrency(financialData.income)}</Text>
-                  <Text style={styles.balanceItemLabel}>Income</Text>
+            <LinearGradient
+              colors={['#4338ca', '#6366f1']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.gradientBackground}
+            >
+              <Card.Content style={styles.balanceCardContent}>
+                <Text style={styles.balanceLabel}>Total Balance</Text>
+                <Text style={styles.balanceAmount}>{formatCurrency(financialData.totalBalance)}</Text>
+                <View style={styles.balanceRow}>
+                  <View style={styles.balanceItem}>
+                    <Text style={styles.incomeText}>{formatCurrency(financialData.income)}</Text>
+                    <Text style={styles.balanceItemLabel}>Income</Text>
+                  </View>
+                  <View style={styles.balanceItem}>
+                    <Text style={styles.expenseText}>{formatCurrency(financialData.expenses)}</Text>
+                    <Text style={styles.balanceItemLabel}>Expenses</Text>
+                  </View>
                 </View>
-                <View style={styles.balanceItem}>
-                  <Text style={styles.expenseText}>{formatCurrency(financialData.expenses)}</Text>
-                  <Text style={styles.balanceItemLabel}>Expenses</Text>
-                </View>
-              </View>
-            </Card.Content>
+              </Card.Content>
+            </LinearGradient>
           </Card>
 
           {/* Quick Actions */}
@@ -173,7 +181,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                       />
                     </View>
                     <View style={styles.transactionInfo}>
-                      <Text style={styles.transactionTitle}>{transaction.title}</Text>
+                      <Text style={styles.transactionTitle} numberOfLines={1} ellipsizeMode="tail">{transaction.title}</Text>
                       <Text style={styles.transactionDate}>{transaction.date}</Text>
                     </View>
                   </View>
@@ -228,11 +236,26 @@ const styles = StyleSheet.create({
   balanceCard: {
     marginBottom: 24,
     borderRadius: 16,
-    backgroundColor: '#6366f1',
+    backgroundColor: 'transparent',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  gradientBackground: {
+    borderRadius: 16,
+    padding: 0,
+  },
+  balanceCardContent: {
+    padding: 16,
   },
   balanceLabel: {
     fontSize: 14,
-    color: '#e5e7eb',
+    color: '#ffffff',
     marginBottom: 8,
   },
   balanceAmount: {
@@ -251,7 +274,7 @@ const styles = StyleSheet.create({
   incomeText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#dcfce7',
+    color: '#d1fae5',
     marginBottom: 4,
   },
   expenseText: {
@@ -324,6 +347,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    marginRight: 16,
   },
   transactionIcon: {
     width: 40,

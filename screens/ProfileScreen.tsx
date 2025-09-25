@@ -49,7 +49,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             <View style={styles.profileInfo}>
               <Text style={styles.userName}>{user?.name || 'User'}</Text>
               <Text style={styles.userEmail}>{user?.email || ''}</Text>
-              <Text style={styles.userId}>ID: {user?.id || ''}</Text>
+              <Text style={styles.userId}>ID: {user?.code || ''}</Text>
             </View>
           </View>
 
