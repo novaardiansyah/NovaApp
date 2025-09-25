@@ -6,6 +6,8 @@ interface User {
   id: number;
   name: string;
   email: string;
+  avatar_url?: string;
+  code?: string;
 }
 
 interface AuthContextType {
@@ -18,6 +20,7 @@ interface AuthContextType {
   getAuthHeader: () => { Authorization: string } | {};
   fetchUser: () => Promise<boolean>;
   updateToken: (newToken: string) => Promise<void>;
+  updateUser: (userData: { name?: string; email?: string; avatar_base64?: string }) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -53,7 +56,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(JSON.parse(storedUser));
       }
     } catch (error) {
-      console.error('Error loading stored auth:', error);
+      // Silent error handling
     } finally {
       setLoading(false);
     }
@@ -89,7 +92,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       return false;
     } catch (error) {
-      console.error('Login error:', error);
       return false;
     }
   };
@@ -121,7 +123,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       return false;
     } catch (error) {
-      console.error('Fetch user error:', error);
       return false;
     }
   };
@@ -133,7 +134,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setToken(null);
       setUser(null);
     } catch (error) {
-      console.error('Logout error:', error);
+      // Silent error handling
     }
   };
 
@@ -142,7 +143,53 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await AsyncStorage.setItem('auth_token', newToken);
       setToken(newToken);
     } catch (error) {
-      console.error('Update token error:', error);
+      // Silent error handling
+    }
+  };
+
+  const updateUser = async (userData: { name?: string; email?: string; avatar_base64?: string }): Promise<boolean> => {
+    if (!token) {
+      return false;
+    }
+
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      };
+
+      // Build request body with Base64 support
+      const requestBody: any = {};
+
+      if (userData.name) requestBody.name = userData.name;
+      if (userData.email) requestBody.email = userData.email;
+      if (userData.avatar_base64) requestBody.avatar_base64 = userData.avatar_base64;
+
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/profile`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify(requestBody),
+      });
+
+      // Check if response is OK before parsing JSON
+      if (!response.ok) {
+        return false;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update local user data with the response data
+        const updatedUser = data.data.user;
+        await AsyncStorage.setItem('auth_user', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      return false;
     }
   };
 
@@ -169,6 +216,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     getAuthHeader,
     fetchUser,
     updateToken,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

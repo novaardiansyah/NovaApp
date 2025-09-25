@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert, Linking, Text } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Linking, Text, Image } from 'react-native';
 import { PaperProvider, Button, List, Avatar, Switch } from 'react-native-paper';
 import { Theme } from '@/constants/colors';
 import { AppCopyright } from '@/components';
@@ -45,7 +45,14 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           {/* Profile Info */}
           <View style={styles.profileSection}>
-            <Avatar.Icon size={64} icon="account" style={styles.avatar} />
+            {user?.avatar_url ? (
+              <Image
+                source={{ uri: user.avatar_url }}
+                style={styles.avatarImage}
+              />
+            ) : (
+              <Avatar.Icon size={64} icon="account" style={styles.avatar} />
+            )}
             <View style={styles.profileInfo}>
               <Text style={styles.userName}>{user?.name || 'User'}</Text>
               <Text style={styles.userEmail}>{user?.email || ''}</Text>
@@ -96,6 +103,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
             <List.Section>
               <List.Subheader>Account</List.Subheader>
+
+              <List.Item
+                title="Edit Profile"
+                description="Update your profile information"
+                left={props => <List.Icon {...props} icon="account-edit" />}
+                onPress={() => navigation.navigate('UpdateProfile')}
+              />
 
               <List.Item
                 title="Refresh Profile"
@@ -181,6 +195,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#ffffff',
     borderRadius: 16,
+    marginBottom: 16,
+  },
+  avatarImage: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     marginBottom: 16,
   },
   avatar: {

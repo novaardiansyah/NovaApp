@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HomeScreen from '@/screens/HomeScreen';
 import ProfileScreen from '@/screens/ProfileScreen';
 import ChangePasswordScreen from '@/screens/ChangePasswordScreen';
+import UpdateProfileScreen from '@/screens/UpdateProfileScreen';
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
@@ -17,6 +18,11 @@ const ProfileStackNavigator = () => {
         name="ProfileMain"
         component={ProfileScreen}
         options={{ title: 'Profile' }}
+      />
+      <ProfileStack.Screen
+        name="UpdateProfile"
+        component={UpdateProfileScreen}
+        options={{ title: 'Update Profile' }}
       />
       <ProfileStack.Screen
         name="ChangePassword"
