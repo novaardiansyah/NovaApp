@@ -18,6 +18,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const { login } = useAuth();
 
   const handleLogin = async () => {
+    if (loading) return; // Prevent multiple clicks
     if (!email || !password) {
       Alert.alert('Error', 'Email dan password harus diisi');
       return;

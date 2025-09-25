@@ -17,6 +17,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   getAuthHeader: () => { Authorization: string } | {};
   fetchUser: () => Promise<boolean>;
+  updateToken: (newToken: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -136,6 +137,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const updateToken = async (newToken: string) => {
+    try {
+      await AsyncStorage.setItem('auth_token', newToken);
+      setToken(newToken);
+    } catch (error) {
+      console.error('Update token error:', error);
+    }
+  };
+
   const getAuthHeader = () => {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -158,6 +168,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated: !!token,
     getAuthHeader,
     fetchUser,
+    updateToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

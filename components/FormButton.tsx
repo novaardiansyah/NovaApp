@@ -63,13 +63,6 @@ const FormButton: React.FC<FormButtonProps> = ({
     return contentStyle;
   };
 
-  const getDisabledStyle = () => {
-    if (disabled) {
-      return styles.disabledButton;
-    }
-    return {};
-  };
-
   const buttonStyle = { ...getButtonStyle() };
   if (disabled) {
     Object.assign(buttonStyle, styles.disabledButton);
@@ -80,11 +73,11 @@ const FormButton: React.FC<FormButtonProps> = ({
       mode={variant === 'outline' ? 'outlined' : 'contained'}
       onPress={onPress}
       loading={loading}
-      disabled={disabled || loading}
+      disabled={disabled}
       style={buttonStyle}
       labelStyle={getLabelStyle()}
       contentStyle={getContentStyle()}
-      icon={icon}
+      icon={loading ? undefined : icon}
     >
       {loading ? 'Loading...' : title}
     </Button>

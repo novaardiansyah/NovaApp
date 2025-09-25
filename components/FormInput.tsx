@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, HelperText, TextInputProps } from 'react-native-paper';
 import { Colors } from '@/constants/colors';
@@ -11,6 +11,7 @@ interface FormInputProps extends Omit<TextInputProps, 'mode' | 'outlineColor' | 
   required?: boolean;
   numeric?: boolean;
   maxLength?: number;
+  leftIcon?: string;
 }
 
 const FormInput: React.FC<FormInputProps> = ({
@@ -21,12 +22,14 @@ const FormInput: React.FC<FormInputProps> = ({
   required = false,
   numeric = false,
   maxLength,
+  leftIcon,
   left,
   right,
   secureTextEntry,
   keyboardType,
   autoCapitalize,
 }) => {
+  const [showPassword, setShowPassword] = useState(false);
   const handleChangeText = (text: string) => {
     if (numeric) {
       // Only allow numbers
@@ -59,6 +62,9 @@ const FormInput: React.FC<FormInputProps> = ({
 
   const getLeftIcon = () => {
     if (left) return left;
+    if (leftIcon) {
+      return <TextInput.Icon icon={leftIcon} color={Colors.text.tertiary} />;
+    }
 
     // Default icons based on label
     if (label.toLowerCase().includes('email')) {
@@ -76,6 +82,22 @@ const FormInput: React.FC<FormInputProps> = ({
     return undefined;
   };
 
+  const getRightIcon = () => {
+    if (right) return right;
+
+    // Show/hide password icon for password fields
+    if (secureTextEntry) {
+      return (
+        <TextInput.Icon
+          icon={showPassword ? "eye-off" : "eye"}
+          onPress={() => setShowPassword(!showPassword)}
+          color={Colors.text.tertiary}
+        />
+      );
+    }
+    return undefined;
+  };
+
   return (
     <View style={styles.container}>
       <TextInput
@@ -87,9 +109,9 @@ const FormInput: React.FC<FormInputProps> = ({
         activeOutlineColor={Colors.primary}
         keyboardType={getKeyboardType()}
         autoCapitalize={getAutoCapitalize()}
-        secureTextEntry={secureTextEntry}
+        secureTextEntry={secureTextEntry && !showPassword}
         left={getLeftIcon()}
-        right={right}
+        right={getRightIcon()}
         style={styles.input}
         maxLength={maxLength}
       />
