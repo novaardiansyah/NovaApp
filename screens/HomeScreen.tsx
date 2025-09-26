@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Text, Alert, RefreshControl } from 'react-native';
 import { PaperProvider, Button, Avatar, Card } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,28 +12,43 @@ interface HomeScreenProps {
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-  const { user, token, logout, fetchUser, isAuthenticated } = useAuth();
+  const { user, token, logout, fetchUser, isAuthenticated, fetchFinancialData, fetchRecentTransactions } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
+  const [financialData, setFinancialData] = useState<any>(null);
+  const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // Sample financial data
-  const financialData = {
-    totalBalance: 12500000,
-    income: 8500000,
-    expenses: 3200000,
-    savings: 4500000,
+  const loadFinancialData = async () => {
+    if (!isAuthenticated) return;
+
+    setLoading(true);
+    try {
+      const [financial, transactions] = await Promise.all([
+        fetchFinancialData(),
+        fetchRecentTransactions(5)
+      ]);
+
+      setFinancialData(financial);
+      setRecentTransactions(transactions || []);
+    } catch (error) {
+      console.error('Error loading financial data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const recentTransactions = [
-    { id: 1, title: 'Salary', amount: 8500000, type: 'income', date: '2024-01-15', category: 'Income' },
-    { id: 2, title: 'Grocery Shopping', amount: -450000, type: 'expense', date: '2024-01-14', category: 'Food' },
-    { id: 3, title: 'Electric Bill', amount: -280000, type: 'expense', date: '2024-01-13', category: 'Utilities' },
-    { id: 4, title: 'Freelance Project', amount: 2500000, type: 'income', date: '2024-01-12', category: 'Work' },
-    { id: 5, title: 'Transportation', amount: -150000, type: 'expense', date: '2024-01-11', category: 'Transport' },
-  ];
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadFinancialData();
+    }
+  }, [isAuthenticated]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await fetchUser();
+    await Promise.all([
+      fetchUser(),
+      loadFinancialData()
+    ]);
     setRefreshing(false);
   };
 
@@ -98,7 +113,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               <Text style={styles.welcomeText}>Welcome back,</Text>
               <Text style={styles.userName}>{user?.name || 'User'}</Text>
             </View>
-            <Avatar.Icon size={48} icon="account" style={styles.avatar} />
+            {user?.avatar_url ? (
+              <Avatar.Image size={48} source={{ uri: user.avatar_url }} style={styles.avatar} />
+            ) : (
+              <Avatar.Icon size={48} icon="account" style={styles.avatar} />
+            )}
           </View>
 
           {/* Balance Card */}
@@ -111,14 +130,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             >
               <Card.Content style={styles.balanceCardContent}>
                 <Text style={styles.balanceLabel}>Total Balance</Text>
-                <Text style={styles.balanceAmount}>{formatCurrency(financialData.totalBalance)}</Text>
+                <Text style={styles.balanceAmount}>
+                  {financialData ? formatCurrency(financialData.total_balance) : 'Loading...'}
+                </Text>
                 <View style={styles.balanceRow}>
                   <View style={styles.balanceItem}>
-                    <Text style={styles.incomeText}>{formatCurrency(financialData.income)}</Text>
+                    <Text style={styles.incomeText}>
+                      {financialData ? formatCurrency(financialData.income) : 'Loading...'}
+                    </Text>
                     <Text style={styles.balanceItemLabel}>Income</Text>
                   </View>
                   <View style={styles.balanceItem}>
-                    <Text style={styles.expenseText}>{formatCurrency(financialData.expenses)}</Text>
+                    <Text style={styles.expenseText}>
+                      {financialData ? formatCurrency(financialData.expenses) : 'Loading...'}
+                    </Text>
                     <Text style={styles.balanceItemLabel}>Expenses</Text>
                   </View>
                 </View>
@@ -167,32 +192,53 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               <Text style={styles.seeAllText}>See all</Text>
             </View>
             <Card style={styles.transactionsCard}>
-              {recentTransactions.map((transaction) => (
-                <View key={transaction.id} style={styles.transactionItem}>
-                  <View style={styles.transactionLeft}>
-                    <View style={[
-                      styles.transactionIcon,
-                      { backgroundColor: transaction.type === 'income' ? '#10b981' : '#ef4444' }
+              {loading ? (
+                <Text style={styles.loadingText}>Loading transactions...</Text>
+              ) : recentTransactions.length === 0 ? (
+                <Text style={styles.emptyText}>No transactions yet</Text>
+              ) : (
+                recentTransactions.map((transaction) => (
+                  <View key={transaction.id} style={styles.transactionItem}>
+                    <View style={styles.transactionLeft}>
+                      <View style={[
+                        styles.transactionIcon,
+                        {
+                          backgroundColor:
+                            transaction.type === 'income' ? '#10b981' : // Green for income
+                            transaction.type === 'expense' ? '#ef4444' :
+                            '#3b82f6' // Blue for transfer and withdrawal
+                        }
+                      ]}>
+                        <Ionicons
+                          name={
+                            transaction.type === 'income' ? 'arrow-down' :
+                            transaction.type === 'expense' ? 'arrow-up' :
+                            transaction.type === 'transfer' ? 'swap-horizontal' :
+                            'arrow-down' // Arrow down blue for withdrawal
+                          }
+                          size={16}
+                          color="white"
+                        />
+                      </View>
+                      <View style={styles.transactionInfo}>
+                        <Text style={styles.transactionTitle} numberOfLines={1} ellipsizeMode="tail">{transaction.title}</Text>
+                        <Text style={styles.transactionDate}>{transaction.date}</Text>
+                      </View>
+                    </View>
+                    <Text style={[
+                      styles.transactionAmount,
+                      {
+                        color:
+                          transaction.type === 'income' ? '#10b981' : // Green for income
+                          transaction.type === 'expense' ? '#ef4444' :
+                          '#3b82f6' // Blue for transfer and withdrawal
+                      }
                     ]}>
-                      <Ionicons
-                        name={transaction.type === 'income' ? 'arrow-down' : 'arrow-up'}
-                        size={16}
-                        color="white"
-                      />
-                    </View>
-                    <View style={styles.transactionInfo}>
-                      <Text style={styles.transactionTitle} numberOfLines={1} ellipsizeMode="tail">{transaction.title}</Text>
-                      <Text style={styles.transactionDate}>{transaction.date}</Text>
-                    </View>
+                      {formatCurrency(transaction.amount)}
+                    </Text>
                   </View>
-                  <Text style={[
-                    styles.transactionAmount,
-                    { color: transaction.type === 'income' ? '#10b981' : '#ef4444' }
-                  ]}>
-                    {formatCurrency(transaction.amount)}
-                  </Text>
-                </View>
-              ))}
+                ))
+              )}
             </Card>
           </View>
 
@@ -376,6 +422,18 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     marginTop: 16,
+  },
+  loadingText: {
+    textAlign: 'center',
+    padding: 20,
+    color: '#6b7280',
+    fontSize: 14,
+  },
+  emptyText: {
+    textAlign: 'center',
+    padding: 20,
+    color: '#6b7280',
+    fontSize: 14,
   },
 });
 

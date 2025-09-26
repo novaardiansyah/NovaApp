@@ -10,6 +10,26 @@ interface User {
   code?: string;
 }
 
+interface FinancialData {
+  total_balance: number;
+  income: number;
+  expenses: number;
+  savings: number;
+  period: {
+    start_date: string;
+    end_date: string;
+    month: string;
+  };
+}
+
+interface Transaction {
+  id: number;
+  title: string;
+  amount: number;
+  type: string; // lowercase type name from database
+  date: string;
+}
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
@@ -21,6 +41,8 @@ interface AuthContextType {
   fetchUser: () => Promise<boolean>;
   updateToken: (newToken: string) => Promise<void>;
   updateUser: (userData: { name?: string; email?: string; avatar_base64?: string }) => Promise<boolean>;
+  fetchFinancialData: () => Promise<FinancialData | null>;
+  fetchRecentTransactions: (limit?: number) => Promise<Transaction[]>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -193,6 +215,58 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const fetchFinancialData = async (): Promise<FinancialData | null> => {
+    if (!token) return null;
+
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      };
+
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/summary`, {
+        method: 'GET',
+        headers,
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        return data.data;
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const fetchRecentTransactions = async (limit: number = 10): Promise<Transaction[]> => {
+    if (!token) return [];
+
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      };
+
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/recent-transactions?limit=${limit}`, {
+        method: 'GET',
+        headers,
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        return data.data;
+      }
+      return [];
+    } catch (error) {
+      return [];
+    }
+  };
+
   const getAuthHeader = () => {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -217,6 +291,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     fetchUser,
     updateToken,
     updateUser,
+    fetchFinancialData,
+    fetchRecentTransactions,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
