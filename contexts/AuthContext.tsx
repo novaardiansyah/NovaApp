@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Constants from 'expo-constants';
 
 const APP_CONFIG = {
   API_BASE_URL: process.env.API_BASE_URL || 'http://100.108.9.46:8000/api',

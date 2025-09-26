@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Alert, KeyboardAvoidingView, Platform, useWindowDimensions, ScrollView, Text, Image, TouchableOpacity } from 'react-native';
 import { PaperProvider, Appbar, Avatar, Button } from 'react-native-paper';
 import { useAuth } from '@/contexts/AuthContext';
-import { APP_CONFIG } from '@/config/environment';
 import { Theme } from '@/constants/colors';
 import { FormButton, FormInput } from '@/components';
 import * as ImagePicker from 'expo-image-picker';
