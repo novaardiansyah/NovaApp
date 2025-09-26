@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "NovaApp",
+    "name": "Nova App",
     "slug": "NovaApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/app-logo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -17,14 +17,27 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/app-logo.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.novaardiansyah.NovaApp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fa09bab4-0188-4de9-818d-d2eb206c6eab"
+      },
+      "appConfig": {
+        "API_BASE_URL": "http://100.108.9.46:8000/api",
+        "API_TIMEOUT": 30000,
+        "DEBUG": true,
+        "ENABLE_ANALYTICS": false,
+        "ENABLE_CRASH_REPORTING": true
+      }
     }
   }
 }

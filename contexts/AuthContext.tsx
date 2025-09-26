@@ -1,6 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { APP_CONFIG } from '@/config/environment';
+import Constants from 'expo-constants';
+
+const APP_CONFIG = {
+  ...Constants.expoConfig?.extra?.appConfig,
+  API_BASE_URL: Constants.expoConfig?.extra?.appConfig?.API_BASE_URL || 'http://100.108.9.46:8000/api',
+  API_TIMEOUT: Constants.expoConfig?.extra?.appConfig?.API_TIMEOUT || 30000,
+  DEBUG: Constants.expoConfig?.extra?.appConfig?.DEBUG !== false,
+  ENABLE_ANALYTICS: Constants.expoConfig?.extra?.appConfig?.ENABLE_ANALYTICS || false,
+  ENABLE_CRASH_REPORTING: Constants.expoConfig?.extra?.appConfig?.ENABLE_CRASH_REPORTING !== false,
+};
 
 interface User {
   id: number;
