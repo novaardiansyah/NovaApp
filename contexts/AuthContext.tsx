@@ -3,12 +3,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 
 const APP_CONFIG = {
-  ...Constants.expoConfig?.extra?.appConfig,
-  API_BASE_URL: Constants.expoConfig?.extra?.appConfig?.API_BASE_URL || 'http://100.108.9.46:8000/api',
-  API_TIMEOUT: Constants.expoConfig?.extra?.appConfig?.API_TIMEOUT || 30000,
-  DEBUG: Constants.expoConfig?.extra?.appConfig?.DEBUG !== false,
-  ENABLE_ANALYTICS: Constants.expoConfig?.extra?.appConfig?.ENABLE_ANALYTICS || false,
-  ENABLE_CRASH_REPORTING: Constants.expoConfig?.extra?.appConfig?.ENABLE_CRASH_REPORTING !== false,
+  API_BASE_URL: process.env.API_BASE_URL || 'http://100.108.9.46:8000/api',
+  API_TIMEOUT: process.env.API_TIMEOUT || '30000',
+  DEBUG: process.env.DEBUG !== 'false',
+  ENABLE_ANALYTICS: process.env.ENABLE_ANALYTICS === 'true',
+  ENABLE_CRASH_REPORTING: process.env.ENABLE_CRASH_REPORTING !== 'false',
 };
 
 interface User {

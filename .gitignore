@@ -40,3 +40,9 @@ yarn-error.*
 /ios
 /android
 .vscode/*
+
+# environment secrets
+.env
+.env.local
+.env.development
+.env.production
