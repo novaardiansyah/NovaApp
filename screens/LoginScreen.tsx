@@ -100,6 +100,32 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 loading={loading}
               />
 
+              {/* Debug Environment Variables - only show if not production */}
+              {process.env.EXPO_PUBLIC_ENV !== 'production' && (
+                <View style={styles.debugContainer}>
+                  <Text
+                    style={styles.debugLink}
+                    onPress={() => {
+                      Alert.alert('Environment Variables',
+`EXPO_PUBLIC_ENV: ${process.env.EXPO_PUBLIC_ENV}
+
+EXPO_PUBLIC_API_BASE_URL: ${process.env.EXPO_PUBLIC_API_BASE_URL}
+
+EXPO_PUBLIC_API_TIMEOUT: ${process.env.EXPO_PUBLIC_API_TIMEOUT}
+
+EXPO_PUBLIC_DEBUG: ${process.env.EXPO_PUBLIC_DEBUG}
+
+EXPO_PUBLIC_ENABLE_ANALYTICS: ${process.env.EXPO_PUBLIC_ENABLE_ANALYTICS}
+
+EXPO_PUBLIC_ENABLE_CRASH_REPORTING: ${process.env.EXPO_PUBLIC_ENABLE_CRASH_REPORTING}`
+                      );
+                    }}
+                  >
+                    Debug Environment
+                  </Text>
+                </View>
+              )}
+
               <View style={styles.footer}>
                 <Text
                   style={styles.forgotPassword}
@@ -185,6 +211,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6366f1',
     fontWeight: '600',
+  },
+  debugContainer: {
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+  debugLink: {
+    color: '#dc2626',
+    fontSize: 12,
+    fontWeight: '500',
+    textDecorationLine: 'underline',
   },
 });
 

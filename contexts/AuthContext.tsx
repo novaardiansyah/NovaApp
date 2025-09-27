@@ -2,11 +2,11 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const APP_CONFIG = {
-  API_BASE_URL: process.env.API_BASE_URL || 'http://100.108.9.46:8000/api',
-  API_TIMEOUT: process.env.API_TIMEOUT || '30000',
-  DEBUG: process.env.DEBUG !== 'false',
-  ENABLE_ANALYTICS: process.env.ENABLE_ANALYTICS === 'true',
-  ENABLE_CRASH_REPORTING: process.env.ENABLE_CRASH_REPORTING !== 'false',
+  API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL,
+  API_TIMEOUT: process.env.EXPO_PUBLIC_API_TIMEOUT,
+  DEBUG: process.env.EXPO_PUBLIC_DEBUG !== 'false',
+  ENABLE_ANALYTICS: process.env.EXPO_PUBLIC_ENABLE_ANALYTICS === 'true',
+  ENABLE_CRASH_REPORTING: process.env.EXPO_PUBLIC_ENABLE_CRASH_REPORTING !== 'false',
 };
 
 interface User {
