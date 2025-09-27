@@ -9,8 +9,8 @@
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "resizeMode": "cover",
+      "backgroundColor": "#6366f1"
     },
     "ios": {
       "supportsTablet": true
@@ -27,6 +27,9 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      "expo-splash-screen"
+    ],
     "extra": {
       "eas": {
         "projectId": "fa09bab4-0188-4de9-818d-d2eb206c6eab"

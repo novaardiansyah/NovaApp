@@ -78,12 +78,12 @@ export const TransactionsSkeleton: React.FC<TransactionsSkeletonProps> = ({ coun
   return (
     <Card style={[style, { borderRadius: 16 }]}>
       {Array.from({ length: count }).map((_, index) => (
-        <React.Fragment key={index}>
+        <View key={index}>
           <TransactionItemSkeleton />
           {index < count - 1 && (
             <View style={{ borderBottomWidth: 1, borderBottomColor: '#f3f4f6' }} />
           )}
-        </React.Fragment>
+        </View>
       ))}
     </Card>
   );
