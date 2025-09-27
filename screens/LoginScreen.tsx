@@ -4,6 +4,7 @@ import { PaperProvider, Surface, Divider, TextInput } from 'react-native-paper';
 import { Theme } from '@/constants/colors';
 import { AppHeader, FormInput, FormButton, AppCopyright } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
+import APP_CONFIG from '@/config/app';
 
 // Props type for navigation
 interface LoginScreenProps {
@@ -101,24 +102,16 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               />
 
               {/* Debug Environment Variables - only show if not production */}
-              {process.env.EXPO_PUBLIC_ENV !== 'production' && (
+              {APP_CONFIG.ENV !== 'production' && (
                 <View style={styles.debugContainer}>
                   <Text
                     style={styles.debugLink}
                     onPress={() => {
-                      Alert.alert('Environment Variables',
-`EXPO_PUBLIC_ENV: ${process.env.EXPO_PUBLIC_ENV}
+                      const envMessage = Object.entries(APP_CONFIG)
+                        .map(([key, value]) => `EXPO_PUBLIC_${key.toUpperCase()}: ${value}`)
+                        .join('\n\n');
 
-EXPO_PUBLIC_API_BASE_URL: ${process.env.EXPO_PUBLIC_API_BASE_URL}
-
-EXPO_PUBLIC_API_TIMEOUT: ${process.env.EXPO_PUBLIC_API_TIMEOUT}
-
-EXPO_PUBLIC_DEBUG: ${process.env.EXPO_PUBLIC_DEBUG}
-
-EXPO_PUBLIC_ENABLE_ANALYTICS: ${process.env.EXPO_PUBLIC_ENABLE_ANALYTICS}
-
-EXPO_PUBLIC_ENABLE_CRASH_REPORTING: ${process.env.EXPO_PUBLIC_ENABLE_CRASH_REPORTING}`
-                      );
+                      Alert.alert('Environment Variables', envMessage);
                     }}
                   >
                     Debug Environment

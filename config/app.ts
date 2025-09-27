@@ -1,0 +1,10 @@
+const APP_CONFIG = {
+  API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL,
+  API_TIMEOUT: process.env.EXPO_PUBLIC_API_TIMEOUT,
+  DEBUG: process.env.EXPO_PUBLIC_DEBUG !== 'false',
+  ENABLE_ANALYTICS: process.env.EXPO_PUBLIC_ENABLE_ANALYTICS === 'true',
+  ENABLE_CRASH_REPORTING: process.env.EXPO_PUBLIC_ENABLE_CRASH_REPORTING !== 'false',
+  ENV: process.env.EXPO_PUBLIC_ENV,
+};
+
+export default APP_CONFIG;

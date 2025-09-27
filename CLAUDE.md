@@ -80,6 +80,13 @@ npm run web        # Start on web
 - Local state management with useState hooks
 - Authentication state management
 
+## Code Style & Formatting
+- **Tab Size**: Always use 2 spaces for indentation
+- **Code Formatting**: Keep code clean, consistent, and properly indented
+- **TypeScript**: Standard TypeScript formatting and conventions
+- **React Native**: Follow React Native best practices
+- **Consistency**: Maintain consistent formatting across all files
+
 ## Testing & Quality
 - TypeScript for type safety
 - Component-based architecture
