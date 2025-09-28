@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, Alert, RefreshControl } from 'react-native';
+import { View, ScrollView, Text, Alert, RefreshControl, StatusBar, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Button, Avatar, Card } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Theme } from '@/constants/colors';
 import { BalanceCardSkeleton, TransactionsSkeleton } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
-import { styles, getTransactionColor, getTransactionIcon } from '@/styles/HomeScreen.styles';
+import { styles as homeStyles, getTransactionColor, getTransactionIcon } from '@/styles/HomeScreen.styles';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
 
 interface HomeScreenProps {
   navigation: any;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const { user, isAuthenticated, fetchFinancialData, fetchRecentTransactions } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [financialData, setFinancialData] = useState<any>(null);
@@ -70,123 +74,118 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     );
   }
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
+  // formatCurrency is imported from shared styles
 
   return (
     <PaperProvider theme={Theme}>
-      <View style={styles.container}>
+      <SafeAreaView style={commonStyles.container} edges={['top', 'left', 'right']}>
+        <StatusBar {...statusBarConfig} />
         <ScrollView
-          contentContainerStyle={styles.scrollContainer}
+          contentContainerStyle={getScrollContainerStyle(insets)}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
         >
           {/* Welcome Header */}
-          <View style={styles.welcomeSection}>
+          <View style={commonStyles.welcomeSection}>
             <View>
-              <Text style={styles.welcomeText}>Welcome back,</Text>
-              <Text style={styles.userName}>{user?.name || 'User'}</Text>
+              <Text style={commonStyles.welcomeText}>Welcome back,</Text>
+              <Text style={commonStyles.userName}>{user?.name || 'User'}</Text>
             </View>
             {user?.avatar_url ? (
-              <Avatar.Image size={48} source={{ uri: user.avatar_url }} style={styles.avatar} />
+              <Avatar.Image size={48} source={{ uri: user.avatar_url }} style={commonStyles.avatar} />
             ) : (
-              <Avatar.Icon size={48} icon="account" style={styles.avatar} />
+              <Avatar.Icon size={48} icon="account" style={commonStyles.avatar} />
             )}
           </View>
 
           {/* Balance Card */}
           {financialData ? (
-            <Card style={styles.balanceCard}>
+            <Card style={homeStyles.balanceCard}>
               <LinearGradient
                 colors={['#4338ca', '#6366f1']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={styles.gradientBackground}
+                style={homeStyles.gradientBackground}
               >
-                <Card.Content style={styles.balanceCardContent}>
-                  <Text style={styles.balanceLabel}>Total Balance</Text>
-                  <Text style={styles.balanceAmount}>
+                <Card.Content style={homeStyles.balanceCardContent}>
+                  <Text style={homeStyles.balanceLabel}>Total Balance</Text>
+                  <Text style={homeStyles.balanceAmount}>
                     {formatCurrency(financialData.total_balance)}
                   </Text>
-                  <View style={styles.balanceRow}>
-                    <View style={styles.balanceItem}>
-                      <Text style={styles.incomeText}>
+                  <View style={homeStyles.balanceRow}>
+                    <View style={homeStyles.balanceItem}>
+                      <Text style={homeStyles.incomeText}>
                         {formatCurrency(financialData.income)}
                       </Text>
-                      <Text style={styles.balanceItemLabel}>Income</Text>
+                      <Text style={homeStyles.balanceItemLabel}>Income</Text>
                     </View>
-                    <View style={styles.balanceItemRight}>
-                      <Text style={styles.expenseText}>
+                    <View style={homeStyles.balanceItemRight}>
+                      <Text style={homeStyles.expenseText}>
                         {formatCurrency(financialData.expenses)}
                       </Text>
-                      <Text style={styles.balanceItemLabel}>Expenses</Text>
+                      <Text style={homeStyles.balanceItemLabel}>Expenses</Text>
                     </View>
                   </View>
                 </Card.Content>
               </LinearGradient>
             </Card>
           ) : (
-            <BalanceCardSkeleton style={styles.balanceCard} />
+            <BalanceCardSkeleton style={homeStyles.balanceCard} />
           )}
 
           {/* Quick Actions */}
-          <View style={styles.quickActionsSection}>
-            <Text style={styles.sectionTitle}>Quick Actions</Text>
-            <View style={styles.quickActionsGrid}>
-              <Card style={styles.actionCard} onPress={() => Alert.alert('Info', 'Add Transaction feature coming soon!')}>
-                <Card.Content style={styles.actionCardContent}>
+          <View style={commonStyles.quickActionsSection}>
+            <Text style={commonStyles.sectionTitle}>Quick Actions</Text>
+            <View style={commonStyles.quickActionsGrid}>
+              <Card style={commonStyles.actionCard} onPress={() => Alert.alert('Info', 'Add Transaction feature coming soon!')}>
+                <Card.Content style={commonStyles.actionCardContent}>
                   <Ionicons name="add-circle" size={24} color="#6366f1" />
-                  <Text style={styles.actionText}>Add</Text>
+                  <Text style={commonStyles.actionText}>Add</Text>
                 </Card.Content>
               </Card>
 
-              <Card style={styles.actionCard} onPress={() => Alert.alert('Info', 'Transfer feature coming soon!')}>
-                <Card.Content style={styles.actionCardContent}>
+              <Card style={commonStyles.actionCard} onPress={() => Alert.alert('Info', 'Transfer feature coming soon!')}>
+                <Card.Content style={commonStyles.actionCardContent}>
                   <Ionicons name="swap-horizontal" size={24} color="#6366f1" />
-                  <Text style={styles.actionText}>Transfer</Text>
+                  <Text style={commonStyles.actionText}>Transfer</Text>
                 </Card.Content>
               </Card>
 
-              <Card style={styles.actionCard} onPress={() => Alert.alert('Info', 'Reports feature coming soon!')}>
-                <Card.Content style={styles.actionCardContent}>
+              <Card style={commonStyles.actionCard} onPress={() => Alert.alert('Info', 'Reports feature coming soon!')}>
+                <Card.Content style={commonStyles.actionCardContent}>
                   <Ionicons name="bar-chart" size={24} color="#6366f1" />
-                  <Text style={styles.actionText}>Reports</Text>
+                  <Text style={commonStyles.actionText}>Reports</Text>
                 </Card.Content>
               </Card>
 
-              <Card style={styles.actionCard} onPress={() => Alert.alert('Info', 'Budget feature coming soon!')}>
-                <Card.Content style={styles.actionCardContent}>
+              <Card style={commonStyles.actionCard} onPress={() => navigation.navigate('Budget')}>
+                <Card.Content style={commonStyles.actionCardContent}>
                   <Ionicons name="wallet" size={24} color="#6366f1" />
-                  <Text style={styles.actionText}>Budget</Text>
+                  <Text style={commonStyles.actionText}>Budget</Text>
                 </Card.Content>
               </Card>
             </View>
           </View>
 
           {/* Recent Transactions */}
-          <View style={styles.transactionsSection}>
-            <View style={styles.transactionsHeader}>
-              <Text style={styles.sectionTitle}>Recent Transactions</Text>
-              <Text style={styles.seeAllText}>See all</Text>
+          <View style={homeStyles.transactionsSection}>
+            <View style={homeStyles.transactionsHeader}>
+              <Text style={homeStyles.sectionTitle}>Recent Transactions</Text>
+              <Text style={homeStyles.seeAllText}>See all</Text>
             </View>
             {loading ? (
-              <TransactionsSkeleton style={styles.transactionsCard} count={3} />
+              <TransactionsSkeleton style={homeStyles.transactionsCard} count={3} />
             ) : (
-              <Card style={styles.transactionsCard}>
+              <Card style={homeStyles.transactionsCard}>
                 {recentTransactions.length === 0 ? (
-                  <Text style={styles.emptyText}>No transactions yet</Text>
+                  <Text style={homeStyles.emptyText}>No transactions yet</Text>
                 ) : (
                   recentTransactions.map((transaction) => (
-                  <View key={transaction.id} style={styles.transactionItem}>
-                    <View style={styles.transactionLeft}>
+                  <View key={transaction.id} style={homeStyles.transactionItem}>
+                    <View style={homeStyles.transactionLeft}>
                       <View style={[
-                        styles.transactionIcon,
+                        homeStyles.transactionIcon,
                         { backgroundColor: getTransactionColor(transaction.type) }
                       ]}>
                         <Ionicons
@@ -195,13 +194,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                           color="white"
                         />
                       </View>
-                      <View style={styles.transactionInfo}>
-                        <Text style={styles.transactionTitle} numberOfLines={1} ellipsizeMode="tail">{transaction.title}</Text>
-                        <Text style={styles.transactionDate}>{transaction.date}</Text>
+                      <View style={homeStyles.transactionInfo}>
+                        <Text style={homeStyles.transactionTitle} numberOfLines={1} ellipsizeMode="tail">{transaction.title}</Text>
+                        <Text style={homeStyles.transactionDate}>{transaction.date}</Text>
                       </View>
                     </View>
                     <Text style={[
-                      styles.transactionAmount,
+                      homeStyles.transactionAmount,
                       { color: getTransactionColor(transaction.type) }
                     ]}>
                       {formatCurrency(transaction.amount)}
@@ -213,7 +212,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             )}
           </View>
         </ScrollView>
-      </View>
+      </SafeAreaView>
     </PaperProvider>
   );
 };

@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HomeScreen from '@/screens/HomeScreen';
 import ProfileScreen from '@/screens/ProfileScreen';
+import BudgetScreen from '@/screens/BudgetScreen';
 import ChangePasswordScreen from '@/screens/ChangePasswordScreen';
 import UpdateProfileScreen from '@/screens/UpdateProfileScreen';
 
@@ -64,6 +65,16 @@ const AppNavigator = () => {
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Budget"
+        component={BudgetScreen}
+        options={{
+          tabBarLabel: 'Budget',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="wallet" size={size} color={color} />
           ),
         }}
       />

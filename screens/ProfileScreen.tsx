@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert, Linking, Text, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Linking, Text, Image, StatusBar, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Button, List, Avatar, Switch } from 'react-native-paper';
 import { Theme } from '@/constants/colors';
 import { AppCopyright } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
 
 interface ProfileScreenProps {
   navigation: any;
 }
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const { user, logout, fetchUser } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
@@ -41,8 +45,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
   return (
     <PaperProvider theme={Theme}>
-      <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <StatusBar {...statusBarConfig} />
+        <ScrollView
+          contentContainerStyle={getScrollContainerStyle(insets)}>
           {/* Profile Info */}
           <View style={styles.profileSection}>
             {user?.avatar_url ? (
@@ -174,7 +180,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
           <AppCopyright />
         </ScrollView>
-      </View>
+      </SafeAreaView>
     </PaperProvider>
   );
 };
@@ -184,13 +190,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f9fafb',
   },
-  scrollContainer: {
-    flexGrow: 1,
-    padding: 24,
-    paddingTop: 60,
-    minHeight: '100%',
-  },
-  profileSection: {
+    profileSection: {
     padding: 32,
     alignItems: 'center',
     backgroundColor: '#ffffff',
@@ -209,6 +209,7 @@ const styles = StyleSheet.create({
   },
   profileInfo: {
     alignItems: 'center',
+    marginTop: 8,
   },
   userName: {
     fontSize: 24,

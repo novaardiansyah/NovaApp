@@ -92,3 +92,16 @@ npm run web        # Start on web
 - Component-based architecture
 - Clean separation of concerns
 - Reusable UI components
+
+## Commit Messages
+When requested to provide commit messages, I will always generate a comprehensive commit message that you can use for manual commits. The message will include:
+- Summary of changes made
+- Key files modified
+- Feature additions and improvements
+- Bug fixes and optimizations
+- Proper formatting with conventional commit format
+- Claude Code attribution as required
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
