@@ -8,9 +8,11 @@ import ProfileScreen from '@/screens/ProfileScreen';
 import BudgetScreen from '@/screens/BudgetScreen';
 import ChangePasswordScreen from '@/screens/ChangePasswordScreen';
 import UpdateProfileScreen from '@/screens/UpdateProfileScreen';
+import AllTransactionsScreen from '@/screens/AllTransactionsScreen';
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
+const MainStack = createStackNavigator();
 
 const ProfileStackNavigator = () => {
   return (
@@ -34,7 +36,7 @@ const ProfileStackNavigator = () => {
   );
 };
 
-const AppNavigator = () => {
+const TabNavigator = () => {
   const insets = useSafeAreaInsets();
 
   return (
@@ -90,6 +92,29 @@ const AppNavigator = () => {
         }}
       />
     </Tab.Navigator>
+  );
+};
+
+const MainNavigator = () => {
+  return (
+    <MainStack.Navigator screenOptions={{ headerShown: false }}>
+      <MainStack.Screen
+        name="MainTabs"
+        component={TabNavigator}
+        options={{ headerShown: false }}
+      />
+      <MainStack.Screen
+        name="AllTransactions"
+        component={AllTransactionsScreen}
+        options={{ title: 'All Transactions' }}
+      />
+    </MainStack.Navigator>
+  );
+};
+
+const AppNavigator = () => {
+  return (
+    <MainNavigator />
   );
 };
 

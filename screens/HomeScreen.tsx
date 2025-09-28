@@ -5,7 +5,7 @@ import { PaperProvider, Button, Avatar, Card } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Theme } from '@/constants/colors';
-import { BalanceCardSkeleton, TransactionsSkeleton } from '@/components';
+import { BalanceCardSkeleton, HomeTransactionsSkeleton } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
 import { styles as homeStyles, getTransactionColor, getTransactionIcon } from '@/styles/HomeScreen.styles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -172,43 +172,54 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           <View style={homeStyles.transactionsSection}>
             <View style={homeStyles.transactionsHeader}>
               <Text style={homeStyles.sectionTitle}>Recent Transactions</Text>
-              <Text style={homeStyles.seeAllText}>See all</Text>
+              <Text style={homeStyles.seeAllText} onPress={() => navigation.navigate('AllTransactions')}>See all</Text>
             </View>
             {loading ? (
-              <TransactionsSkeleton style={homeStyles.transactionsCard} count={3} />
+              <HomeTransactionsSkeleton count={3} />
             ) : (
-              <Card style={homeStyles.transactionsCard}>
+              <View style={homeStyles.transactionsCard}>
                 {recentTransactions.length === 0 ? (
-                  <Text style={homeStyles.emptyText}>No transactions yet</Text>
-                ) : (
-                  recentTransactions.map((transaction) => (
-                  <View key={transaction.id} style={homeStyles.transactionItem}>
-                    <View style={homeStyles.transactionLeft}>
-                      <View style={[
-                        homeStyles.transactionIcon,
-                        { backgroundColor: getTransactionColor(transaction.type) }
-                      ]}>
-                        <Ionicons
-                          name={getTransactionIcon(transaction.type)}
-                          size={16}
-                          color="white"
-                        />
-                      </View>
-                      <View style={homeStyles.transactionInfo}>
-                        <Text style={homeStyles.transactionTitle} numberOfLines={1} ellipsizeMode="tail">{transaction.title}</Text>
-                        <Text style={homeStyles.transactionDate}>{transaction.date}</Text>
-                      </View>
-                    </View>
-                    <Text style={[
-                      homeStyles.transactionAmount,
-                      { color: getTransactionColor(transaction.type) }
-                    ]}>
-                      {formatCurrency(transaction.amount)}
-                    </Text>
+                  <View style={homeStyles.emptyCard}>
+                    <Text style={homeStyles.emptyText}>No transactions yet</Text>
                   </View>
+                ) : (
+                  recentTransactions.map((transaction, index) => (
+                    <View key={transaction.id}>
+                      <Card style={homeStyles.transactionCard}>
+                        <Card.Content style={homeStyles.transactionContent}>
+                          <View style={homeStyles.transactionLeft}>
+                            <View style={[
+                              homeStyles.transactionIcon,
+                              { backgroundColor: getTransactionColor(transaction.type) }
+                            ]}>
+                              <Ionicons
+                                name={getTransactionIcon(transaction.type)}
+                                size={16}
+                                color="white"
+                              />
+                            </View>
+                            <View style={homeStyles.transactionInfo}>
+                              <Text style={homeStyles.transactionTitle} numberOfLines={1} ellipsizeMode="tail">{transaction.name || transaction.title}</Text>
+                              <Text style={homeStyles.transactionDate}>{transaction.date}</Text>
+                            </View>
+                          </View>
+                          <View style={homeStyles.transactionRight}>
+                            <Text style={[
+                              homeStyles.transactionAmount,
+                              { color: getTransactionColor(transaction.type) }
+                            ]}>
+                              {formatCurrency(transaction.amount)}
+                            </Text>
+                          </View>
+                        </Card.Content>
+                      </Card>
+                      {index < recentTransactions.length - 1 && (
+                        <View style={{ height: 1, backgroundColor: '#f3f4f6' }} />
+                      )}
+                    </View>
                   ))
                 )}
-              </Card>
+              </View>
             )}
           </View>
         </ScrollView>
