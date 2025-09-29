@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
 import { AccountsListSkeleton } from '@/components';
+import APP_CONFIG from '@/config/app';
 
 interface PaymentAccount {
   id: number;
@@ -42,7 +43,7 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch('http://100.108.9.46:8000/api/payment-accounts', {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payment-accounts`, {
         method: 'GET',
         headers,
       });
@@ -55,16 +56,6 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
       setPaymentAccounts(data);
     } catch (error) {
       console.error('Error fetching payment accounts:', error);
-      // Fallback to sample data for development
-      setPaymentAccounts([
-        {
-          id: 2,
-          name: 'Dana',
-          deposit: 11600,
-          formatted_deposit: 'Rp11.600',
-          logo: 'http://100.108.9.46:8000/storage/images/payment_account/01J1WY6C5XMT27PHDKGF9FH82D.jpg'
-        },
-      ]);
     } finally {
       setLoading(false);
     }
@@ -81,18 +72,6 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
     await fetchPaymentAccounts();
     setRefreshing(false);
   };
-
-  if (!isAuthenticated) {
-    return (
-      <PaperProvider theme={Theme}>
-        <View style={styles.container}>
-          <Text style={styles.authText}>Please login first</Text>
-        </View>
-      </PaperProvider>
-    );
-  }
-
-  // formatCurrency is imported from shared styles
 
   return (
     <PaperProvider theme={Theme}>

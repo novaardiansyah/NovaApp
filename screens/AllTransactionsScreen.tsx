@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, RefreshControl, ActivityIndicator, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Card, Avatar } from 'react-native-paper';
+import { PaperProvider, Card } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { AllTransactionsSkeleton } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
+import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
 import { styles } from '@/styles/AllTransactionsScreen.styles';
+import APP_CONFIG from '@/config/app';
 
 interface Transaction {
   id: number;
@@ -67,7 +68,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch(`http://100.108.9.46:8000/api/payments?page=${page}`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments?page=${page}`, {
         method: 'GET',
         headers,
       });
@@ -89,48 +90,6 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
       }
     } catch (error) {
       console.error('Error fetching transactions:', error);
-      // Fallback to sample data for development
-      const sampleTransactions: Transaction[] = [
-        {
-          id: 1,
-          code: 'PAY001',
-          name: 'Payment name',
-          date: '2024-01-01',
-          formatted_date: '1 Jan 2024',
-          amount: 1000000,
-          formatted_amount: 'Rp 1.000.000',
-          type: 'income',
-          type_id: 1,
-          updated_at: '2024-01-01T00:00:00.000000Z'
-        },
-        {
-          id: 2,
-          code: 'PAY002',
-          name: 'Payment expense',
-          date: '2024-01-02',
-          formatted_date: '2 Jan 2024',
-          amount: 500000,
-          formatted_amount: 'Rp 500.000',
-          type: 'expense',
-          type_id: 2,
-          updated_at: '2024-01-02T00:00:00.000000Z'
-        },
-      ];
-
-      if (page === 1) {
-        setTransactions(sampleTransactions);
-      } else {
-        setTransactions(prev => [...prev, ...sampleTransactions]);
-      }
-
-      setPagination({
-        current_page: 1,
-        from: 1,
-        last_page: 5,
-        per_page: 10,
-        to: 2,
-        total: 50
-      });
     } finally {
       setLoading(false);
     }
