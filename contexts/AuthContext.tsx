@@ -43,6 +43,7 @@ interface AuthContextType {
   updateUser: (userData: { name?: string; email?: string; avatar_base64?: string }) => Promise<boolean>;
   fetchFinancialData: () => Promise<FinancialData | null>;
   fetchRecentTransactions: (limit?: number) => Promise<Transaction[]>;
+  validateToken: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -267,6 +268,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const validateToken = async (): Promise<boolean> => {
+    if (!token) return false;
+
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      };
+
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/validate-token`, {
+        method: 'GET',
+        headers,
+      });
+
+      return response.ok;
+    } catch (error) {
+      console.error('Error validating token:', error);
+      return false;
+    }
+  };
+
   const getAuthHeader = () => {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -293,6 +316,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updateUser,
     fetchFinancialData,
     fetchRecentTransactions,
+    validateToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -68,6 +68,20 @@ npm run web        # Start on web
 - Authentication headers management
 - Error handling for API requests
 
+### ⚠️ Important API Base URL Note
+**The `APP_CONFIG.API_BASE_URL` already includes `/api` prefix. Never add `/api` manually to API endpoints.**
+
+**Correct examples:**
+- `${APP_CONFIG.API_BASE_URL}/auth/login` ✓
+- `${APP_CONFIG.API_BASE_URL}/payments` ✓
+- `${APP_CONFIG.API_BASE_URL}/auth/validate-token` ✓
+
+**Incorrect examples:**
+- `${APP_CONFIG.API_BASE_URL}/api/auth/login` ❌ (creates `/api/api/auth/login`)
+- `${APP_CONFIG.API_BASE_URL}/api/payments` ❌ (creates `/api/api/payments`)
+
+Always check the base URL configuration before adding API endpoints to avoid duplicate `/api` paths!
+
 ## UI/UX Features
 - Material Design 3 components
 - Responsive layouts

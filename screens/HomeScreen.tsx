@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, Alert, RefreshControl, StatusBar, Platform } from 'react-native';
+import { View, ScrollView, Text, Alert, RefreshControl, StatusBar, Platform, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Button, Avatar, Card } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,11 +17,45 @@ interface HomeScreenProps {
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const { user, isAuthenticated, fetchFinancialData, fetchRecentTransactions } = useAuth();
+  const { user, isAuthenticated, fetchFinancialData, fetchRecentTransactions, validateToken, logout } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [financialData, setFinancialData] = useState<any>(null);
   const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [hasValidated, setHasValidated] = useState(false);
+
+  const validateUserToken = async (): Promise<boolean> => {
+    if (!isAuthenticated || hasValidated) return false;
+
+    try {
+      const isValid = await validateToken();
+      setHasValidated(true); // Mark as validated to prevent repeats
+
+      if (!isValid) {
+        Alert.alert(
+          'Session Expired',
+          'Your session has expired. Please login again.',
+          [
+            {
+              text: 'OK',
+              onPress: async () => {
+                await logout();
+                // Navigation will be handled automatically by RootNavigator
+              },
+            },
+          ]
+        );
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error validating token:', error);
+      setHasValidated(true); // Still mark as validated to prevent repeats
+      // Silently fail on network errors, don't block the user
+      return true;
+    }
+  };
 
   const loadFinancialData = async () => {
     if (!isAuthenticated) return;
@@ -44,15 +78,26 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      loadFinancialData();
+      // Reset validation state when auth status changes
+      setHasValidated(false);
+      // Validate token silently in background first
+      validateUserToken();
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated && hasValidated) {
+      // Load financial data only after token validation is complete
+      loadFinancialData();
+    }
+  }, [isAuthenticated, hasValidated]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
     setFinancialData(null); // Reset financial data to show skeleton
     setRecentTransactions([]); // Reset transactions
     setLoading(true); // Set loading state
+
     await loadFinancialData();
     setRefreshing(false);
   };
@@ -227,5 +272,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     </PaperProvider>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f9fafb',
+  },
+  loginButton: {
+    marginTop: 16,
+  },
+});
 
 export default HomeScreen;
