@@ -241,7 +241,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const fetchRecentTransactions = async (limit: number = 10): Promise<Transaction[]> => {
+  const fetchRecentTransactions = async (limit: number = 5): Promise<Transaction[]> => {
     if (!token) return [];
 
     try {
@@ -251,13 +251,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         'Authorization': `Bearer ${token}`,
       };
 
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/recent-transactions?limit=${limit}`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments?page=1&limit=${limit}`, {
         method: 'GET',
         headers,
       });
 
       const data = await response.json();
-
+      
       if (response.ok && data.success) {
         return data.data;
       }

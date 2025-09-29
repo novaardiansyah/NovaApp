@@ -27,8 +27,10 @@ NovaApp is a modern React Native finance management application built with Expo 
 NovaApp/
 ├── components/         # Reusable UI components
 ├── contexts/           # React contexts (Auth, etc.)
+├── hooks/              # Custom hooks for API logic
 ├── navigation/         # Navigation setup
 ├── screens/            # App screens
+├── types/              # TypeScript type definitions
 ├── constants/          # App constants and colors
 └── config/             # Environment configuration
 ```
@@ -73,6 +75,7 @@ npm run web        # Start on web
 - Currency formatting (IDR)
 - Card-based interface design
 - Pull-to-refresh functionality
+- Skeleton loaders for loading states
 
 ## State Management
 - React Context API for global state
@@ -94,14 +97,13 @@ npm run web        # Start on web
 - Reusable UI components
 
 ## Commit Messages
-When requested to provide commit messages, I will always generate a comprehensive commit message that you can use for manual commits. The message will include:
-- Summary of changes made
-- Key files modified
-- Feature additions and improvements
-- Bug fixes and optimizations
-- Proper formatting with conventional commit format
-- Claude Code attribution as required
+- When requested to provide commit messages, I will always provide them in the standard format
+- User will handle the actual commit process manually
+- Format: "feat: description" or "fix: description" or other conventional commit types
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
+## Development Protocol
+- **Never run the project** (npm start, npm run android, etc.)
+- User will run the project manually
+- Focus only on code changes and static analysis
+- No tool use for running development server
+- claude.md
