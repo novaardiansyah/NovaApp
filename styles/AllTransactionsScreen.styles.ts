@@ -102,22 +102,22 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  loadingMore: {
+  loadingMoreContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    gap: 8,
+    paddingTop: 12,
   },
 
   loadingMoreText: {
     fontSize: 14,
     color: '#6b7280',
+    fontWeight: '500',
   },
 
   endOfList: {
     alignItems: 'center',
-    paddingVertical: 24,
+    paddingTop: 24,
   },
 
   endOfListText: {

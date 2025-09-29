@@ -36,6 +36,23 @@ const ProfileStackNavigator = () => {
   );
 };
 
+const HomeStackNavigator = () => {
+  return (
+    <MainStack.Navigator screenOptions={{ headerShown: false }}>
+      <MainStack.Screen
+        name="HomeMain"
+        component={HomeScreen}
+        options={{ title: 'Home' }}
+      />
+      <MainStack.Screen
+        name="AllTransactions"
+        component={AllTransactionsScreen}
+        options={{ title: 'All Transactions' }}
+      />
+    </MainStack.Navigator>
+  );
+};
+
 const TabNavigator = () => {
   const insets = useSafeAreaInsets();
 
@@ -62,7 +79,7 @@ const TabNavigator = () => {
     >
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
+        component={HomeStackNavigator}
         options={{
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => (
@@ -102,11 +119,6 @@ const MainNavigator = () => {
         name="MainTabs"
         component={TabNavigator}
         options={{ headerShown: false }}
-      />
-      <MainStack.Screen
-        name="AllTransactions"
-        component={AllTransactionsScreen}
-        options={{ title: 'All Transactions' }}
       />
     </MainStack.Navigator>
   );

@@ -49,6 +49,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
   const [refreshing, setRefreshing] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -57,7 +58,10 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
 
     if (page === 1) {
       setLoading(true);
+    } else {
+      setLoadingMore(true);
     }
+    
     try {
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
@@ -91,7 +95,11 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
     } catch (error) {
       console.error('Error fetching transactions:', error);
     } finally {
-      setLoading(false);
+      if (page === 1) {
+        setLoading(false);
+      } else {
+        setLoadingMore(false);
+      }
     }
   };
 
@@ -110,7 +118,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
   };
 
   const handleLoadMore = () => {
-    if (pagination && currentPage < pagination.last_page && !loading) {
+    if (pagination && currentPage < pagination.last_page && !loading && !loadingMore) {
       fetchTransactions(currentPage + 1);
     }
   };
@@ -224,11 +232,9 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
               </View>
             )}
 
-            {/* Loading More Indicator */}
-            {loading && transactions.length > 0 && (
-              <View style={styles.loadingMore}>
+            {loadingMore && (
+              <View style={styles.loadingMoreContent}>
                 <ActivityIndicator size="small" color="#6366f1" />
-                <Text style={styles.loadingMoreText}>Loading more transactions...</Text>
               </View>
             )}
 

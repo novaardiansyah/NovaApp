@@ -6,7 +6,7 @@ import { Theme } from '@/constants/colors';
 import { AppCopyright } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
+import { getScrollContainerStyle, statusBarConfig } from '@/styles';
 
 interface ProfileScreenProps {
   navigation: any;
