@@ -183,7 +183,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           <View style={commonStyles.quickActionsSection}>
             <Text style={commonStyles.sectionTitle}>Quick Actions</Text>
             <View style={commonStyles.quickActionsGrid}>
-              <Card style={commonStyles.actionCard} onPress={() => Alert.alert('Info', 'Add Transaction feature coming soon!')}>
+              <Card style={commonStyles.actionCard} onPress={() => navigation.navigate('AddPayment')}>
                 <Card.Content style={commonStyles.actionCardContent}>
                   <Ionicons name="add-circle" size={24} color="#6366f1" />
                   <Text style={commonStyles.actionText}>Add</Text>

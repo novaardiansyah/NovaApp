@@ -9,6 +9,7 @@ import BudgetScreen from '@/screens/BudgetScreen';
 import ChangePasswordScreen from '@/screens/ChangePasswordScreen';
 import UpdateProfileScreen from '@/screens/UpdateProfileScreen';
 import AllTransactionsScreen from '@/screens/AllTransactionsScreen';
+import AddPaymentScreen from '@/screens/AddPaymentScreen';
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
@@ -48,6 +49,11 @@ const HomeStackNavigator = () => {
         name="AllTransactions"
         component={AllTransactionsScreen}
         options={{ title: 'All Transactions' }}
+      />
+      <MainStack.Screen
+        name="AddPayment"
+        component={AddPaymentScreen}
+        options={{ title: 'Add Payment' }}
       />
     </MainStack.Navigator>
   );
