@@ -3,9 +3,9 @@ import APP_CONFIG from '@/config/app';
 export interface PaymentType {
   id: number;
   name: string;
-  type: string;
-  description?: string;
-  icon?: string;
+  is_default: boolean,
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface PaymentAccount {
@@ -20,7 +20,6 @@ export interface PaymentAccount {
 export interface PaymentData {
   name: string;
   amount: number;
-  type: string;
   type_id: number;
   date: string;
   payment_account_id: number;
@@ -55,10 +54,11 @@ class PaymentService {
 
       const data = await response.json();
 
-      if (response.ok && data.success) {
-        return data.data;
+      if (response.ok) {
+        return data;
       }
-      throw new Error(data.message || 'Failed to fetch payment types');
+
+      throw new Error('Failed to fetch payment types');
     } catch (error) {
       console.error('Error fetching payment types:', error);
       throw error;

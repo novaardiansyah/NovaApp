@@ -32,8 +32,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   const initialFormData = {
     name: '',
     amount: '',
-    type: 'expense',
-    type_id: '1',
+    type_id: '',
     date: new Date().toISOString().split('T')[0],
     payment_account_id: '',
     payment_account_to_id: '',
@@ -68,9 +67,11 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
       const types = await paymentService.getPaymentTypes(token);
       setPaymentTypes(types);
 
-      const defaultExpenseType = types.find((t) => t.type === 'expense');
-      if (defaultExpenseType) {
-        setFormData(prev => ({ ...prev, type_id: defaultExpenseType.id.toString() }));
+      if (types.length > 0) {
+        const defaultType = types.find((type) => type.is_default) || types[0];
+        const selected = defaultType.id.toString();
+
+        setFormData(prev => ({ ...prev, type_id: selected }));
       }
     } catch (error) {
       console.error('Error loading payment types:', error);
@@ -204,7 +205,6 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
       const paymentData: PaymentData = {
         name: formData.name.trim(),
         amount: Number(formData.amount),
-        type: formData.type,
         type_id: parseInt(formData.type_id) || 1,
         date: formData.date,
         payment_account_id: parseInt(formData.payment_account_id) || 1,
