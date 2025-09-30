@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, Alert, KeyboardAvoidingView, Platform, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Text, Alert, KeyboardAvoidingView, Platform, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
 import { PaperProvider, Appbar, TextInput, Button, HelperText } from 'react-native-paper';
 import { DatePickerModal, registerTranslation } from 'react-native-paper-dates';
 import { enGB } from 'react-native-paper-dates';
@@ -8,7 +8,7 @@ registerTranslation('en', enGB);
 
 import { useAuth } from '@/contexts/AuthContext';
 import { Theme } from '@/constants/colors';
-import { FormButton } from '@/components';
+import { FormButton, DropdownSkeleton, DropdownItemsSkeleton } from '@/components';
 import { styles } from '@/styles/AddPaymentScreen.styles';
 import paymentService, { PaymentData } from '@/services/paymentService';
 
@@ -19,13 +19,15 @@ interface AddPaymentScreenProps {
 const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [paymentTypes, setPaymentTypes] = useState<any[]>([]);
-  const [loadingPaymentTypes, setLoadingPaymentTypes] = useState(true);
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [accountMenuVisible, setAccountMenuVisible] = useState(false);
   const [paymentAccounts, setPaymentAccounts] = useState<any[]>([]);
-  const [loadingPaymentAccounts, setLoadingPaymentAccounts] = useState(true);
+  
+  const [loadingPaymentTypes, setLoadingPaymentTypes] = useState(false);
+  const [loadingPaymentAccounts, setLoadingPaymentAccounts] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -50,6 +52,8 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   }, []);
 
   const loadPaymentTypes = async () => {
+    setLoadingPaymentTypes(true);
+
     if (!token) {
       setLoadingPaymentTypes(false);
       return;
@@ -71,6 +75,8 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   };
 
   const loadPaymentAccounts = async () => {
+    setLoadingPaymentAccounts(true);
+
     if (!token) {
       setLoadingPaymentAccounts(false);
       return;
@@ -88,6 +94,20 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
       console.error('Error loading payment accounts:', error);
     } finally {
       setLoadingPaymentAccounts(false);
+    }
+  };
+
+  const refreshData = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        loadPaymentTypes(),
+        loadPaymentAccounts()
+      ]);
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -227,6 +247,14 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
             style={styles.scrollView}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={refreshData}
+                colors={['#6366f1']}
+                tintColor="#6366f1"
+              />
+            }
           >
             <Text style={styles.description}>
               Add a new payment record. Fill in the required information below.
@@ -262,11 +290,52 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
             </TouchableOpacity>
             {errors.date && <HelperText type="error" style={styles.helperText}>{errors.date}</HelperText>}
 
+            {/* Category */}
+            {loadingPaymentTypes ? (
+              <DropdownSkeleton style={styles.input} />
+            ) : (
+              <>
+                <TouchableOpacity
+                  onPress={() => setMenuVisible(!menuVisible)}
+                  activeOpacity={0.7}
+                >
+                  <TextInput
+                    label="Category"
+                    value={getSelectedPaymentTypeName()}
+                    onChangeText={() => {}}
+                    mode="outlined"
+                    outlineColor="#e5e7eb"
+                    activeOutlineColor="#6366f1"
+                    style={styles.input}
+                    editable={false}
+                    right={<TextInput.Icon icon="menu-down" />}
+                  />
+                </TouchableOpacity>
+                {errors.type_id && <HelperText type="error" style={styles.helperText}>{errors.type_id}</HelperText>}
+
+                {menuVisible && (
+                  <View style={styles.dropdownContainer}>
+                    <ScrollView style={styles.dropdownScroll} nestedScrollEnabled={true}>
+                      {paymentTypes.map((type) => (
+                        <TouchableOpacity
+                          key={type.id}
+                          style={styles.dropdownItem}
+                          onPress={() => handlePaymentTypeChange(type.id.toString())}
+                        >
+                          <Text style={styles.dropdownItemText}>
+                            {type.name}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
+              </>
+            )}
+
+            {/* Payment Account */}
             {loadingPaymentAccounts ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="small" color="#6366f1" />
-                <Text style={styles.loadingText}>Loading accounts...</Text>
-              </View>
+              <DropdownSkeleton style={styles.input} />
             ) : (
               <>
                 <TouchableOpacity
@@ -298,51 +367,6 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
                         >
                           <Text style={styles.dropdownItemText}>
                             {account.name}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                  </View>
-                )}
-              </>
-            )}
-
-            {loadingPaymentTypes ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="small" color="#6366f1" />
-                <Text style={styles.loadingText}>Loading...</Text>
-              </View>
-            ) : (
-              <>
-                <TouchableOpacity
-                  onPress={() => setMenuVisible(!menuVisible)}
-                  activeOpacity={0.7}
-                >
-                  <TextInput
-                    label="Payment Type"
-                    value={getSelectedPaymentTypeName()}
-                    onChangeText={() => {}}
-                    mode="outlined"
-                    outlineColor="#e5e7eb"
-                    activeOutlineColor="#6366f1"
-                    style={styles.input}
-                    editable={false}
-                    right={<TextInput.Icon icon="menu-down" />}
-                  />
-                </TouchableOpacity>
-                {errors.type_id && <HelperText type="error" style={styles.helperText}>{errors.type_id}</HelperText>}
-
-                {menuVisible && (
-                  <View style={styles.dropdownContainer}>
-                    <ScrollView style={styles.dropdownScroll} nestedScrollEnabled={true}>
-                      {paymentTypes.map((type) => (
-                        <TouchableOpacity
-                          key={type.id}
-                          style={styles.dropdownItem}
-                          onPress={() => handlePaymentTypeChange(type.id.toString())}
-                        >
-                          <Text style={styles.dropdownItemText}>
-                            {type.name}
                           </Text>
                         </TouchableOpacity>
                       ))}

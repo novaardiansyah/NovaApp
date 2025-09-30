@@ -126,4 +126,36 @@ export const AccountsListSkeleton: React.FC<AccountsListSkeletonProps> = ({ coun
   );
 };
 
+interface DropdownSkeletonProps {
+  style?: object;
+}
+
+export const DropdownSkeleton: React.FC<DropdownSkeletonProps> = ({ style }) => {
+  return (
+    <Card style={[style, { borderRadius: 8, backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#e5e7eb' }]}>
+      <Card.Content style={{ paddingVertical: 16, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Skeleton width={120} height={20} />
+        <Skeleton width={24} height={24} />
+      </Card.Content>
+    </Card>
+  );
+};
+
+interface DropdownItemsSkeletonProps {
+  count?: number;
+  style?: object;
+}
+
+export const DropdownItemsSkeleton: React.FC<DropdownItemsSkeletonProps> = ({ count = 3, style }) => {
+  return (
+    <View style={[style, { backgroundColor: '#ffffff', borderRadius: 8, borderWidth: 1, borderColor: '#e5e7eb', marginTop: -6, marginBottom: 16 }]}>
+      {Array.from({ length: count }).map((_, index) => (
+        <View key={index} style={{ padding: 16, borderBottomWidth: index < count - 1 ? 1 : 0, borderBottomColor: '#f3f4f6' }}>
+          <Skeleton width={120} height={16} />
+        </View>
+      ))}
+    </View>
+  );
+};
+
 export default Skeleton;
