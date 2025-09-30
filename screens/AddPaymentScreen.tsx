@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, Alert, KeyboardAvoidingView, Platform, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
-import { PaperProvider, Appbar, TextInput, Button, HelperText } from 'react-native-paper';
+import { PaperProvider, Appbar, TextInput, Button, HelperText, Switch, List } from 'react-native-paper';
 import { DatePickerModal, registerTranslation } from 'react-native-paper-dates';
 import { enGB } from 'react-native-paper-dates';
 
@@ -24,6 +24,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [paymentAccounts, setPaymentAccounts] = useState<any[]>([]);
   const [notification, setNotification] = useState<string | null>(null);
+  const [optionsExpanded, setOptionsExpanded] = useState(false);
   
   const [loadingPaymentTypes, setLoadingPaymentTypes] = useState(false);
   const [loadingPaymentAccounts, setLoadingPaymentAccounts] = useState(false);
@@ -37,6 +38,9 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     date: new Date().toISOString().split('T')[0],
     payment_account_id: '',
     payment_account_to_id: '',
+    has_items: false,
+    has_charge: false,
+    is_scheduled: false,
   };
 
   const initialErrors = {
@@ -176,6 +180,13 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     }
   };
 
+  const handleToggleChange = (field: 'has_items' | 'has_charge' | 'is_scheduled', value: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const handleDateConfirm = (params: any) => {
     const year          = params.date.getFullYear();
     const month         = String(params.date.getMonth() + 1).padStart(2, '0');
@@ -210,9 +221,9 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
         date: formData.date,
         payment_account_id: parseInt(formData.payment_account_id) || 1,
         payment_account_to_id,
-        has_items: false,
-        has_charge: false,
-        is_scheduled: false,
+        has_items: formData.has_items,
+        has_charge: formData.has_charge,
+        is_scheduled: formData.is_scheduled,
       };
 
       const response = await paymentService.createPayment(token, paymentData);
@@ -309,6 +320,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
                 activeOutlineColor="#6366f1"
                 style={styles.input}
                 placeholder="Select date"
+                editable={false}
               />
             </TouchableOpacity>
             {errors.date && <HelperText type="error" style={styles.helperText}>{errors.date}</HelperText>}
@@ -347,21 +359,76 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               visible={isTransferOrWidrawal}
             />
 
-            <FormButton
-              title="Add Payment"
-              onPress={handleSubmit}
-              loading={loading}
-              icon="cash-plus"
-            />
-
-            <Button
-              mode="outlined"
-              onPress={() => navigation.goBack()}
-              style={styles.cancelButton}
-              disabled={loading}
+            {/* Collapsible Options Section */}
+            <List.Accordion
+              title="Payment Options"
+              description="Additional payment settings"
+              left={props => <List.Icon {...props} icon="tune" />}
+              expanded={optionsExpanded}
+              onPress={() => setOptionsExpanded(!optionsExpanded)}
+              style={styles.accordion}
             >
-              Cancel
-            </Button>
+              <List.Item
+                title="Has Items"
+                description="Include products / services"
+                left={props => <List.Icon {...props} icon="format-list-bulleted" />}
+                right={() => (
+                  <Switch
+                    value={formData.has_items}
+                    onValueChange={(value) => handleToggleChange('has_items', value)}
+                    color="#6366f1"
+                  />
+                )}
+                style={styles.accordionItem}
+              />
+
+              <List.Item
+                title="Has Charge"
+                description="Payment already charge"
+                left={props => <List.Icon {...props} icon="cash-plus" />}
+                right={() => (
+                  <Switch
+                    value={formData.has_charge}
+                    onValueChange={(value) => handleToggleChange('has_charge', value)}
+                    color="#6366f1"
+                  />
+                )}
+                style={styles.accordionItem}
+              />
+
+              <List.Item
+                title="Is Scheduled"
+                description="Set as scheduled payment"
+                left={props => <List.Icon {...props} icon="calendar-clock" />}
+                right={() => (
+                  <Switch
+                    value={formData.is_scheduled}
+                    onValueChange={(value) => handleToggleChange('is_scheduled', value)}
+                    color="#6366f1"
+                  />
+                )}
+                style={styles.accordionItem}
+              />
+            </List.Accordion>
+
+
+            <View style={{ marginTop: 12 }}>
+              <FormButton
+                title="Add Payment"
+                onPress={handleSubmit}
+                loading={loading}
+                icon="cash-plus"
+              />
+
+              <Button
+                mode="outlined"
+                onPress={() => navigation.goBack()}
+                style={styles.cancelButton}
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+            </View>
           </ScrollView>
         </KeyboardAvoidingView>
       </View>

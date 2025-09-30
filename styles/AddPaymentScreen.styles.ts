@@ -45,4 +45,15 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 4,
   },
+  accordion: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  accordionItem: {
+    backgroundColor: '#f8fafc',
+    paddingHorizontal: 0,
+    paddingVertical: 4,
+  },
 });
