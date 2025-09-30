@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, Alert, KeyboardAvoidingView, Platform, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { PaperProvider, Appbar, TextInput, Button } from 'react-native-paper';
+import { PaperProvider, Appbar, TextInput, Button, HelperText } from 'react-native-paper';
 import { DatePickerModal, registerTranslation } from 'react-native-paper-dates';
 import { enGB } from 'react-native-paper-dates';
 
-// Register the locale
 registerTranslation('en', enGB);
 
 import { useAuth } from '@/contexts/AuthContext';
 import APP_CONFIG from '@/config/app';
 import { Theme } from '@/constants/colors';
-import { FormButton, FormInput } from '@/components';
+import { FormButton } from '@/components';
 
 interface AddPaymentScreenProps {
   navigation: any;
@@ -28,9 +27,16 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     name: '',
     amount: '',
     type: 'expense',
-    typeId: '1',
-    date: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
-    description: '',
+    type_id: '1',
+    date: new Date().toISOString().split('T')[0],
+  });
+
+  const [errors, setErrors] = useState({
+    name: '',
+    amount: '',
+    type_id: '',
+    date: '',
+    payment_account_id: '',
   });
 
   useEffect(() => {
@@ -59,10 +65,10 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
 
       if (response.ok && data.success) {
         setPaymentTypes(data.data);
-        // Set default type ID based on expense type
+        
         const defaultExpenseType = data.data.find((t: any) => t.type === 'expense');
         if (defaultExpenseType) {
-          setFormData(prev => ({ ...prev, typeId: defaultExpenseType.id.toString() }));
+          setFormData(prev => ({ ...prev, type_id: defaultExpenseType.id.toString() }));
         }
       }
     } catch (error) {
@@ -72,38 +78,43 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     }
   };
 
-  const validateForm = () => {
-    return true;
-  };
-
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+
+    if (errors[field as keyof typeof errors]) {
+      setErrors(prev => ({ ...prev, [field as keyof typeof errors]: '' }));
+    }
   };
 
   const handlePaymentTypeChange = (typeId: string) => {
     const selectedType = paymentTypes.find(t => t.id.toString() === typeId);
     setFormData(prev => ({
       ...prev,
-      typeId: typeId,
+      type_id: typeId,
       type: selectedType?.type || 'expense'
     }));
+    if (errors.type_id) {
+      setErrors(prev => ({ ...prev, type_id: '' }));
+    }
     setMenuVisible(false);
   };
 
   const getSelectedPaymentTypeName = () => {
-    const selectedType = paymentTypes.find(t => t.id.toString() === formData.typeId);
+    const selectedType = paymentTypes.find(t => t.id.toString() === formData.type_id);
     return selectedType ? selectedType.name : 'Select payment type';
   };
 
   const handleDateConfirm = (params: any) => {
-    // Format date locally to avoid timezone issues
-    const year = params.date.getFullYear();
-    const month = String(params.date.getMonth() + 1).padStart(2, '0');
-    const day = String(params.date.getDate()).padStart(2, '0');
+    const year          = params.date.getFullYear();
+    const month         = String(params.date.getMonth() + 1).padStart(2, '0');
+    const day           = String(params.date.getDate()).padStart(2, '0');
     const formattedDate = `${year}-${month}-${day}`;
 
     setFormData(prev => ({ ...prev, date: formattedDate }));
     setDatePickerVisible(false);
+    if (errors.date) {
+      setErrors(prev => ({ ...prev, date: '' }));
+    }
   };
 
   const handleDateDismiss = () => {
@@ -111,38 +122,61 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) {
-      return;
-    }
-
     setLoading(true);
     try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      };
+
       const paymentData = {
         name: formData.name.trim(),
         amount: Number(formData.amount),
         type: formData.type,
-        type_id: parseInt(formData.typeId) || 1,
+        type_id: parseInt(formData.type_id) || 1,
         date: formData.date,
-        description: formData.description.trim() || undefined,
+        payment_account_id: 1,
+        has_items: false,
+        has_charge: false,
+        is_scheduled: false,
       };
 
-      // ! DON'T UNCOMMENT THIS, NOT USED YET!
-      // const success = await addPayment(paymentData);
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(paymentData),
+      });
 
-      // if (success) {
-      //   Alert.alert(
-      //     'Success',
-      //     'Payment added successfully!',
-      //     [
-      //       {
-      //         text: 'OK',
-      //         onPress: () => navigation.goBack(),
-      //       },
-      //     ]
-      //   );
-      // } else {
-      //   Alert.alert('Error', 'Failed to add payment. Please try again.');
-      // }
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        Alert.alert(
+          'Success',
+          'Payment added successfully!',
+          [
+            {
+              text: 'OK',
+              onPress: () => navigation.goBack(),
+            },
+          ]
+        );
+      } else {
+        // Handle validation errors
+        if (data.errors) {
+          const newErrors = { ...errors };
+
+          Object.entries(data.errors).forEach(([field, messages]) => {
+            if (Array.isArray(messages) && messages.length > 0 && field in newErrors) {
+              newErrors[field as keyof typeof errors] = messages[0] as string;
+            }
+          });
+
+          setErrors(newErrors);
+        } else {
+          Alert.alert('Error', data.message || 'Failed to add payment. Please try again.');
+        }
+      }
     } catch (error) {
       console.error('Error adding payment:', error);
       Alert.alert('Error', 'An unexpected error occurred. Please try again.');
@@ -172,18 +206,19 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               Add a new payment record. Fill in the required information below.
             </Text>
 
-            {/* Amount */}
-            <FormInput
-              label="Amount (IDR)"
+            <TextInput
+              label="Amount (IDR) *"
               value={formData.amount}
               onChangeText={(value) => handleInputChange('amount', value)}
-              error={''}
-              leftIcon="currency-usd"
-              numeric
-              required
+              mode="outlined"
+              outlineColor="#e5e7eb"
+              activeOutlineColor="#6366f1"
+              style={styles.input}
+              placeholder="Amount (IDR) *"
+              left={<TextInput.Icon icon="currency-usd" />}
             />
+            {errors.amount && <HelperText type="error" style={styles.helperText}>{errors.amount}</HelperText>}
 
-            {/* Date */}
             <TouchableOpacity onPress={() => setDatePickerVisible(true)} activeOpacity={0.7}>
               <TextInput
                 label="Date *"
@@ -192,13 +227,13 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
                 mode="outlined"
                 outlineColor="#e5e7eb"
                 activeOutlineColor="#6366f1"
-                error={false}
-                style={[styles.input, { marginBottom: 16 }]}
+                style={styles.input}
                 editable={false}
                 placeholder="Select date"
                 left={<TextInput.Icon icon="calendar" />}
               />
             </TouchableOpacity>
+            {errors.date && <HelperText type="error" style={styles.helperText}>{errors.date}</HelperText>}
   
             {loadingPaymentTypes ? (
               <View style={styles.loadingContainer}>
@@ -218,12 +253,12 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
                     mode="outlined"
                     outlineColor="#e5e7eb"
                     activeOutlineColor="#6366f1"
-                    error={false}
-                    style={[styles.input, { marginBottom: 16 }]}
+                    style={styles.input}
                     editable={false}
                     right={<TextInput.Icon icon="menu-down" />}
                   />
                 </TouchableOpacity>
+                {errors.type_id && <HelperText type="error" style={styles.helperText}>{errors.type_id}</HelperText>}
 
                 {menuVisible && (
                   <View style={styles.dropdownContainer}>
@@ -245,20 +280,19 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               </>
             )}
 
-  
-            {/* Description */}
             <TextInput
-              label="Description"
-              value={formData.description}
-              onChangeText={(value) => handleInputChange('description', value)}
+              label="Description *"
+              value={formData.name}
+              onChangeText={(value) => handleInputChange('name', value)}
               mode="outlined"
               outlineColor="#e5e7eb"
               activeOutlineColor="#6366f1"
+              style={styles.input}
+              placeholder="Description *"
               multiline
               numberOfLines={4}
-              style={[styles.input, { marginBottom: 16 }]}
-              placeholder="Optional description..."
             />
+            {errors.name && <HelperText type="error" style={styles.helperText}>{errors.name}</HelperText>}
 
             <FormButton
               title="Add Payment"
@@ -321,6 +355,12 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: '#ffffff',
+    marginBottom: 16,
+  },
+  helperText: {
+    marginTop: -14, 
+    marginLeft: -6, 
+    marginBottom: 14
   },
   inputLabel: {
     fontSize: 16,
