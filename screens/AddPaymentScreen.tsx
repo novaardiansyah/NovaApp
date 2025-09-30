@@ -27,7 +27,9 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   const [loadingPaymentTypes, setLoadingPaymentTypes] = useState(false);
   const [loadingPaymentAccounts, setLoadingPaymentAccounts] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const [isTransferOrWidrawal, setIsTransferOrWithdrawal] = useState(false);
+
+  const initialFormData = {
     name: '',
     amount: '',
     type: 'expense',
@@ -35,16 +37,19 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     date: new Date().toISOString().split('T')[0],
     payment_account_id: '',
     payment_account_to_id: '',
-  });
+  };
 
-  const [errors, setErrors] = useState({
+  const initialErrors = {
     name: '',
     amount: '',
     type_id: '',
     date: '',
     payment_account_id: '',
     payment_account_to_id: '',
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
+  const [errors, setErrors] = useState(initialErrors);
 
   useEffect(() => {
     loadPaymentTypes();
@@ -90,7 +95,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
         const defaultAccount = accounts.find((account) => account.is_default) || accounts[0];
         const selected = defaultAccount.id.toString();
 
-        setFormData(prev => ({ ...prev, payment_account_id: selected, payment_account_to_id: selected }));
+        setFormData(prev => ({ ...prev, payment_account_id: selected }));
       }
     } catch (error) {
       console.error('Error loading payment accounts:', error);
@@ -99,9 +104,17 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     }
   };
 
+  const resetForm = () => {
+    setFormData({ ...initialFormData });
+    setErrors({ ...initialErrors });
+    setIsTransferOrWithdrawal(false);
+  };
+
   const refreshData = async () => {
     setRefreshing(true);
     try {
+      resetForm();
+      
       await Promise.all([
         loadPaymentTypes(),
         loadPaymentAccounts()
@@ -123,13 +136,21 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
 
   const handlePaymentTypeChange = (typeId: string) => {
     const selectedType = paymentTypes.find(t => t.id.toString() === typeId);
+
     setFormData(prev => ({
       ...prev,
       type_id: typeId,
       type: selectedType?.type || 'expense'
     }));
+
     if (errors.type_id) {
       setErrors(prev => ({ ...prev, type_id: '' }));
+    }
+
+    if (typeId === '3' || typeId === '4') {
+      setIsTransferOrWithdrawal(true);
+    } else {
+      setIsTransferOrWithdrawal(false);
     }
   };
 
@@ -178,6 +199,8 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
 
     setLoading(true);
     try {
+      let payment_account_to_id = isTransferOrWidrawal ? parseInt(formData.payment_account_to_id) : null;
+
       const paymentData: PaymentData = {
         name: formData.name.trim(),
         amount: Number(formData.amount),
@@ -185,10 +208,12 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
         type_id: parseInt(formData.type_id) || 1,
         date: formData.date,
         payment_account_id: parseInt(formData.payment_account_id) || 1,
+        payment_account_to_id,
         has_items: false,
         has_charge: false,
         is_scheduled: false,
       };
+      console.log('Payment Data:', paymentData)
 
       const response = await paymentService.createPayment(token, paymentData);
 
@@ -321,7 +346,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               error={errors.payment_account_to_id}
               style={styles.input}
               errorStyle={styles.helperText}
-              visible={false}
+              visible={isTransferOrWidrawal}
             />
 
             <TextInput
