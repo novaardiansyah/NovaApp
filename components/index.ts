@@ -6,3 +6,4 @@ export { default as Skeleton, BalanceCardSkeleton, TransactionItemSkeleton, Tran
 export { default as AllTransactionsSkeleton } from './AllTransactionsSkeleton';
 export { default as HomeTransactionsSkeleton } from './HomeTransactionsSkeleton';
 export { default as Select } from './Select';
+export { Notification } from './Notification';

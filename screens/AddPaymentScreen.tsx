@@ -8,7 +8,7 @@ registerTranslation('en', enGB);
 
 import { useAuth } from '@/contexts/AuthContext';
 import { Theme } from '@/constants/colors';
-import { FormButton, Select } from '@/components';
+import { FormButton, Select, Notification } from '@/components';
 import { styles } from '@/styles/AddPaymentScreen.styles';
 import paymentService, { PaymentData } from '@/services/paymentService';
 
@@ -23,6 +23,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   const [paymentTypes, setPaymentTypes] = useState<any[]>([]);
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [paymentAccounts, setPaymentAccounts] = useState<any[]>([]);
+  const [notification, setNotification] = useState<string | null>(null);
   
   const [loadingPaymentTypes, setLoadingPaymentTypes] = useState(false);
   const [loadingPaymentAccounts, setLoadingPaymentAccounts] = useState(false);
@@ -213,27 +214,14 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
         has_charge: false,
         is_scheduled: false,
       };
-      console.log('Payment Data:', paymentData)
 
       const response = await paymentService.createPayment(token, paymentData);
 
       if (response.success) {
-        Alert.alert(
-          'Success',
-          'Payment added successfully!',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                navigation.reset({
-                  index: 0,
-                  routes: [{ name: 'Home', params: { refresh: Date.now() } }],
-                });
-              },
-            },
-          ]
-        );
+        setNotification('Payment added successfully!');
       } else {
+        setLoading(false);
+
         if (response.errors) {
           const newErrors = { ...errors };
 
@@ -249,10 +237,9 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
         }
       }
     } catch (error) {
+      setLoading(false);
       console.error('Error adding payment:', error);
       Alert.alert('Error', 'An unexpected error occurred. Please try again.');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -295,10 +282,23 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               style={styles.input}
               placeholder="Amount (IDR) *"
               keyboardType="numeric"
-              left={<TextInput.Icon icon="currency-usd" />}
             />
             {errors.amount && <HelperText type="error" style={styles.helperText}>{errors.amount}</HelperText>}
 
+            <TextInput
+              label="Description *"
+              value={formData.name}
+              onChangeText={(value) => handleInputChange('name', value)}
+              mode="outlined"
+              outlineColor="#e5e7eb"
+              activeOutlineColor="#6366f1"
+              style={styles.input}
+              placeholder="Description *"
+              multiline
+              numberOfLines={4}
+            />
+            {errors.name && <HelperText type="error" style={styles.helperText}>{errors.name}</HelperText>}
+            
             <TouchableOpacity onPress={() => setDatePickerVisible(true)} activeOpacity={0.7}>
               <TextInput
                 label="Date *"
@@ -308,9 +308,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
                 outlineColor="#e5e7eb"
                 activeOutlineColor="#6366f1"
                 style={styles.input}
-                editable={false}
                 placeholder="Select date"
-                left={<TextInput.Icon icon="calendar" />}
               />
             </TouchableOpacity>
             {errors.date && <HelperText type="error" style={styles.helperText}>{errors.date}</HelperText>}
@@ -349,20 +347,6 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               visible={isTransferOrWidrawal}
             />
 
-            <TextInput
-              label="Description *"
-              value={formData.name}
-              onChangeText={(value) => handleInputChange('name', value)}
-              mode="outlined"
-              outlineColor="#e5e7eb"
-              activeOutlineColor="#6366f1"
-              style={styles.input}
-              placeholder="Description *"
-              multiline
-              numberOfLines={4}
-            />
-            {errors.name && <HelperText type="error" style={styles.helperText}>{errors.name}</HelperText>}
-
             <FormButton
               title="Add Payment"
               onPress={handleSubmit}
@@ -381,7 +365,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
           </ScrollView>
         </KeyboardAvoidingView>
       </View>
-  
+
       <DatePickerModal
           visible={datePickerVisible}
           onDismiss={handleDateDismiss}
@@ -394,7 +378,21 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
           presentationStyle="pageSheet"
           locale="en"
         />
-      </PaperProvider>
+
+      <Notification
+        visible={!!notification}
+        message={notification || ''}
+        onDismiss={() => {
+          setNotification(null);
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Home', params: { refresh: Date.now() } }],
+          });
+        }}
+        type="success"
+        duration={2000}
+      />
+    </PaperProvider>
   );
 };
 

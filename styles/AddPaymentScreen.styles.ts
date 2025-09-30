@@ -29,9 +29,9 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
   },
   helperText: {
-    marginTop: -14,
+    marginTop: -16,
     marginLeft: -6,
-    marginBottom: 14
+    marginBottom: 8
   },
   inputLabel: {
     fontSize: 16,
