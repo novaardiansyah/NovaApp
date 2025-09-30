@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, Alert, KeyboardAvoidingView, Platform, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Text, Alert, KeyboardAvoidingView, Platform, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { PaperProvider, Appbar, TextInput, Button, HelperText } from 'react-native-paper';
 import { DatePickerModal, registerTranslation } from 'react-native-paper-dates';
 import { enGB } from 'react-native-paper-dates';
@@ -7,9 +7,10 @@ import { enGB } from 'react-native-paper-dates';
 registerTranslation('en', enGB);
 
 import { useAuth } from '@/contexts/AuthContext';
-import APP_CONFIG from '@/config/app';
 import { Theme } from '@/constants/colors';
 import { FormButton } from '@/components';
+import { styles } from '@/styles/AddPaymentScreen.styles';
+import paymentService, { PaymentData } from '@/services/paymentService';
 
 interface AddPaymentScreenProps {
   navigation: any;
@@ -22,6 +23,9 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   const [paymentTypes, setPaymentTypes] = useState<any[]>([]);
   const [loadingPaymentTypes, setLoadingPaymentTypes] = useState(true);
   const [datePickerVisible, setDatePickerVisible] = useState(false);
+  const [accountMenuVisible, setAccountMenuVisible] = useState(false);
+  const [paymentAccounts, setPaymentAccounts] = useState<any[]>([]);
+  const [loadingPaymentAccounts, setLoadingPaymentAccounts] = useState(true);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -29,6 +33,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     type: 'expense',
     type_id: '1',
     date: new Date().toISOString().split('T')[0],
+    payment_account_id: '1',
   });
 
   const [errors, setErrors] = useState({
@@ -41,6 +46,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
 
   useEffect(() => {
     loadPaymentTypes();
+    loadPaymentAccounts();
   }, []);
 
   const loadPaymentTypes = async () => {
@@ -50,31 +56,38 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     }
 
     try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      };
+      const types = await paymentService.getPaymentTypes(token);
+      setPaymentTypes(types);
 
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payment-types`, {
-        method: 'GET',
-        headers,
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setPaymentTypes(data.data);
-        
-        const defaultExpenseType = data.data.find((t: any) => t.type === 'expense');
-        if (defaultExpenseType) {
-          setFormData(prev => ({ ...prev, type_id: defaultExpenseType.id.toString() }));
-        }
+      const defaultExpenseType = types.find((t) => t.type === 'expense');
+      if (defaultExpenseType) {
+        setFormData(prev => ({ ...prev, type_id: defaultExpenseType.id.toString() }));
       }
     } catch (error) {
       console.error('Error loading payment types:', error);
     } finally {
       setLoadingPaymentTypes(false);
+    }
+  };
+
+  const loadPaymentAccounts = async () => {
+    if (!token) {
+      setLoadingPaymentAccounts(false);
+      return;
+    }
+
+    try {
+      const accounts = await paymentService.getPaymentAccounts(token);
+      setPaymentAccounts(accounts);
+
+      if (accounts.length > 0) {
+        const defaultAccount = accounts.find((account) => account.is_default) || accounts[0];
+        setFormData(prev => ({ ...prev, payment_account_id: defaultAccount.id.toString() }));
+      }
+    } catch (error) {
+      console.error('Error loading payment accounts:', error);
+    } finally {
+      setLoadingPaymentAccounts(false);
     }
   };
 
@@ -97,6 +110,22 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
       setErrors(prev => ({ ...prev, type_id: '' }));
     }
     setMenuVisible(false);
+  };
+
+  const handlePaymentAccountChange = (accountId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      payment_account_id: accountId
+    }));
+    if (errors.payment_account_id) {
+      setErrors(prev => ({ ...prev, payment_account_id: '' }));
+    }
+    setAccountMenuVisible(false);
+  };
+
+  const getSelectedPaymentAccountName = () => {
+    const selectedAccount = paymentAccounts.find(a => a.id.toString() === formData.payment_account_id);
+    return selectedAccount ? selectedAccount.name : 'Select payment account';
   };
 
   const getSelectedPaymentTypeName = () => {
@@ -122,51 +151,48 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
+    if (!token) {
+      Alert.alert('Error', 'Authentication token not found. Please login again.');
+      return;
+    }
+
     setLoading(true);
     try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      };
-
-      const paymentData = {
+      const paymentData: PaymentData = {
         name: formData.name.trim(),
         amount: Number(formData.amount),
         type: formData.type,
         type_id: parseInt(formData.type_id) || 1,
         date: formData.date,
-        payment_account_id: 1,
+        payment_account_id: parseInt(formData.payment_account_id) || 1,
         has_items: false,
         has_charge: false,
         is_scheduled: false,
       };
 
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(paymentData),
-      });
+      const response = await paymentService.createPayment(token, paymentData);
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (response.success) {
         Alert.alert(
           'Success',
           'Payment added successfully!',
           [
             {
               text: 'OK',
-              onPress: () => navigation.goBack(),
+              onPress: () => {
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'Home', params: { refresh: Date.now() } }],
+                });
+              },
             },
           ]
         );
       } else {
-        // Handle validation errors
-        if (data.errors) {
+        if (response.errors) {
           const newErrors = { ...errors };
 
-          Object.entries(data.errors).forEach(([field, messages]) => {
+          Object.entries(response.errors).forEach(([field, messages]) => {
             if (Array.isArray(messages) && messages.length > 0 && field in newErrors) {
               newErrors[field as keyof typeof errors] = messages[0] as string;
             }
@@ -174,7 +200,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
 
           setErrors(newErrors);
         } else {
-          Alert.alert('Error', data.message || 'Failed to add payment. Please try again.');
+          Alert.alert('Error', response.message || 'Failed to add payment. Please try again.');
         }
       }
     } catch (error) {
@@ -215,6 +241,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               activeOutlineColor="#6366f1"
               style={styles.input}
               placeholder="Amount (IDR) *"
+              keyboardType="numeric"
               left={<TextInput.Icon icon="currency-usd" />}
             />
             {errors.amount && <HelperText type="error" style={styles.helperText}>{errors.amount}</HelperText>}
@@ -234,7 +261,52 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               />
             </TouchableOpacity>
             {errors.date && <HelperText type="error" style={styles.helperText}>{errors.date}</HelperText>}
-  
+
+            {loadingPaymentAccounts ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color="#6366f1" />
+                <Text style={styles.loadingText}>Loading accounts...</Text>
+              </View>
+            ) : (
+              <>
+                <TouchableOpacity
+                  onPress={() => setAccountMenuVisible(!accountMenuVisible)}
+                  activeOpacity={0.7}
+                >
+                  <TextInput
+                    label="Payment Account"
+                    value={getSelectedPaymentAccountName()}
+                    onChangeText={() => {}}
+                    mode="outlined"
+                    outlineColor="#e5e7eb"
+                    activeOutlineColor="#6366f1"
+                    style={styles.input}
+                    editable={false}
+                    right={<TextInput.Icon icon="menu-down" />}
+                  />
+                </TouchableOpacity>
+                {errors.payment_account_id && <HelperText type="error" style={styles.helperText}>{errors.payment_account_id}</HelperText>}
+
+                {accountMenuVisible && (
+                  <View style={styles.dropdownContainer}>
+                    <ScrollView style={styles.dropdownScroll} nestedScrollEnabled={true}>
+                      {paymentAccounts.map((account) => (
+                        <TouchableOpacity
+                          key={account.id}
+                          style={styles.dropdownItem}
+                          onPress={() => handlePaymentAccountChange(account.id.toString())}
+                        >
+                          <Text style={styles.dropdownItemText}>
+                            {account.name}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
+              </>
+            )}
+
             {loadingPaymentTypes ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="small" color="#6366f1" />
@@ -247,7 +319,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
                   activeOpacity={0.7}
                 >
                   <TextInput
-                    label="Payment Type *"
+                    label="Payment Type"
                     value={getSelectedPaymentTypeName()}
                     onChangeText={() => {}}
                     mode="outlined"
@@ -328,90 +400,5 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
       </PaperProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9fafb',
-  },
-  keyboardAvoidingContainer: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 24,
-    paddingBottom: 100,
-  },
-  description: {
-    fontSize: 16,
-    color: '#6b7280',
-    marginBottom: 24,
-    lineHeight: 24,
-  },
-  inputGroup: {
-    marginBottom: 20,
-  },
-  input: {
-    backgroundColor: '#ffffff',
-    marginBottom: 16,
-  },
-  helperText: {
-    marginTop: -14, 
-    marginLeft: -6, 
-    marginBottom: 14
-  },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#374151',
-    marginBottom: 12,
-  },
-  loadingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  loadingText: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginLeft: 8,
-  },
-  dropdownContainer: {
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    marginTop: 4,
-    maxHeight: 200,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  dropdownScroll: {
-    maxHeight: 200,
-  },
-  dropdownItem: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  dropdownItemText: {
-    fontSize: 16,
-    color: '#374151',
-  },
-  cancelButton: {
-    marginTop: -10,
-    borderColor: '#e5e7eb',
-    borderRadius: 8,
-    paddingVertical: 4,
-  },
-});
 
 export default AddPaymentScreen;

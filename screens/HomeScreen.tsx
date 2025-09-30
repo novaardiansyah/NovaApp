@@ -13,9 +13,10 @@ import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig 
 
 interface HomeScreenProps {
   navigation: any;
+  route?: any;
 }
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
   const { user, isAuthenticated, fetchFinancialData, fetchRecentTransactions, validateToken, logout } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
@@ -90,7 +91,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       // Load financial data only after token validation is complete
       loadFinancialData();
     }
-  }, [isAuthenticated, hasValidated]);
+  }, [isAuthenticated, hasValidated, route?.params?.refresh]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -238,14 +239,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                               { backgroundColor: getTransactionColor(transaction.type) }
                             ]}>
                               <Ionicons
-                                name={getTransactionIcon(transaction.type)}
+                                name={getTransactionIcon(transaction.type) as any}
                                 size={16}
                                 color="white"
                               />
                             </View>
                             <View style={homeStyles.transactionInfo}>
                               <Text style={homeStyles.transactionTitle} numberOfLines={1} ellipsizeMode="tail">{transaction.name || transaction.title}</Text>
-                              <Text style={homeStyles.transactionDate}>{transaction.date}</Text>
+                              <Text style={homeStyles.transactionDate}>{transaction.formatted_date}</Text>
                             </View>
                           </View>
                           <View style={homeStyles.transactionRight}>

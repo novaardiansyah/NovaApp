@@ -132,7 +132,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 14,
   },
   seeAllText: {
     fontSize: 14,
@@ -232,27 +232,26 @@ export const styles = StyleSheet.create({
     color: '#6b7280',
     fontSize: 14,
   },
+});
 
-  // Transaction Colors
-  transactionColors: {
+// Helper functions
+export const getTransactionColor = (type: string): string => {
+  const colors = {
     income: '#10b981',
     expense: '#ef4444',
     transfer: '#3b82f6',
     withdrawal: '#f59e0b',
-  } as const,
-});
+  };
 
-// Helper functions
-export const getTransactionColor = (type: string) => {
   switch (type) {
-    case 'income': return styles.transactionColors.income;
-    case 'expense': return styles.transactionColors.expense;
-    case 'transfer': return styles.transactionColors.transfer;
-    default: return styles.transactionColors.withdrawal;
+    case 'income': return colors.income;
+    case 'expense': return colors.expense;
+    case 'transfer': return colors.transfer;
+    default: return colors.withdrawal;
   }
 };
 
-export const getTransactionIcon = (type: string) => {
+export const getTransactionIcon = (type: string): any => {
   switch (type) {
     case 'income': return 'arrow-down';
     case 'expense': return 'arrow-up';
