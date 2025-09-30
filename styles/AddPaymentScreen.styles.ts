@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 24,
-    paddingBottom: 100,
+    paddingBottom: 50,
   },
   description: {
     fontSize: 16,
@@ -38,45 +38,6 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#374151',
     marginBottom: 12,
-  },
-  loadingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  loadingText: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginLeft: 8,
-  },
-  dropdownContainer: {
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    marginTop: -6,
-    marginBottom: 16,
-    maxHeight: 200,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  dropdownScroll: {
-    maxHeight: 200,
-  },
-  dropdownItem: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  dropdownItemText: {
-    fontSize: 16,
-    color: '#374151',
   },
   cancelButton: {
     marginTop: -10,

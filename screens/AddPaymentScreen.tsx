@@ -8,7 +8,7 @@ registerTranslation('en', enGB);
 
 import { useAuth } from '@/contexts/AuthContext';
 import { Theme } from '@/constants/colors';
-import { FormButton, DropdownSkeleton, DropdownItemsSkeleton } from '@/components';
+import { FormButton, Select } from '@/components';
 import { styles } from '@/styles/AddPaymentScreen.styles';
 import paymentService, { PaymentData } from '@/services/paymentService';
 
@@ -20,10 +20,8 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [menuVisible, setMenuVisible] = useState(false);
   const [paymentTypes, setPaymentTypes] = useState<any[]>([]);
   const [datePickerVisible, setDatePickerVisible] = useState(false);
-  const [accountMenuVisible, setAccountMenuVisible] = useState(false);
   const [paymentAccounts, setPaymentAccounts] = useState<any[]>([]);
   
   const [loadingPaymentTypes, setLoadingPaymentTypes] = useState(false);
@@ -35,7 +33,8 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     type: 'expense',
     type_id: '1',
     date: new Date().toISOString().split('T')[0],
-    payment_account_id: '1',
+    payment_account_id: '',
+    payment_account_to_id: '',
   });
 
   const [errors, setErrors] = useState({
@@ -44,6 +43,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     type_id: '',
     date: '',
     payment_account_id: '',
+    payment_account_to_id: '',
   });
 
   useEffect(() => {
@@ -88,7 +88,9 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
 
       if (accounts.length > 0) {
         const defaultAccount = accounts.find((account) => account.is_default) || accounts[0];
-        setFormData(prev => ({ ...prev, payment_account_id: defaultAccount.id.toString() }));
+        const selected = defaultAccount.id.toString();
+
+        setFormData(prev => ({ ...prev, payment_account_id: selected, payment_account_to_id: selected }));
       }
     } catch (error) {
       console.error('Error loading payment accounts:', error);
@@ -129,7 +131,6 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     if (errors.type_id) {
       setErrors(prev => ({ ...prev, type_id: '' }));
     }
-    setMenuVisible(false);
   };
 
   const handlePaymentAccountChange = (accountId: string) => {
@@ -140,17 +141,16 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     if (errors.payment_account_id) {
       setErrors(prev => ({ ...prev, payment_account_id: '' }));
     }
-    setAccountMenuVisible(false);
   };
 
-  const getSelectedPaymentAccountName = () => {
-    const selectedAccount = paymentAccounts.find(a => a.id.toString() === formData.payment_account_id);
-    return selectedAccount ? selectedAccount.name : 'Select payment account';
-  };
-
-  const getSelectedPaymentTypeName = () => {
-    const selectedType = paymentTypes.find(t => t.id.toString() === formData.type_id);
-    return selectedType ? selectedType.name : 'Select payment type';
+  const handlePaymentAccountToChange = (accountId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      payment_account_to_id: accountId
+    }));
+    if (errors.payment_account_to_id) {
+      setErrors(prev => ({ ...prev, payment_account_to_id: '' }));
+    }
   };
 
   const handleDateConfirm = (params: any) => {
@@ -290,91 +290,39 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
             </TouchableOpacity>
             {errors.date && <HelperText type="error" style={styles.helperText}>{errors.date}</HelperText>}
 
-            {/* Category */}
-            {loadingPaymentTypes ? (
-              <DropdownSkeleton style={styles.input} />
-            ) : (
-              <>
-                <TouchableOpacity
-                  onPress={() => setMenuVisible(!menuVisible)}
-                  activeOpacity={0.7}
-                >
-                  <TextInput
-                    label="Category"
-                    value={getSelectedPaymentTypeName()}
-                    onChangeText={() => {}}
-                    mode="outlined"
-                    outlineColor="#e5e7eb"
-                    activeOutlineColor="#6366f1"
-                    style={styles.input}
-                    editable={false}
-                    right={<TextInput.Icon icon="menu-down" />}
-                  />
-                </TouchableOpacity>
-                {errors.type_id && <HelperText type="error" style={styles.helperText}>{errors.type_id}</HelperText>}
+            <Select
+              label="Category"
+              value={formData.type_id}
+              onValueChange={handlePaymentTypeChange}
+              options={paymentTypes}
+              loading={loadingPaymentTypes}
+              error={errors.type_id}
+              style={styles.input}
+              errorStyle={styles.helperText}
+            />
 
-                {menuVisible && (
-                  <View style={styles.dropdownContainer}>
-                    <ScrollView style={styles.dropdownScroll} nestedScrollEnabled={true}>
-                      {paymentTypes.map((type) => (
-                        <TouchableOpacity
-                          key={type.id}
-                          style={styles.dropdownItem}
-                          onPress={() => handlePaymentTypeChange(type.id.toString())}
-                        >
-                          <Text style={styles.dropdownItemText}>
-                            {type.name}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                  </View>
-                )}
-              </>
-            )}
+            <Select
+              label="Payment Account"
+              value={formData.payment_account_id}
+              onValueChange={handlePaymentAccountChange}
+              options={paymentAccounts}
+              loading={loadingPaymentAccounts}
+              error={errors.payment_account_id}
+              style={styles.input}
+              errorStyle={styles.helperText}
+            />
 
-            {/* Payment Account */}
-            {loadingPaymentAccounts ? (
-              <DropdownSkeleton style={styles.input} />
-            ) : (
-              <>
-                <TouchableOpacity
-                  onPress={() => setAccountMenuVisible(!accountMenuVisible)}
-                  activeOpacity={0.7}
-                >
-                  <TextInput
-                    label="Payment Account"
-                    value={getSelectedPaymentAccountName()}
-                    onChangeText={() => {}}
-                    mode="outlined"
-                    outlineColor="#e5e7eb"
-                    activeOutlineColor="#6366f1"
-                    style={styles.input}
-                    editable={false}
-                    right={<TextInput.Icon icon="menu-down" />}
-                  />
-                </TouchableOpacity>
-                {errors.payment_account_id && <HelperText type="error" style={styles.helperText}>{errors.payment_account_id}</HelperText>}
-
-                {accountMenuVisible && (
-                  <View style={styles.dropdownContainer}>
-                    <ScrollView style={styles.dropdownScroll} nestedScrollEnabled={true}>
-                      {paymentAccounts.map((account) => (
-                        <TouchableOpacity
-                          key={account.id}
-                          style={styles.dropdownItem}
-                          onPress={() => handlePaymentAccountChange(account.id.toString())}
-                        >
-                          <Text style={styles.dropdownItemText}>
-                            {account.name}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                  </View>
-                )}
-              </>
-            )}
+            <Select
+              label="To Payment Account"
+              value={formData.payment_account_to_id}
+              onValueChange={handlePaymentAccountToChange}
+              options={paymentAccounts}
+              loading={loadingPaymentAccounts}
+              error={errors.payment_account_to_id}
+              style={styles.input}
+              errorStyle={styles.helperText}
+              visible={false}
+            />
 
             <TextInput
               label="Description *"
