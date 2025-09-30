@@ -9,6 +9,7 @@ interface FormButtonProps extends Omit<ButtonProps, 'mode' | 'style' | 'labelSty
   disabled?: boolean;
   variant?: 'primary' | 'secondary' | 'outline';
   fullWidth?: boolean;
+  style?: ButtonProps['style'];
 }
 
 const FormButton: React.FC<FormButtonProps> = ({
@@ -17,6 +18,7 @@ const FormButton: React.FC<FormButtonProps> = ({
   disabled = false,
   variant = 'primary',
   fullWidth = true,
+  style,
   onPress,
   icon,
 }) => {
@@ -63,7 +65,7 @@ const FormButton: React.FC<FormButtonProps> = ({
     return contentStyle;
   };
 
-  const buttonStyle = { ...getButtonStyle() };
+  const buttonStyle = { ...getButtonStyle(), ...style };
   if (disabled) {
     Object.assign(buttonStyle, styles.disabledButton);
   }

@@ -42,8 +42,9 @@ export const styles = StyleSheet.create({
   cancelButton: {
     marginTop: -10,
     borderColor: '#e5e7eb',
-    borderRadius: 8,
-    paddingVertical: 4,
+  },
+  addButton: {
+    marginTop: 20
   },
   accordion: {
     backgroundColor: '#ffffff',

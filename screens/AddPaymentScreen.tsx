@@ -412,23 +412,22 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
             </List.Accordion>
 
 
-            <View style={{ marginTop: 12 }}>
-              <FormButton
-                title="Add Payment"
-                onPress={handleSubmit}
-                loading={loading}
-                icon="cash-plus"
-              />
+            <FormButton
+              title="Add Payment"
+              onPress={handleSubmit}
+              loading={loading}
+              icon="cash-plus"
+              style={styles.addButton}
+            />
 
-              <Button
-                mode="outlined"
-                onPress={() => navigation.goBack()}
-                style={styles.cancelButton}
-                disabled={loading}
-              >
-                Cancel
-              </Button>
-            </View>
+            <FormButton
+              title="Cancel"
+              onPress={() => navigation.goBack()}
+              variant="outline"
+              fullWidth={true}
+              disabled={loading}
+              style={styles.cancelButton}
+            />
           </ScrollView>
         </KeyboardAvoidingView>
       </View>
