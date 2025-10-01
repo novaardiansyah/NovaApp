@@ -29,6 +29,18 @@ export interface PaymentData {
   is_scheduled: boolean;
 }
 
+export interface PaymentItemData {
+  name: string;
+  amount: number;
+  qty: number;
+  item_id?: number | null;
+}
+
+export interface AttachMultipleItemsData {
+  items: PaymentItemData[];
+  totalAmount: number;
+}
+
 export interface SearchItem {
   id: number;
   name: string;
@@ -126,6 +138,22 @@ class PaymentService {
       throw new Error('Failed to search items');
     } catch (error) {
       console.error('Error searching items:', error);
+      throw error;
+    }
+  }
+
+  async attachMultipleItems(token: string, paymentId: number, itemsData: AttachMultipleItemsData): Promise<ApiResponse<any>> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/items/attach-multiple`, {
+        method: 'POST',
+        headers: this.getHeaders(token),
+        body: JSON.stringify(itemsData),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error attaching multiple items:', error);
       throw error;
     }
   }

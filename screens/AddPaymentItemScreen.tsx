@@ -1,20 +1,20 @@
 import React, { useState, useCallback } from 'react';
 import { View, ScrollView, Text, KeyboardAvoidingView, Platform, Alert, RefreshControl, Modal, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Card, TextInput, Button, Divider } from 'react-native-paper';
+import { PaperProvider, Card, TextInput, Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
-import { FormButton } from '@/components';
+import { FormButton, Notification } from '@/components';
 import { commonStyles } from '@/styles';
 import { styles } from '@/styles/AddPaymentItemScreen.styles';
 import { useAuth } from '@/contexts/AuthContext';
-import paymentService, { SearchItem } from '@/services/paymentService';
+import paymentService, { SearchItem, AttachMultipleItemsData } from '@/services/paymentService';
 
 interface PaymentItem {
   name: string;
   amount: string;
   qty: string;
-  item_id?: number; // Hidden field for items from search
+  item_id?: number;
 }
 
 interface AddPaymentItemScreenProps {
@@ -30,20 +30,16 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
   const { paymentId } = route.params;
   const { token } = useAuth();
 
-  if (!token) {
-    return null; // or redirect to login
-  }
-
-  console.log('Payment ID:', paymentId)
+  if (!token) return null;
 
   const [items, setItems] = useState<PaymentItem[]>([
     { name: '', amount: '', qty: '1' }
   ]);
+
   const [loading, setLoading] = useState(false);
   const [totalAmount, setTotalAmount] = useState('0');
   const [refreshing, setRefreshing] = useState(false);
-
-  // Search states
+  const [notification, setNotification] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchItem[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -105,7 +101,6 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
       const results = await paymentService.searchNotAttachedItems(token, paymentId, searchQuery);
       setSearchResults(results);
     } catch (error) {
-      console.error('Search error:', error);
       setSearchResults([]);
       Alert.alert('Search Error', 'Failed to search items. Please try again.');
     } finally {
@@ -178,12 +173,12 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
     return true;
   };
 
-  const savePaymentItems = () => {
+  const savePaymentItems = async () => {
     if (!validateItems()) return;
 
     setLoading(true);
 
-    const formData = {
+    const formData: AttachMultipleItemsData = {
       items: items.map(item => ({
         name: item.name,
         amount: parseFloat(item.amount),
@@ -192,20 +187,28 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
       })),
       totalAmount: parseFloat(totalAmount)
     };
-    
-    setTimeout(() => {
-      setLoading(false);
+
+    try {
+      const response = await paymentService.attachMultipleItems(token, paymentId, formData);
+
+      if (response.success) {
+        setNotification('Payment items added successfully!');
+      } else {
+        Alert.alert(
+          'Error',
+          response.message || 'Failed to save payment items',
+          [{ text: 'OK' }]
+        );
+        setLoading(false);
+      }
+    } catch (error) {
       Alert.alert(
-        'Success',
-        'Payment items saved successfully (UI Only)',
-        [
-          {
-            text: 'OK',
-            onPress: () => navigation.navigate('Home')
-          }
-        ]
+        'Error',
+        'Failed to save payment items. Please try again.',
+        [{ text: 'OK' }]
       );
-    }, 1500);
+      setLoading(false);
+    }
   };
 
   return (
@@ -462,6 +465,16 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
           </View>
         </SafeAreaView>
       </Modal>
+
+      <Notification
+        visible={!!notification}
+        message={notification || ''}
+        onDismiss={() => {
+          setNotification(null);
+          navigation.navigate('AllTransactions', { refresh: Date.now() });
+        }}
+        type="success"
+      />
     </PaperProvider>
   );
 };

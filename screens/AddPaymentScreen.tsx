@@ -458,10 +458,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
         message={notification || ''}
         onDismiss={() => {
           setNotification(null);
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Home', params: { refresh: Date.now() } }],
-          });
+          navigation.navigate('Home', { refresh: Date.now() });
         }}
         type="success"
         duration={2000}
