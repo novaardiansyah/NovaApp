@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, RefreshControl, ActivityIndicator, StatusBar, TouchableOpacity, Alert } from 'react-native';
+import { View, ScrollView, Text, RefreshControl, ActivityIndicator, StatusBar, TouchableOpacity, Alert, Modal, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -53,6 +53,9 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
   const [loadingMore, setLoadingMore] = useState(false);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [actionSheetVisible, setActionSheetVisible] = useState(false);
+  const [pressedCardId, setPressedCardId] = useState<number | null>(null);
 
   const fetchTransactions = async (page: number = 1) => {
     if (!isAuthenticated || loading || loadingMore) return;
@@ -125,24 +128,36 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
   };
 
   const handleTransactionPress = (transaction: Transaction) => {
-    if (transaction.has_items) {
-      Alert.alert(
-        'Payment Items',
-        'This payment has items. Do you want to view or add more items?',
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-          {
-            text: 'View Items',
-            onPress: () => {
-              navigation.navigate('AddPaymentItem', { paymentId: transaction.id });
-            },
-          },
-        ]
-      );
+    setSelectedTransaction(transaction);
+    setActionSheetVisible(true);
+  };
+
+  const handleActionSelect = (action: string) => {
+    if (!selectedTransaction) return;
+
+    setActionSheetVisible(false);
+
+    switch (action) {
+      case 'view_items':
+        Alert.alert('Coming Soon', 'View payment item details feature will be available soon.');
+        break;
+      case 'add_items':
+        navigation.navigate('AddPaymentItem', { paymentId: selectedTransaction.id });
+        break;
+      case 'view_details':
+        Alert.alert('Coming Soon', 'View payment details feature will be available soon.');
+        break;
+      case 'edit_payment':
+        Alert.alert('Coming Soon', 'Edit payment feature will be available soon.');
+        break;
+      case 'delete_payment':
+        Alert.alert('Coming Soon', 'Delete payment feature will be available soon.');
+        break;
     }
+  };
+
+  const closeActionSheet = () => {
+    setActionSheetVisible(false);
   };
 
   const getTransactionColor = (type: string) => {
@@ -206,12 +221,13 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                   </Card>
                 ) : (
                   transactions.map((transaction, index) => (
-                    <TouchableOpacity
+                    <Pressable
                       key={transaction.id}
                       onPress={() => handleTransactionPress(transaction)}
-                      disabled={!transaction.has_items}
+                      onPressIn={() => setPressedCardId(transaction.id)}
+                      onPressOut={() => setPressedCardId(null)}
                       style={[
-                        transaction.has_items ? styles.transactionCardTouchable : null,
+                        styles.transactionCardTouchable,
                         { marginBottom: index < transactions.length - 1 ? 8 : 0 }
                       ]}
                     >
@@ -219,7 +235,8 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                         style={[
                           commonStyles.card,
                           styles.transactionCard,
-                          transaction.has_items && styles.transactionCardWithItems
+                          transaction.has_items && styles.transactionCardWithItems,
+                          pressedCardId === transaction.id && styles.transactionCardPressed
                         ]}
                       >
                         <Card.Content style={styles.transactionContent}>
@@ -251,10 +268,18 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                             {transaction.type === 'income' ? '+' : '-'}
                             {transaction.formatted_amount}
                           </Text>
+                          {transaction.has_items && (
+                            <Ionicons
+                              name="list-outline"
+                              size={14}
+                              color="#6b7280"
+                              style={{ marginLeft: 4 }}
+                            />
+                          )}
                         </View>
                       </Card.Content>
                     </Card>
-                    </TouchableOpacity>
+                    </Pressable>
                   ))
                 )}
               </View>
@@ -289,6 +314,81 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           </View>
         </ScrollView>
       </SafeAreaView>
+
+      {/* Simple Action Sheet */}
+      <Modal
+        visible={actionSheetVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={closeActionSheet}
+      >
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <TouchableOpacity
+            style={{ flex: 1 }}
+            activeOpacity={1}
+            onPress={closeActionSheet}
+          />
+
+          <View style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 }}>
+            <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
+              Payment Actions
+            </Text>
+
+            <View style={{ paddingHorizontal: 20 }}>
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                onPress={() => handleActionSelect('view_details')}
+              >
+                <Ionicons name="eye-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>View Details</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                onPress={() => handleActionSelect('edit_payment')}
+              >
+                <Ionicons name="create-outline" size={24} color="#10b981" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Edit Payment</Text>
+              </TouchableOpacity>
+
+              {selectedTransaction?.has_items && (
+                <>
+                  <TouchableOpacity
+                    style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                    onPress={() => handleActionSelect('view_items')}
+                  >
+                    <Ionicons name="list-outline" size={24} color="#f59e0b" style={{ marginRight: 16 }} />
+                    <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>View Items</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                    onPress={() => handleActionSelect('add_items')}
+                  >
+                    <Ionicons name="add-circle-outline" size={24} color="#8b5cf6" style={{ marginRight: 16 }} />
+                    <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Add More Items</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#fef2f2', marginBottom: 8 }}
+                onPress={() => handleActionSelect('delete_payment')}
+              >
+                <Ionicons name="trash-outline" size={24} color="#ef4444" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 16, fontWeight: '500', color: '#ef4444' }}>Delete Payment</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 16, borderRadius: 12, backgroundColor: '#f3f4f6', alignItems: 'center' }}
+              onPress={closeActionSheet}
+            >
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#374151' }}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </Modal>
     </PaperProvider>
   );
 };

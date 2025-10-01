@@ -144,13 +144,18 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 
+  transactionCardPressed: {
+    backgroundColor: '#f3f4f6',
+    opacity: 0.8,
+  },
+
   transactionCardWithItems: {
-    borderWidth: 2,
-    borderColor: '#6366f1',
-    elevation: 4,
-    shadowColor: '#6366f1',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    elevation: 2,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     shadowRadius: 4,
   },
 });
