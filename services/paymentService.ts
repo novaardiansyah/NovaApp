@@ -29,6 +29,16 @@ export interface PaymentData {
   is_scheduled: boolean;
 }
 
+export interface SearchItem {
+  id: number;
+  name: string;
+  code: string;
+  amount: number;
+  formatted_amount: string;
+  type: string;
+  type_id: number;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
@@ -96,6 +106,26 @@ class PaymentService {
       return data;
     } catch (error) {
       console.error('Error creating payment:', error);
+      throw error;
+    }
+  }
+
+  async searchNotAttachedItems(token: string, paymentId: number, searchQuery: string): Promise<SearchItem[]> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/items/not-attached?search=${encodeURIComponent(searchQuery)}`, {
+        method: 'GET',
+        headers: this.getHeaders(token),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        return data.data;
+      }
+
+      throw new Error('Failed to search items');
+    } catch (error) {
+      console.error('Error searching items:', error);
       throw error;
     }
   }
