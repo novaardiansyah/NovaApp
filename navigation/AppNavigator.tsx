@@ -10,6 +10,7 @@ import ChangePasswordScreen from '@/screens/ChangePasswordScreen';
 import UpdateProfileScreen from '@/screens/UpdateProfileScreen';
 import AllTransactionsScreen from '@/screens/AllTransactionsScreen';
 import AddPaymentScreen from '@/screens/AddPaymentScreen';
+import AddPaymentItemScreen from '@/screens/AddPaymentItemScreen';
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
@@ -54,6 +55,11 @@ const HomeStackNavigator = () => {
         name="AddPayment"
         component={AddPaymentScreen}
         options={{ title: 'Add Payment' }}
+      />
+      <MainStack.Screen
+        name="AddPaymentItem"
+        component={AddPaymentItemScreen}
+        options={{ title: 'Add Payment Items' }}
       />
     </MainStack.Navigator>
   );

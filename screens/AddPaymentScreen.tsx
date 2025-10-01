@@ -230,6 +230,15 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
 
       if (response.success) {
         setNotification('Payment added successfully!');
+
+        // Redirect based on has_items
+        setTimeout(() => {
+          if (formData.has_items) {
+            navigation.navigate('AddPaymentItem', { paymentId: response.data.id });
+          } else {
+            navigation.navigate('Home');
+          }
+        }, 1000);
       } else {
         setLoading(false);
 
@@ -424,8 +433,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               title="Cancel"
               onPress={() => navigation.goBack()}
               variant="outline"
-              fullWidth={true}
-              disabled={loading}
+              loading={loading}
               style={styles.cancelButton}
             />
           </ScrollView>

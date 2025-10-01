@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, RefreshControl, ActivityIndicator, StatusBar, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Text, RefreshControl, ActivityIndicator, StatusBar, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,6 +22,7 @@ interface Transaction {
   type: 'income' | 'expense';
   type_id: number;
   updated_at: string;
+  has_items?: boolean;
 }
 
 interface Pagination {
@@ -123,6 +124,27 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
     }
   };
 
+  const handleTransactionPress = (transaction: Transaction) => {
+    if (transaction.has_items) {
+      Alert.alert(
+        'Payment Items',
+        'This payment has items. Do you want to view or add more items?',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'View Items',
+            onPress: () => {
+              navigation.navigate('AddPaymentItem', { paymentId: transaction.id });
+            },
+          },
+        ]
+      );
+    }
+  };
+
   const getTransactionColor = (type: string) => {
     return type === 'income' ? '#10b981' : '#ef4444';
   };
@@ -184,11 +206,20 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                   </Card>
                 ) : (
                   transactions.map((transaction, index) => (
-                    <View key={transaction.id}>
+                    <TouchableOpacity
+                      key={transaction.id}
+                      onPress={() => handleTransactionPress(transaction)}
+                      disabled={!transaction.has_items}
+                      style={[
+                        transaction.has_items ? styles.transactionCardTouchable : null,
+                        { marginBottom: index < transactions.length - 1 ? 8 : 0 }
+                      ]}
+                    >
                       <Card
                         style={[
                           commonStyles.card,
-                          styles.transactionCard
+                          styles.transactionCard,
+                          transaction.has_items && styles.transactionCardWithItems
                         ]}
                       >
                         <Card.Content style={styles.transactionContent}>
@@ -223,10 +254,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                         </View>
                       </Card.Content>
                     </Card>
-                    {index < transactions.length - 1 && (
-                      <View style={{ height: 1, backgroundColor: '#f3f4f6' }} />
-                    )}
-                    </View>
+                    </TouchableOpacity>
                   ))
                 )}
               </View>

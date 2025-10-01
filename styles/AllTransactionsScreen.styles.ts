@@ -138,4 +138,19 @@ export const styles = StyleSheet.create({
     // marginTop: 16,
     // marginBottom: 16,
   },
+
+  transactionCardTouchable: {
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+
+  transactionCardWithItems: {
+    borderWidth: 2,
+    borderColor: '#6366f1',
+    elevation: 4,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
 });

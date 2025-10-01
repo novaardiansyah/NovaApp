@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle } from 'react-native';
 import { Button, ButtonProps } from 'react-native-paper';
 import { Colors } from '@/constants/colors';
 
@@ -9,7 +9,7 @@ interface FormButtonProps extends Omit<ButtonProps, 'mode' | 'style' | 'labelSty
   disabled?: boolean;
   variant?: 'primary' | 'secondary' | 'outline';
   fullWidth?: boolean;
-  style?: ButtonProps['style'];
+  style?: ViewStyle;
 }
 
 const FormButton: React.FC<FormButtonProps> = ({
@@ -65,7 +65,7 @@ const FormButton: React.FC<FormButtonProps> = ({
     return contentStyle;
   };
 
-  const buttonStyle = { ...getButtonStyle(), ...style };
+  const buttonStyle = style ? [getButtonStyle(), style] : getButtonStyle();
   if (disabled) {
     Object.assign(buttonStyle, styles.disabledButton);
   }
