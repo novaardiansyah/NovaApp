@@ -254,7 +254,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
                               homeStyles.transactionAmount,
                               { color: getTransactionColor(transaction.type) }
                             ]}>
-                              {formatCurrency(transaction.amount)}
+                              {transaction.formatted_amount}
                             </Text>
                           </View>
                         </Card.Content>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, RefreshControl, ActivityIndicator, StatusBar } from 'react-native';
+import { View, ScrollView, Text, RefreshControl, ActivityIndicator, StatusBar, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -54,7 +54,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
   const [currentPage, setCurrentPage] = useState(1);
 
   const fetchTransactions = async (page: number = 1) => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || loading || loadingMore) return;
 
     if (page === 1) {
       setLoading(true);
@@ -234,18 +234,30 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
 
             {loadingMore && (
               <View style={styles.loadingMoreContent}>
-                <ActivityIndicator size="small" color="#6366f1" />
+                <ActivityIndicator size={30} color="#9ca3af" />
               </View>
             )}
 
             {/* End of List */}
-            {pagination && currentPage >= pagination.last_page && transactions.length > 0 && (
-              <View style={styles.endOfList}>
-                <Text style={styles.endOfListText}>
-                  Showing {transactions.length} of {pagination.total} transactions
-                </Text>
-              </View>
-            )}
+            { pagination && currentPage >= pagination.last_page && transactions.length > 0 ? (
+                <View style={styles.endOfList}>
+                  <Text style={styles.endOfListText}>
+                    Showing {transactions.length} of {pagination.total} transactions
+                  </Text>
+                </View>
+              ) : loadingMore ? (
+                <></>
+              ) : (
+                <View style={styles.endOfList}>
+                  <TouchableOpacity
+                    style={styles.loadMoreButton}
+                    onPress={handleLoadMore}
+                  >
+                    <Ionicons name="add" size={16} color="#9ca3af" />
+                  </TouchableOpacity>
+                </View>
+              )
+            }
           </View>
         </ScrollView>
       </SafeAreaView>

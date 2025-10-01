@@ -106,7 +106,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 12,
+    paddingTop: 24,
   },
 
   loadingMoreText: {
@@ -124,5 +124,18 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: '#9ca3af',
     fontStyle: 'italic',
+  },
+
+  loadMoreButton: {
+    backgroundColor: 'transparent',
+    borderRadius: 50,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#9ca3af',
+    // marginTop: 16,
+    // marginBottom: 16,
   },
 });
