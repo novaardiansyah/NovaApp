@@ -8,7 +8,7 @@ export const commonStyles = StyleSheet.create({
 
   scrollContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 32,
+    paddingBottom: 36,
   },
 
   sectionTitle: {
@@ -159,6 +159,7 @@ export const commonStyles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#1f2937',
+    marginBottom: 4,
   },
 
   avatar: {
@@ -401,13 +402,6 @@ export const commonStyles = StyleSheet.create({
   profileInfo: {
     alignItems: 'center',
     marginTop: 16,
-  },
-
-  userName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1f2937',
-    marginBottom: 4,
   },
 
   userEmail: {

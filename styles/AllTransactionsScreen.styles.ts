@@ -159,4 +159,17 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
+
+  addPaymentButton: {
+    marginBottom: 16,
+  },
+
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#6366f1',
+    borderRadius: 30,
+  },
 });

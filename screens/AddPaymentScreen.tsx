@@ -484,7 +484,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               fromScreen: 'AddPayment' // Tambahkan parameter fromScreen
             });
           } else {
-            navigation.navigate('HomeMain', { refresh: Date.now() })
+            navigation.navigate('AllTransactions', { refresh: Date.now() })
           }
         }}
         type="success"

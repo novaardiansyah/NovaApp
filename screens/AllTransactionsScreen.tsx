@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, RefreshControl, ActivityIndicator, StatusBar, TouchableOpacity, Alert, Modal, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Card } from 'react-native-paper';
+import { PaperProvider, Card, FAB } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
-import { AllTransactionsSkeleton, Notification } from '@/components';
+import { AllTransactionsSkeleton, FormButton, Notification } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
@@ -367,13 +367,21 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                     style={styles.loadMoreButton}
                     onPress={handleLoadMore}
                   >
-                    <Ionicons name="add" size={16} color="#9ca3af" />
+                    <Ionicons name="chevron-down" size={16} color="#9ca3af" />
                   </TouchableOpacity>
                 </View>
               ) : null
             }
           </View>
         </ScrollView>
+
+        {/* Floating Action Button */}
+        <FAB
+          icon="plus"
+          color="#ffffff"
+          style={[styles.fab, { bottom: insets.bottom }]}
+          onPress={() => navigation.navigate('AddPayment')}
+        />
       </SafeAreaView>
 
       {/* Simple Action Sheet */}

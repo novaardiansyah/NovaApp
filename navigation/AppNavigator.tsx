@@ -86,8 +86,7 @@ const TabNavigator = () => {
           fontSize: 12,
           fontWeight: '500',
         },
-        keyboardHidesTabBar: true,
-        }}
+      }}
     >
       <Tab.Screen
         name="Home"

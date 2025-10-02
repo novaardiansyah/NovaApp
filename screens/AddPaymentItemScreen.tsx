@@ -18,22 +18,24 @@ interface PaymentItem {
 }
 
 interface AddPaymentItemScreenProps {
-  navigation: any;
-  route: {
-    params: {
-      paymentId: number;
+  navigation?: any;
+  route?: {
+    params?: {
+      paymentId?: number;
       fromScreen?: string; // Optional: track which screen we came from
     };
   };
 }
 
 const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation, route }) => {
-  const { paymentId, fromScreen } = route.params;
+  const { paymentId, fromScreen } = route?.params || {};
   const { token } = useAuth();
 
-  if (!token) return null;
+  if (!token || !paymentId) return null;
 
   useEffect(() => {
+    if (!navigation) return;
+
     const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
       e.preventDefault();
 
@@ -351,7 +353,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                 onPress={() => {
                   // Navigate back to the previous screen with refresh parameter
                   const targetScreen = fromScreen || 'AllTransactions';
-                  navigation.navigate(targetScreen, { refresh: Date.now() });
+                  navigation?.navigate(targetScreen, { refresh: Date.now() });
                 }}
                 variant="outline"
                 style={styles.cancelButton}
@@ -488,7 +490,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
         message={notification || ''}
         onDismiss={() => {
           setNotification(null);
-          navigation.navigate('AllTransactions', { refresh: Date.now() });
+          navigation?.navigate('AllTransactions', { refresh: Date.now() });
         }}
         type="success"
       />
