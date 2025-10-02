@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, Alert, KeyboardAvoidingView, Platform, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
-import { PaperProvider, Appbar, TextInput, Button, HelperText, Switch, List } from 'react-native-paper';
+import { View, ScrollView, Text, Alert, KeyboardAvoidingView, Platform, TouchableOpacity, RefreshControl } from 'react-native';
+import { PaperProvider, Appbar, TextInput, HelperText, Switch, List } from 'react-native-paper';
 import { DatePickerModal, registerTranslation } from 'react-native-paper-dates';
 import { enGB } from 'react-native-paper-dates';
 
@@ -25,11 +25,21 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   const [paymentAccounts, setPaymentAccounts] = useState<any[]>([]);
   const [notification, setNotification] = useState<string | null>(null);
   const [optionsExpanded, setOptionsExpanded] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
+      e.preventDefault();
+      navigation.navigate('HomeMain', { refresh: Date.now() });
+    });
+
+    return unsubscribe;
+  }, [navigation]);
   
   const [loadingPaymentTypes, setLoadingPaymentTypes] = useState(false);
   const [loadingPaymentAccounts, setLoadingPaymentAccounts] = useState(false);
 
   const [isTransferOrWidrawal, setIsTransferOrWithdrawal] = useState(false);
+  const [paymentId, setPaymentId] = useState<number | null>(null);
 
   const initialFormData = {
     name: '',
@@ -111,6 +121,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   };
 
   const resetForm = () => {
+    setLoading(false);
     setFormData({ ...initialFormData });
     setErrors({ ...initialErrors });
     setIsTransferOrWithdrawal(false);
@@ -181,10 +192,23 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   };
 
   const handleToggleChange = (field: 'has_items' | 'has_charge' | 'is_scheduled', value: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    if (field === 'has_items' && value) {
+      setIsTransferOrWithdrawal(false)
+
+      const defaultType = paymentTypes.find((type) => type.is_default) || paymentTypes[0];
+      setFormData(prev => ({
+        ...prev,
+        [field]: value,
+        amount: '',
+        name: '',
+        type_id: defaultType ? defaultType.id.toString() : prev.type_id
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
   };
 
   const handleDateConfirm = (params: any) => {
@@ -215,8 +239,8 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
       let payment_account_to_id = isTransferOrWidrawal ? parseInt(formData.payment_account_to_id) : null;
 
       const paymentData: PaymentData = {
-        name: formData.name.trim(),
-        amount: Number(formData.amount),
+        name: formData.has_items ? '' : formData.name.trim(),
+        amount: formData.has_items ? 0 : Number(formData.amount),
         type_id: parseInt(formData.type_id) || 1,
         date: formData.date,
         payment_account_id: parseInt(formData.payment_account_id) || 1,
@@ -229,16 +253,8 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
       const response = await paymentService.createPayment(token, paymentData);
 
       if (response.success) {
-        setNotification('Payment added successfully!');
-
-        // Redirect based on has_items
-        setTimeout(() => {
-          if (formData.has_items) {
-            navigation.navigate('AddPaymentItem', { paymentId: response.data.id });
-          } else {
-            navigation.navigate('Home');
-          }
-        }, 1000);
+        setPaymentId(response.data.id)
+        setNotification('Payment added successfully!')
       } else {
         setLoading(false);
 
@@ -293,29 +309,31 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
             </Text>
 
             <TextInput
-              label="Amount (IDR) *"
+              label={'Amount (IDR)' + (formData.has_items ? '' : ' *')}
               value={formData.amount}
               onChangeText={(value) => handleInputChange('amount', value)}
               mode="outlined"
               outlineColor="#e5e7eb"
               activeOutlineColor="#6366f1"
               style={styles.input}
-              placeholder="Amount (IDR) *"
+              placeholder={'Amount (IDR)' + (formData.has_items ? '' : ' *')}
               keyboardType="numeric"
+              editable={!formData.has_items}
             />
             {errors.amount && <HelperText type="error" style={styles.helperText}>{errors.amount}</HelperText>}
 
             <TextInput
-              label="Description *"
+              label={'Description' + (formData.has_items ? '' : ' *')}
               value={formData.name}
               onChangeText={(value) => handleInputChange('name', value)}
               mode="outlined"
               outlineColor="#e5e7eb"
               activeOutlineColor="#6366f1"
               style={styles.input}
-              placeholder="Description *"
+              placeholder={'Description' + (formData.has_items ? '' : ' *')}
               multiline
               numberOfLines={4}
+              editable={!formData.has_items}
             />
             {errors.name && <HelperText type="error" style={styles.helperText}>{errors.name}</HelperText>}
             
@@ -343,6 +361,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               error={errors.type_id}
               style={styles.input}
               errorStyle={styles.helperText}
+              disabled={formData.has_items}
             />
 
             <Select
@@ -431,7 +450,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
 
             <FormButton
               title="Cancel"
-              onPress={() => navigation.goBack()}
+              onPress={() => navigation.navigate('HomeMain', { refresh: Date.now() })}
               variant="outline"
               loading={loading}
               style={styles.cancelButton}
@@ -457,8 +476,16 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
         visible={!!notification}
         message={notification || ''}
         onDismiss={() => {
-          setNotification(null);
-          navigation.navigate('Home', { refresh: Date.now() });
+          setNotification(null)
+
+          if (formData.has_items) {
+            navigation.navigate('AddPaymentItem', {
+              paymentId,
+              fromScreen: 'AddPayment' // Tambahkan parameter fromScreen
+            });
+          } else {
+            navigation.navigate('HomeMain', { refresh: Date.now() })
+          }
         }}
         type="success"
         duration={2000}

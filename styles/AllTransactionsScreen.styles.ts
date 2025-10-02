@@ -19,12 +19,13 @@ export const styles = StyleSheet.create({
   transactionCard: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    marginBottom: 8,
   },
 
   transactionContent: {

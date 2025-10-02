@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, ScrollView, Text, KeyboardAvoidingView, Platform, Alert, RefreshControl, Modal, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card, TextInput, Button } from 'react-native-paper';
@@ -22,16 +22,29 @@ interface AddPaymentItemScreenProps {
   route: {
     params: {
       paymentId: number;
+      fromScreen?: string; // Optional: track which screen we came from
     };
   };
 }
 
 const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation, route }) => {
-  const { paymentId } = route.params;
+  const { paymentId, fromScreen } = route.params;
   const { token } = useAuth();
 
   if (!token) return null;
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
+      e.preventDefault();
+
+      const targetScreen = fromScreen || 'AllTransactions';
+      navigation.navigate(targetScreen, { refresh: Date.now() });
+    });
+
+    return unsubscribe;
+  }, [navigation, fromScreen]);
+
+  
   const [items, setItems] = useState<PaymentItem[]>([
     { name: '', amount: '', qty: '1' }
   ]);
@@ -335,7 +348,11 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
 
               <FormButton
                 title="Cancel"
-                onPress={() => navigation.goBack()}
+                onPress={() => {
+                  // Navigate back to the previous screen with refresh parameter
+                  const targetScreen = fromScreen || 'AllTransactions';
+                  navigation.navigate(targetScreen, { refresh: Date.now() });
+                }}
                 variant="outline"
                 style={styles.cancelButton}
                 loading={loading}

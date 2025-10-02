@@ -265,7 +265,6 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                             styles.transactionAmount,
                             { color: getTransactionColor(transaction.type) }
                           ]}>
-                            {transaction.type === 'income' ? '+' : '-'}
                             {transaction.formatted_amount}
                           </Text>
                           {transaction.has_items && (
