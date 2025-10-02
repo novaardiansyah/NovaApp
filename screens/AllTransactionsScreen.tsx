@@ -190,6 +190,13 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
         // Remove the deleted transaction from the list
         setTransactions(prev => prev.filter(t => t.id !== paymentId));
 
+        // Update pagination total to reflect the deletion
+        setPagination(prev => prev ? {
+          ...prev,
+          total: prev.total - 1,
+          to: Math.max(0, prev.to - 1)
+        } : null);
+
         // Show success notification
         setNotification('Payment deleted successfully!');
       } else {
