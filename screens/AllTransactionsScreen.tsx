@@ -4,12 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
-import { AllTransactionsSkeleton } from '@/components';
+import { AllTransactionsSkeleton, Notification } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
 import { styles } from '@/styles/AllTransactionsScreen.styles';
 import APP_CONFIG from '@/config/app';
+import paymentService from '@/services/paymentService';
 
 interface Transaction {
   id: number;
@@ -56,6 +57,8 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [actionSheetVisible, setActionSheetVisible] = useState(false);
   const [pressedCardId, setPressedCardId] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
 
   const fetchTransactions = async (page: number = 1) => {
     if (!isAuthenticated || loading || loadingMore) return;
@@ -151,8 +154,60 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
         Alert.alert('Coming Soon', 'Edit payment feature will be available soon.');
         break;
       case 'delete_payment':
-        Alert.alert('Coming Soon', 'Delete payment feature will be available soon.');
+        handleDeletePayment(selectedTransaction);
         break;
+    }
+  };
+
+  const handleDeletePayment = (transaction: Transaction) => {
+    if (!token) return;
+
+    Alert.alert(
+      'Delete Payment',
+      `Are you sure you want to delete "${transaction.name}"? This action cannot be undone.`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => confirmDeletePayment(transaction.id),
+        },
+      ]
+    );
+  };
+
+  const confirmDeletePayment = async (paymentId: number) => {
+    if (!token) return;
+
+    setDeleting(true);
+    try {
+      const response = await paymentService.deletePayment(token, paymentId);
+
+      if (response.success) {
+        // Remove the deleted transaction from the list
+        setTransactions(prev => prev.filter(t => t.id !== paymentId));
+
+        // Show success notification
+        setNotification('Payment deleted successfully!');
+      } else {
+        Alert.alert(
+          'Error',
+          response.message || 'Failed to delete payment. Please try again.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Error deleting payment:', error);
+      Alert.alert(
+        'Error',
+        'Failed to delete payment. Please check your connection and try again.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -299,7 +354,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                 </View>
               ) : loadingMore ? (
                 <></>
-              ) : (
+              ) : transactions.length > 0 && pagination && currentPage < pagination.last_page ? (
                 <View style={styles.endOfList}>
                   <TouchableOpacity
                     style={styles.loadMoreButton}
@@ -308,7 +363,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                     <Ionicons name="add" size={16} color="#9ca3af" />
                   </TouchableOpacity>
                 </View>
-              )
+              ) : null
             }
           </View>
         </ScrollView>
@@ -388,6 +443,16 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           </View>
         </SafeAreaView>
       </Modal>
+
+      <Notification
+        visible={!!notification}
+        message={notification || ''}
+        onDismiss={() => {
+          setNotification(null);
+        }}
+        type="success"
+        duration={2000}
+      />
     </PaperProvider>
   );
 };

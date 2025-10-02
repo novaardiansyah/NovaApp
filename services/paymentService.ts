@@ -157,6 +157,21 @@ class PaymentService {
       throw error;
     }
   }
+
+  async deletePayment(token: string, paymentId: number): Promise<ApiResponse<any>> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}`, {
+        method: 'DELETE',
+        headers: this.getHeaders(token),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error deleting payment:', error);
+      throw error;
+    }
+  }
 }
 
 export default new PaymentService();
