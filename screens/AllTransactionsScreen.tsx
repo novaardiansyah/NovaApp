@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card, FAB } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
-import { AllTransactionsSkeleton, FormButton, Notification } from '@/components';
+import { AllTransactionsSkeleton, Notification } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
@@ -118,8 +118,8 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    setTransactions([]); // Clear transactions to show skeleton
-    setLoading(true); // Set loading to show skeleton
+    setTransactions([]);
+    setLoading(true);
     await fetchTransactions(1);
     setRefreshing(false);
   };
@@ -187,17 +187,14 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
       const response = await paymentService.deletePayment(token, paymentId);
 
       if (response.success) {
-        // Remove the deleted transaction from the list
         setTransactions(prev => prev.filter(t => t.id !== paymentId));
 
-        // Update pagination total to reflect the deletion
         setPagination(prev => prev ? {
           ...prev,
           total: prev.total - 1,
           to: Math.max(0, prev.to - 1)
         } : null);
 
-        // Show success notification
         setNotification('Payment deleted successfully!');
       } else {
         Alert.alert(
@@ -261,13 +258,10 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           }}
           scrollEventThrottle={400}
         >
-          {/* Header */}
           <View style={commonStyles.header}>
             <Ionicons name="receipt" size={24} color="#6366f1" style={commonStyles.headerIcon} />
             <Text style={commonStyles.headerTitle}>All Transactions</Text>
           </View>
-
-          {/* Transactions List */}
           <View style={styles.transactionsSection}>
             {loading || (refreshing && transactions.length === 0) ? (
               <AllTransactionsSkeleton count={10} />
@@ -352,8 +346,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
               </View>
             )}
 
-            {/* End of List */}
-            { pagination && currentPage >= pagination.last_page && transactions.length > 0 ? (
+              { pagination && currentPage >= pagination.last_page && transactions.length > 0 ? (
                 <View style={styles.endOfList}>
                   <Text style={styles.endOfListText}>
                     Showing {transactions.length} of {pagination.total} transactions
@@ -375,17 +368,17 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           </View>
         </ScrollView>
 
-        {/* Floating Action Button */}
-        <FAB
+          <FAB
           icon="plus"
           color="#ffffff"
-          style={[styles.fab, { bottom: insets.bottom }]}
+          style={[styles.fab, {
+            bottom: -6
+          }]}
           onPress={() => navigation.navigate('AddPayment')}
         />
       </SafeAreaView>
 
-      {/* Simple Action Sheet */}
-      <Modal
+        <Modal
         visible={actionSheetVisible}
         transparent
         animationType="slide"

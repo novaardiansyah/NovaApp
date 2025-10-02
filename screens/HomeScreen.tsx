@@ -198,7 +198,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
                 </Card.Content>
               </Card>
 
-              <Card style={commonStyles.actionCard} onPress={() => Alert.alert('Info', 'Reports feature coming soon!')}>
+              <Card style={commonStyles.actionCard} onPress={() => navigation.navigate('Reports')}>
                 <Card.Content style={commonStyles.actionCardContent}>
                   <Ionicons name="bar-chart" size={24} color="#6366f1" />
                   <Text style={commonStyles.actionText}>Reports</Text>

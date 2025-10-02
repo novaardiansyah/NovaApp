@@ -158,4 +158,82 @@ export const DropdownItemsSkeleton: React.FC<DropdownItemsSkeletonProps> = ({ co
   );
 };
 
+// Reports Screen Skeleton Components
+interface ReportsPeriodSkeletonProps {
+  style?: object;
+}
+
+export const ReportsPeriodSkeleton: React.FC<ReportsPeriodSkeletonProps> = ({ style }) => {
+  return (
+    <Card style={[style, { borderRadius: 12, backgroundColor: '#ffffff' }]}>
+      <Card.Content style={{ paddingVertical: 8, paddingHorizontal: 16 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Skeleton width={20} height={20} style={{ borderRadius: 10, marginRight: 8 }} />
+            <Skeleton width={120} height={16} />
+          </View>
+          <Skeleton width={20} height={20} style={{ borderRadius: 10 }} />
+        </View>
+      </Card.Content>
+    </Card>
+  );
+};
+
+interface ReportsSummarySkeletonProps {
+  style?: object;
+}
+
+export const ReportsSummarySkeleton: React.FC<ReportsSummarySkeletonProps> = ({ style }) => {
+  return (
+    <Card style={[style, { borderRadius: 12, backgroundColor: '#ffffff' }]}>
+      <Card.Content style={{ padding: 16 }}>
+        {Array.from({ length: 4 }).map((_, index) => (
+          <View key={index}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 16 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                <Skeleton width={40} height={40} style={{ borderRadius: 20, marginRight: 16 }} />
+                <View style={{ flex: 1 }}>
+                  <Skeleton width={80} height={16} style={{ marginBottom: 4 }} />
+                  <Skeleton width={100} height={12} />
+                </View>
+              </View>
+              <Skeleton width={40} height={16} />
+            </View>
+            {index < 3 && <View style={{ borderBottomWidth: 1, borderBottomColor: '#f3f4f6' }} />}
+          </View>
+        ))}
+      </Card.Content>
+    </Card>
+  );
+};
+
+
+interface ReportsTransactionsSkeletonProps {
+  style?: object;
+}
+
+export const ReportsTransactionsSkeleton: React.FC<ReportsTransactionsSkeletonProps> = ({ style }) => {
+  return (
+    <Card style={[style, { borderRadius: 12, backgroundColor: '#ffffff' }]}>
+      <Card.Content style={{ padding: 16 }}>
+        {Array.from({ length: 5 }).map((_, index) => (
+          <View key={index}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 16 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                <Skeleton width={40} height={40} style={{ borderRadius: 20, marginRight: 16 }} />
+                <View style={{ flex: 1 }}>
+                  <Skeleton width={120} height={16} style={{ marginBottom: 4 }} />
+                  <Skeleton width={80} height={12} />
+                </View>
+              </View>
+              <Skeleton width={80} height={16} />
+            </View>
+            {index < 4 && <View style={{ borderBottomWidth: 1, borderBottomColor: '#f3f4f6' }} />}
+          </View>
+        ))}
+      </Card.Content>
+    </Card>
+  );
+};
+
 export default Skeleton;

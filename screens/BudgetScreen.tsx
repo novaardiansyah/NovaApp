@@ -7,7 +7,7 @@ import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
-import { AccountsListSkeleton } from '@/components';
+import { AccountsListSkeleton, BalanceCardSkeleton } from '@/components';
 import APP_CONFIG from '@/config/app';
 
 interface PaymentAccount {
@@ -28,6 +28,7 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [paymentAccounts, setPaymentAccounts] = useState<PaymentAccount[]>([]);
   const [loading, setLoading] = useState(false);
+  const [accountsLoaded, setAccountsLoaded] = useState(false);
 
   const fetchPaymentAccounts = async () => {
     if (!isAuthenticated) return;
@@ -54,6 +55,7 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
 
       const data = await response.json();
       setPaymentAccounts(data);
+      setAccountsLoaded(true);
     } catch (error) {
       console.error('Error fetching payment accounts:', error);
     } finally {
@@ -69,6 +71,7 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
 
   const handleRefresh = async () => {
     setRefreshing(true);
+    setAccountsLoaded(false);
     await fetchPaymentAccounts();
     setRefreshing(false);
   };
@@ -90,17 +93,21 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
           </View>
 
           {/* Total Balance */}
-          <Card style={commonStyles.totalBalanceCard}>
-            <Card.Content style={commonStyles.totalBalanceContent}>
-              <Text style={commonStyles.totalBalanceLabel}>Total Balance</Text>
-              <Text style={commonStyles.totalBalanceAmount}>
-                {formatCurrency(paymentAccounts.reduce((sum, account) => sum + account.deposit, 0))}
-              </Text>
-              <Text style={commonStyles.totalBalanceSubtitle}>
-                {paymentAccounts.length} {paymentAccounts.length === 1 ? 'Account' : 'Accounts'}
-              </Text>
-            </Card.Content>
-          </Card>
+          {accountsLoaded ? (
+            <Card style={commonStyles.totalBalanceCard}>
+              <Card.Content style={commonStyles.totalBalanceContent}>
+                <Text style={commonStyles.totalBalanceLabel}>Total Balance</Text>
+                <Text style={commonStyles.totalBalanceAmount}>
+                  {formatCurrency(paymentAccounts.reduce((sum, account) => sum + account.deposit, 0))}
+                </Text>
+                <Text style={commonStyles.totalBalanceSubtitle}>
+                  {paymentAccounts.length} {paymentAccounts.length === 1 ? 'Account' : 'Accounts'}
+                </Text>
+              </Card.Content>
+            </Card>
+          ) : (
+            <BalanceCardSkeleton style={commonStyles.totalBalanceCard} />
+          )}
 
           {/* Accounts List */}
           <View style={styles.accountsSection}>
