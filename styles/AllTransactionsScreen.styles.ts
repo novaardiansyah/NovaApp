@@ -19,8 +19,6 @@ export const styles = StyleSheet.create({
   transactionCard: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -32,7 +30,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,
+    paddingVertical: 12,
     paddingHorizontal: 16,
   },
 
@@ -53,7 +51,7 @@ export const styles = StyleSheet.create({
 
   transactionInfo: {
     flex: 1,
-    maxWidth: '70%',
+    maxWidth: '60%',
   },
 
   transactionTitle: {
@@ -70,8 +68,8 @@ export const styles = StyleSheet.create({
   },
 
   transactionRight: {
-    alignItems: 'flex-end',
-    minWidth: '25%',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 
   transactionAmount: {
@@ -135,9 +133,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#9ca3af',
-    // marginTop: 16,
-    // marginBottom: 16,
+    borderColor: '#6366f1',
   },
 
   transactionCardTouchable: {
@@ -146,13 +142,44 @@ export const styles = StyleSheet.create({
   },
 
   transactionCardPressed: {
-    backgroundColor: '#f3f4f6',
-    opacity: 0.8,
+    backgroundColor: 'transparent',
+    opacity: 0.7,
+  },
+
+  transactionsCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+
+  transactionsCardContent: {
+    paddingVertical: 8,
+  },
+
+  transactionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+  },
+
+  transactionAmountContainer: {
+    alignItems: 'flex-end',
+  },
+
+  transactionItemsIcon: {
+    marginTop: 2,
+  },
+
+  transactionDivider: {
+    marginVertical: 0,
   },
 
   transactionCardWithItems: {
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

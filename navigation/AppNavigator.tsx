@@ -142,6 +142,21 @@ const MainNavigator = () => {
         component={TabNavigator}
         options={{ headerShown: false }}
       />
+      <MainStack.Screen
+        name="AllTransactions"
+        component={AllTransactionsScreen}
+        options={{ title: 'All Transactions' }}
+      />
+      <MainStack.Screen
+        name="AddPayment"
+        component={AddPaymentScreen}
+        options={{ title: 'Add Payment' }}
+      />
+      <MainStack.Screen
+        name="AddPaymentItem"
+        component={AddPaymentItemScreen}
+        options={{ title: 'Add Payment Items' }}
+      />
     </MainStack.Navigator>
   );
 };

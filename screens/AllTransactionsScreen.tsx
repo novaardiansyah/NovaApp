@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, RefreshControl, ActivityIndicator, StatusBar, TouchableOpacity, Alert, Modal, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Card, FAB } from 'react-native-paper';
+import { PaperProvider, Card, FAB, Divider } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { AllTransactionsSkeleton, Notification } from '@/components';
@@ -249,76 +249,74 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                     </Card.Content>
                   </Card>
                 ) : (
-                  transactions.map((transaction, index) => {
-                    const transactionType = getTransactionType(transaction);
-                    return (
-                      <Pressable
-                        key={transaction.id}
-                        onPress={() => handleTransactionPress(transaction)}
-                        onPressIn={() => setPressedCardId(transaction.id)}
-                        onPressOut={() => setPressedCardId(null)}
-                        style={[
-                          styles.transactionCardTouchable,
-                          { marginBottom: index < transactions.length - 1 ? 8 : 0 }
-                        ]}
-                      >
-                        <Card
-                          style={[
-                            commonStyles.card,
-                            styles.transactionCard,
-                            transaction.has_items && styles.transactionCardWithItems,
-                            pressedCardId === transaction.id && styles.transactionCardPressed
-                          ]}
-                        >
-                          <Card.Content style={styles.transactionContent}>
-                          <View style={styles.transactionLeft}>
-                            <View style={[
-                              styles.transactionIcon,
-                              { backgroundColor: getTransactionColor(transactionType) }
-                            ]}>
-                              <Ionicons
-                                name={getTransactionIcon(transactionType) as any}
-                                size={16}
-                                color="white"
-                              />
-                            </View>
-                            <View style={styles.transactionInfo}>
-                              <Text style={styles.transactionTitle} numberOfLines={1} ellipsizeMode="tail">
-                                {transaction.name}
-                              </Text>
-                              <Text style={styles.transactionDate}>
-                                {transaction.formatted_date}
-                              </Text>
-                            </View>
-                          </View>
-                          <View style={styles.transactionRight}>
-                            <Text style={[
-                              styles.transactionAmount,
-                              { color: getTransactionColor(transactionType) }
-                            ]}>
-                              {transaction.formatted_amount}
-                            </Text>
-                            {transaction.has_items && (
-                              <Ionicons
-                                name="list-outline"
-                                size={14}
-                                color="#6b7280"
-                                style={{ marginLeft: 4 }}
-                              />
+                  <Card style={styles.transactionsCard}>
+                    <Card.Content style={styles.transactionsCardContent}>
+                      {transactions.map((transaction, index) => {
+                        const transactionType = getTransactionType(transaction);
+                        return (
+                          <View key={transaction.id}>
+                            <Pressable
+                              onPress={() => handleTransactionPress(transaction)}
+                              onPressIn={() => setPressedCardId(transaction.id)}
+                              onPressOut={() => setPressedCardId(null)}
+                              style={pressedCardId === transaction.id && styles.transactionCardPressed}
+                            >
+                              <View style={styles.transactionItem}>
+                                <View style={styles.transactionLeft}>
+                                  <View style={[
+                                    styles.transactionIcon,
+                                    { backgroundColor: getTransactionColor(transactionType) }
+                                  ]}>
+                                    <Ionicons
+                                      name={getTransactionIcon(transactionType) as any}
+                                      size={16}
+                                      color="white"
+                                    />
+                                  </View>
+                                  <View style={styles.transactionInfo}>
+                                    <Text style={styles.transactionTitle} numberOfLines={1} ellipsizeMode="tail">
+                                      {transaction.name}
+                                    </Text>
+                                    <Text style={styles.transactionDate}>
+                                      {transaction.formatted_date}
+                                    </Text>
+                                  </View>
+                                </View>
+                                <View style={styles.transactionRight}>
+                                  <View style={styles.transactionAmountContainer}>
+                                    <Text style={[
+                                      styles.transactionAmount,
+                                      { color: getTransactionColor(transactionType) }
+                                    ]}>
+                                      {transaction.formatted_amount}
+                                    </Text>
+                                    {transaction.has_items && (
+                                      <Ionicons
+                                        name="list-outline"
+                                        size={14}
+                                        color="#6b7280"
+                                        style={styles.transactionItemsIcon}
+                                      />
+                                    )}
+                                  </View>
+                                </View>
+                              </View>
+                            </Pressable>
+                            {index < transactions.length - 1 && (
+                              <Divider style={styles.transactionDivider} />
                             )}
                           </View>
-                        </Card.Content>
-                      </Card>
-                      </Pressable>
-                    );
-                  })
+                        );
+                      })}
+                    </Card.Content>
+                  </Card>
                 )}
               </View>
             )}
 
             {loadingMore && (
               <View style={styles.loadingMoreContent}>
-                <ActivityIndicator size={30} color="#9ca3af" />
+                <ActivityIndicator size={30} color="#6366f1" />
               </View>
             )}
 
@@ -336,7 +334,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                     style={styles.loadMoreButton}
                     onPress={handleLoadMore}
                   >
-                    <Ionicons name="chevron-down" size={16} color="#9ca3af" />
+                    <Ionicons name="chevron-down" size={16} color="#6366f1" />
                   </TouchableOpacity>
                 </View>
               ) : null
