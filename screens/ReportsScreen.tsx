@@ -338,7 +338,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
           <View style={styles.summarySection}>
             {dataLoaded ? (
               <Card style={styles.summaryCard}>
-                <Card.Content>
+                <Card.Content style={styles.summaryContent}>
                   {currentMonthData.financialItems.map((item, index) => (
                     <View key={item.id}>
                       <View style={styles.financialItem}>
@@ -383,7 +383,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
             {dataLoaded ? (
               <Card style={styles.transactionsCard}>
-                <Card.Content>
+                <Card.Content style={styles.transactionsCardContent}>
                   {currentMonthData.recentTransactions.map((transaction, index) => (
                     <View key={transaction.id}>
                       <View style={styles.transactionItem}>
@@ -588,7 +588,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   summaryContent: {
-    padding: 16,
+    paddingVertical: 8,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -610,7 +610,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,
+    paddingVertical: 12,
   },
   financialLeft: {
     flexDirection: 'row',
@@ -629,20 +629,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   financialName: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
     color: '#1f2937',
     marginBottom: 4,
   },
   financialAmount: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#6b7280',
   },
   financialRight: {
     alignItems: 'flex-end',
   },
   financialPercentage: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#1f2937',
   },
@@ -661,11 +661,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
+  transactionsCardContent: {
+    paddingVertical: 8,
+  },
   transactionItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,
+    paddingVertical: 12,
   },
   transactionLeft: {
     flexDirection: 'row',
@@ -682,22 +685,23 @@ const styles = StyleSheet.create({
   },
   transactionInfo: {
     flex: 1,
+    maxWidth: '60%',
   },
   transactionName: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
     color: '#1f2937',
     marginBottom: 4,
   },
   transactionDate: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#6b7280',
   },
   transactionRight: {
     alignItems: 'flex-end',
   },
   transactionAmount: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
   },
   transactionDivider: {

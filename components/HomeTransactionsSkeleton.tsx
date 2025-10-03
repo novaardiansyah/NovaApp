@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card } from 'react-native-paper';
+import { Card, Divider } from 'react-native-paper';
 
 interface HomeTransactionsSkeletonProps {
   count?: number;
@@ -8,11 +8,11 @@ interface HomeTransactionsSkeletonProps {
 
 const HomeTransactionsSkeleton: React.FC<HomeTransactionsSkeletonProps> = ({ count = 3 }) => {
   return (
-    <View style={styles.container}>
-      {Array.from({ length: count }).map((_, index) => (
-        <View key={index}>
-          <Card style={styles.card}>
-            <Card.Content style={styles.cardContent}>
+    <Card style={styles.card}>
+      <Card.Content>
+        {Array.from({ length: count }).map((_, index) => (
+          <View key={index}>
+            <View style={styles.transactionItem}>
               <View style={styles.leftSection}>
                 <View style={styles.iconSkeleton} />
                 <View style={styles.textSection}>
@@ -21,23 +21,16 @@ const HomeTransactionsSkeleton: React.FC<HomeTransactionsSkeletonProps> = ({ cou
                 </View>
               </View>
               <View style={styles.amountSkeleton} />
-            </Card.Content>
-          </Card>
-          {index < count - 1 && <View style={styles.divider} />}
-        </View>
-      ))}
-    </View>
+            </View>
+            {index < count - 1 && <Divider style={styles.divider} />}
+          </View>
+        ))}
+      </Card.Content>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'transparent',
-    elevation: 0,
-    shadowOpacity: 0,
-    borderWidth: 0,
-    borderColor: 'transparent',
-  },
   card: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
@@ -46,14 +39,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    marginBottom: 8,
   },
-  cardContent: {
+  transactionItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
   leftSection: {
     flexDirection: 'row',
@@ -69,7 +60,7 @@ const styles = StyleSheet.create({
   },
   textSection: {
     flex: 1,
-    maxWidth: '70%',
+    maxWidth: '60%',
   },
   titleSkeleton: {
     height: 14,
@@ -89,11 +80,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#e5e7eb',
     borderRadius: 4,
     width: 70,
-    minWidth: '25%',
   },
   divider: {
-    height: 1,
-    backgroundColor: '#f3f4f6',
+    marginVertical: 0,
   },
 });
 

@@ -140,13 +140,6 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
   },
   transactionsCard: {
-    backgroundColor: 'transparent',
-    elevation: 0,
-    shadowOpacity: 0,
-    borderWidth: 0,
-    borderColor: 'transparent',
-  },
-  emptyCard: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
     elevation: 2,
@@ -154,30 +147,19 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+  },
+  transactionsCardContent: {
+    paddingVertical: 8,
+  },
+  emptyCard: {
     padding: 16,
     alignItems: 'center',
   },
   transactionItem: {
-    paddingVertical: 0,
-  },
-  transactionCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    marginBottom: 8,
-    borderWidth: 0,
-    borderColor: 'transparent',
-  },
-  transactionContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
   transactionLeft: {
     flexDirection: 'row',
@@ -194,14 +176,13 @@ export const styles = StyleSheet.create({
   },
   transactionInfo: {
     flex: 1,
-    maxWidth: '70%',
+    maxWidth: '60%',
   },
-  transactionTitle: {
+  transactionName: {
     fontSize: 14,
     fontWeight: '500',
     color: '#1f2937',
     marginBottom: 4,
-    flexShrink: 1,
   },
   transactionDate: {
     fontSize: 12,
@@ -209,11 +190,13 @@ export const styles = StyleSheet.create({
   },
   transactionRight: {
     alignItems: 'flex-end',
-    minWidth: '25%',
   },
   transactionAmount: {
     fontSize: 14,
     fontWeight: '600',
+  },
+  transactionDivider: {
+    marginVertical: 0,
   },
 
   // Loading & Empty States

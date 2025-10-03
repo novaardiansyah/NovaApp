@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, Alert, RefreshControl, StatusBar, Platform, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Button, Avatar, Card } from 'react-native-paper';
+import { PaperProvider, Button, Avatar, Card, Divider } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Theme } from '@/constants/colors';
@@ -223,16 +223,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
             {loading ? (
               <HomeTransactionsSkeleton count={3} />
             ) : (
-              <View style={homeStyles.transactionsCard}>
-                {recentTransactions.length === 0 ? (
-                  <View style={homeStyles.emptyCard}>
-                    <Text style={homeStyles.emptyText}>No transactions yet</Text>
-                  </View>
-                ) : (
-                  recentTransactions.map((transaction, index) => (
-                    <View key={transaction.id}>
-                      <Card style={homeStyles.transactionCard}>
-                        <Card.Content style={homeStyles.transactionContent}>
+              <Card style={homeStyles.transactionsCard}>
+                <Card.Content style={homeStyles.transactionsCardContent}>
+                  {recentTransactions.length === 0 ? (
+                    <View style={homeStyles.emptyCard}>
+                      <Text style={homeStyles.emptyText}>No transactions yet</Text>
+                    </View>
+                  ) : (
+                    recentTransactions.map((transaction, index) => (
+                      <View key={transaction.id}>
+                        <View style={homeStyles.transactionItem}>
                           <View style={homeStyles.transactionLeft}>
                             <View style={[
                               homeStyles.transactionIcon,
@@ -245,7 +245,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
                               />
                             </View>
                             <View style={homeStyles.transactionInfo}>
-                              <Text style={homeStyles.transactionTitle} numberOfLines={1} ellipsizeMode="tail">{transaction.name || transaction.title}</Text>
+                              <Text style={homeStyles.transactionName} numberOfLines={1} ellipsizeMode="tail">{transaction.name || transaction.title}</Text>
                               <Text style={homeStyles.transactionDate}>{transaction.formatted_date}</Text>
                             </View>
                           </View>
@@ -257,15 +257,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
                               {transaction.formatted_amount}
                             </Text>
                           </View>
-                        </Card.Content>
-                      </Card>
-                      {index < recentTransactions.length - 1 && (
-                        <View style={{ height: 1, backgroundColor: '#f3f4f6' }} />
-                      )}
-                    </View>
-                  ))
-                )}
-              </View>
+                        </View>
+                        {index < recentTransactions.length - 1 && (
+                          <Divider style={homeStyles.transactionDivider} />
+                        )}
+                      </View>
+                    ))
+                  )}
+                </Card.Content>
+              </Card>
             )}
           </View>
         </ScrollView>

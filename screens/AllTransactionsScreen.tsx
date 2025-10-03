@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
 import { styles } from '@/styles/AllTransactionsScreen.styles';
+import { getTransactionColor, getTransactionIcon } from '@/styles/HomeScreen.styles';
 import APP_CONFIG from '@/config/app';
 import paymentService from '@/services/paymentService';
 
@@ -219,12 +220,20 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
     setActionSheetVisible(false);
   };
 
-  const getTransactionColor = (type: string) => {
-    return type === 'income' ? '#10b981' : '#ef4444';
-  };
+  const getTransactionType = (transaction: Transaction): string => {
+    // Cek apakah transaksi adalah withdrawal atau transfer berdasarkan nama/code
+    const nameLower = transaction.name.toLowerCase();
+    const codeLower = transaction.code.toLowerCase();
 
-  const getTransactionIcon = (type: string) => {
-    return type === 'income' ? 'arrow-down' : 'arrow-up';
+    if (nameLower.includes('withdrawal') || nameLower.includes('withdraw') || codeLower.includes('wd')) {
+      return 'withdrawal';
+    }
+
+    if (nameLower.includes('transfer') || nameLower.includes('tf') || codeLower.includes('tf')) {
+      return 'transfer';
+    }
+
+    return transaction.type;
   };
 
   const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: any) => {
@@ -276,66 +285,69 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                     </Card.Content>
                   </Card>
                 ) : (
-                  transactions.map((transaction, index) => (
-                    <Pressable
-                      key={transaction.id}
-                      onPress={() => handleTransactionPress(transaction)}
-                      onPressIn={() => setPressedCardId(transaction.id)}
-                      onPressOut={() => setPressedCardId(null)}
-                      style={[
-                        styles.transactionCardTouchable,
-                        { marginBottom: index < transactions.length - 1 ? 8 : 0 }
-                      ]}
-                    >
-                      <Card
+                  transactions.map((transaction, index) => {
+                    const transactionType = getTransactionType(transaction);
+                    return (
+                      <Pressable
+                        key={transaction.id}
+                        onPress={() => handleTransactionPress(transaction)}
+                        onPressIn={() => setPressedCardId(transaction.id)}
+                        onPressOut={() => setPressedCardId(null)}
                         style={[
-                          commonStyles.card,
-                          styles.transactionCard,
-                          transaction.has_items && styles.transactionCardWithItems,
-                          pressedCardId === transaction.id && styles.transactionCardPressed
+                          styles.transactionCardTouchable,
+                          { marginBottom: index < transactions.length - 1 ? 8 : 0 }
                         ]}
                       >
-                        <Card.Content style={styles.transactionContent}>
-                        <View style={styles.transactionLeft}>
-                          <View style={[
-                            styles.transactionIcon,
-                            { backgroundColor: getTransactionColor(transaction.type) }
-                          ]}>
-                            <Ionicons
-                              name={getTransactionIcon(transaction.type)}
-                              size={16}
-                              color="white"
-                            />
+                        <Card
+                          style={[
+                            commonStyles.card,
+                            styles.transactionCard,
+                            transaction.has_items && styles.transactionCardWithItems,
+                            pressedCardId === transaction.id && styles.transactionCardPressed
+                          ]}
+                        >
+                          <Card.Content style={styles.transactionContent}>
+                          <View style={styles.transactionLeft}>
+                            <View style={[
+                              styles.transactionIcon,
+                              { backgroundColor: getTransactionColor(transactionType) }
+                            ]}>
+                              <Ionicons
+                                name={getTransactionIcon(transactionType) as any}
+                                size={16}
+                                color="white"
+                              />
+                            </View>
+                            <View style={styles.transactionInfo}>
+                              <Text style={styles.transactionTitle} numberOfLines={1} ellipsizeMode="tail">
+                                {transaction.name}
+                              </Text>
+                              <Text style={styles.transactionDate}>
+                                {transaction.formatted_date}
+                              </Text>
+                            </View>
                           </View>
-                          <View style={styles.transactionInfo}>
-                            <Text style={styles.transactionTitle} numberOfLines={1} ellipsizeMode="tail">
-                              {transaction.name}
+                          <View style={styles.transactionRight}>
+                            <Text style={[
+                              styles.transactionAmount,
+                              { color: getTransactionColor(transactionType) }
+                            ]}>
+                              {transaction.formatted_amount}
                             </Text>
-                            <Text style={styles.transactionDate}>
-                              {transaction.formatted_date}
-                            </Text>
+                            {transaction.has_items && (
+                              <Ionicons
+                                name="list-outline"
+                                size={14}
+                                color="#6b7280"
+                                style={{ marginLeft: 4 }}
+                              />
+                            )}
                           </View>
-                        </View>
-                        <View style={styles.transactionRight}>
-                          <Text style={[
-                            styles.transactionAmount,
-                            { color: getTransactionColor(transaction.type) }
-                          ]}>
-                            {transaction.formatted_amount}
-                          </Text>
-                          {transaction.has_items && (
-                            <Ionicons
-                              name="list-outline"
-                              size={14}
-                              color="#6b7280"
-                              style={{ marginLeft: 4 }}
-                            />
-                          )}
-                        </View>
-                      </Card.Content>
-                    </Card>
-                    </Pressable>
-                  ))
+                        </Card.Content>
+                      </Card>
+                      </Pressable>
+                    );
+                  })
                 )}
               </View>
             )}

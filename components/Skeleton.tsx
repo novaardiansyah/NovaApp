@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card } from 'react-native-paper';
+import { Card, Divider } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { commonStyles } from '@/styles';
 import { styles as searchItemStyles } from '@/styles/AddPaymentItemScreen.styles';
@@ -186,21 +186,21 @@ interface ReportsSummarySkeletonProps {
 
 export const ReportsSummarySkeleton: React.FC<ReportsSummarySkeletonProps> = ({ style }) => {
   return (
-    <Card style={[style, { borderRadius: 12, backgroundColor: '#ffffff' }]}>
-      <Card.Content style={{ padding: 16 }}>
+    <Card style={[style, { borderRadius: 12, backgroundColor: '#ffffff', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 }]}>
+      <Card.Content style={{ paddingVertical: 8 }}>
         {Array.from({ length: 4 }).map((_, index) => (
           <View key={index}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
                 <Skeleton width={40} height={40} style={{ borderRadius: 20, marginRight: 16 }} />
                 <View style={{ flex: 1 }}>
-                  <Skeleton width={80} height={16} style={{ marginBottom: 4 }} />
+                  <Skeleton width={80} height={14} style={{ marginBottom: 4 }} />
                   <Skeleton width={100} height={12} />
                 </View>
               </View>
-              <Skeleton width={40} height={16} />
+              <Skeleton width={40} height={14} />
             </View>
-            {index < 3 && <View style={{ borderBottomWidth: 1, borderBottomColor: '#f3f4f6' }} />}
+            {index < 3 && <Divider style={{ marginVertical: 0 }} />}
           </View>
         ))}
       </Card.Content>
@@ -215,21 +215,21 @@ interface ReportsTransactionsSkeletonProps {
 
 export const ReportsTransactionsSkeleton: React.FC<ReportsTransactionsSkeletonProps> = ({ style }) => {
   return (
-    <Card style={[style, { borderRadius: 12, backgroundColor: '#ffffff' }]}>
-      <Card.Content style={{ padding: 16 }}>
+    <Card style={[style, { borderRadius: 12, backgroundColor: '#ffffff', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 }]}>
+      <Card.Content style={{ paddingVertical: 8 }}>
         {Array.from({ length: 5 }).map((_, index) => (
           <View key={index}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
                 <Skeleton width={40} height={40} style={{ borderRadius: 20, marginRight: 16 }} />
-                <View style={{ flex: 1 }}>
-                  <Skeleton width={120} height={16} style={{ marginBottom: 4 }} />
+                <View style={{ flex: 1, maxWidth: '60%' }}>
+                  <Skeleton width={120} height={14} style={{ marginBottom: 4 }} />
                   <Skeleton width={80} height={12} />
                 </View>
               </View>
-              <Skeleton width={80} height={16} />
+              <Skeleton width={70} height={14} />
             </View>
-            {index < 4 && <View style={{ borderBottomWidth: 1, borderBottomColor: '#f3f4f6' }} />}
+            {index < 4 && <Divider style={{ marginVertical: 0 }} />}
           </View>
         ))}
       </Card.Content>
