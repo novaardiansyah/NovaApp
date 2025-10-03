@@ -19,10 +19,9 @@ interface HomeScreenProps {
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
-  const { user, isAuthenticated, fetchFinancialData, fetchRecentTransactions, validateToken, logout } = useAuth();
+  const { user, isAuthenticated, fetchFinancialData, validateToken, logout } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [financialData, setFinancialData] = useState<any>(null);
-  const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasValidated, setHasValidated] = useState(false);
 
@@ -64,13 +63,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
 
     setLoading(true);
     try {
-      const [financial, transactions] = await Promise.all([
-        fetchFinancialData(),
-        fetchRecentTransactions(5)
-      ]);
-
+      const financial = await fetchFinancialData();
       setFinancialData(financial);
-      setRecentTransactions(transactions || []);
     } catch (error) {
       console.error('Error loading financial data:', error);
     } finally {
@@ -97,7 +91,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
   const handleRefresh = async () => {
     setRefreshing(true);
     setFinancialData(null); // Reset financial data to show skeleton
-    setRecentTransactions([]); // Reset transactions
     setLoading(true); // Set loading state
 
     await loadFinancialData();
@@ -217,8 +210,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
 
           {/* Recent Transactions */}
           <RecentTransactions
-            transactions={recentTransactions}
-            loading={loading}
+            loading={loading || refreshing}
             onSeeAll={() => navigation.navigate('AllTransactions')}
           />
         </ScrollView>

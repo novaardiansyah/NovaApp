@@ -9,37 +9,19 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
 import { styles } from '@/styles/AllTransactionsScreen.styles';
-import { getTransactionColor, getTransactionIcon } from '@/styles/HomeScreen.styles';
-import APP_CONFIG from '@/config/app';
-import paymentService from '@/services/paymentService';
+import { getTransactionColor, getTransactionIcon } from '@/utils/transactionUtils';
+import transactionService from '@/services/transactionService';
 
-interface Transaction {
-  id: number;
-  code: string;
-  name: string;
-  date: string;
-  formatted_date: string;
-  amount: number;
-  formatted_amount: string;
-  type: 'income' | 'expense';
-  type_id: number;
-  updated_at: string;
-  has_items?: boolean;
+interface Transaction extends transactionService.Transaction {
+  // Transaction interface already defined in transactionService
 }
 
-interface Pagination {
-  current_page: number;
-  from: number;
-  last_page: number;
-  per_page: number;
-  to: number;
-  total: number;
+interface Pagination extends transactionService.Pagination {
+  // Pagination interface already defined in transactionService
 }
 
-interface ApiResponse {
-  success: boolean;
-  data: Transaction[];
-  pagination: Pagination;
+interface ApiResponse extends transactionService.TransactionsResponse {
+  // TransactionsResponse interface already defined in transactionService
 }
 
 interface AllTransactionsScreenProps {
@@ -62,34 +44,16 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
   const [notification, setNotification] = useState<string | null>(null);
 
   const fetchTransactions = async (page: number = 1) => {
-    if (!isAuthenticated || loading || loadingMore) return;
+    if (!isAuthenticated || loading || loadingMore || !token) return;
 
     if (page === 1) {
       setLoading(true);
     } else {
       setLoadingMore(true);
     }
-    
+
     try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      };
-
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments?page=${page}`, {
-        method: 'GET',
-        headers,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch transactions');
-      }
-
-      const data: ApiResponse = await response.json();
+      const data: ApiResponse = await transactionService.getAllTransactions(token, page);
 
       if (data.success) {
         if (page === 1) {

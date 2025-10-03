@@ -5,7 +5,8 @@ import { PaperProvider, Card, Divider, TextInput, FAB } from 'react-native-paper
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
-import { commonStyles, formatCurrency, statusBarConfig } from '@/styles';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
 import { ReportsPeriodSkeleton, ReportsSummarySkeleton, FormButton } from '@/components';
 import RecentTransactions from '@/components/RecentTransactions';
 
@@ -44,6 +45,7 @@ interface MonthlyData {
 }
 
 const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
+    const insets = useSafeAreaInsets();
     const { isAuthenticated, user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [periodModalVisible, setPeriodModalVisible] = useState(false);
@@ -279,7 +281,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
       <SafeAreaView style={commonStyles.container} edges={['top', 'left', 'right']}>
         <StatusBar {...statusBarConfig} />
         <ScrollView
-          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 60, minHeight: '100%' }}
+          contentContainerStyle={getScrollContainerStyle(insets)}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
@@ -343,8 +345,8 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
           </View>
 
           <RecentTransactions
-            transactions={currentMonthData.recentTransactions}
-            loading={!dataLoaded}
+            loading={!dataLoaded || refreshing}
+            limit={5}
             onSeeAll={() => navigation.navigate('AllTransactions')}
           />
 

@@ -1,56 +1,65 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Card, Divider } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import RecentTransactionsSkeleton from './RecentTransactionsSkeleton';
+import { useAuth } from '@/contexts/AuthContext';
+import { getTransactionColor, getTransactionIcon } from '@/utils/transactionUtils';
+import transactionService from '@/services/transactionService';
 
 interface RecentTransactionsProps {
-  transactions: any[];
-  loading: boolean;
-  onSeeAll: () => void;
+  limit?: number;
+  onSeeAll?: () => void;
   style?: any;
+  loading?: boolean;
 }
 
-// Helper functions
-const getTransactionColor = (type: string): string => {
-  const colors = {
-    income: '#10b981',
-    expense: '#ef4444',
-    transfer: '#3b82f6',
-    withdrawal: '#f59e0b',
+const RecentTransactions: React.FC<RecentTransactionsProps> = ({
+  limit = 5,
+  onSeeAll,
+  style,
+  loading: parentLoading
+}) => {
+  const { token } = useAuth();
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadTransactions = async () => {
+    if (!token) return;
+
+    try {
+      setLoading(true);
+      const data = await transactionService.getRecentTransactions(token, limit);
+      setTransactions(data);
+    } catch (error) {
+      console.error('Error fetching recent transactions:', error);
+      setTransactions([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  switch (type) {
-    case 'income': return colors.income;
-    case 'expense': return colors.expense;
-    case 'transfer': return colors.transfer;
-    default: return colors.withdrawal;
-  }
-};
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadTransactions();
+    setRefreshing(false);
+  };
 
-const getTransactionIcon = (type: string): any => {
-  switch (type) {
-    case 'income': return 'arrow-down';
-    case 'expense': return 'arrow-up';
-    case 'transfer': return 'swap-horizontal';
-    default: return 'arrow-down';
-  }
-};
+  useEffect(() => {
+    loadTransactions();
+  }, [limit]);
 
-const RecentTransactions: React.FC<RecentTransactionsProps> = ({
-  transactions,
-  loading,
-  onSeeAll,
-  style
-}) => {
   return (
     <View style={[styles.transactionsSection, style]}>
       <View style={styles.transactionsHeader}>
         <Text style={styles.sectionTitle}>Recent Transactions</Text>
-        <Text style={styles.seeAllText} onPress={onSeeAll}>See all</Text>
+        {onSeeAll && (
+          <Text style={styles.seeAllText} onPress={onSeeAll}>See all</Text>
+        )}
       </View>
-      {loading ? (
-        <RecentTransactionsSkeleton count={3} />
+      {parentLoading || loading ? (
+        <RecentTransactionsSkeleton count={limit} />
       ) : (
         <Card style={styles.transactionsCard}>
           <Card.Content style={styles.transactionsCardContent}>
@@ -79,12 +88,22 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                       </View>
                     </View>
                     <View style={styles.transactionRight}>
-                      <Text style={[
-                        styles.transactionAmount,
-                        { color: getTransactionColor(transaction.type) }
-                      ]}>
-                        {transaction.formatted_amount}
-                      </Text>
+                      <View style={styles.transactionAmountContainer}>
+                        <Text style={[
+                          styles.transactionAmount,
+                          { color: getTransactionColor(transaction.type) }
+                        ]}>
+                          {transaction.formatted_amount}
+                        </Text>
+                        {transaction.has_items && (
+                          <Ionicons
+                            name="list-outline"
+                            size={14}
+                            color="#6b7280"
+                            style={styles.transactionItemsIcon}
+                          />
+                        )}
+                      </View>
                     </View>
                   </View>
                   {index < transactions.length - 1 && (
@@ -176,7 +195,14 @@ const styles = StyleSheet.create({
     color: '#6b7280',
   },
   transactionRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  transactionAmountContainer: {
     alignItems: 'flex-end',
+  },
+  transactionItemsIcon: {
+    marginTop: 2,
   },
   transactionAmount: {
     fontSize: 14,
