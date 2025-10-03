@@ -5,9 +5,10 @@ import { PaperProvider, Button, Avatar, Card, Divider } from 'react-native-paper
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Theme } from '@/constants/colors';
-import { BalanceCardSkeleton, HomeTransactionsSkeleton } from '@/components';
+import { BalanceCardSkeleton } from '@/components';
+import RecentTransactions from '@/components/RecentTransactions';
 import { useAuth } from '@/contexts/AuthContext';
-import { styles as homeStyles, getTransactionColor, getTransactionIcon } from '@/styles/HomeScreen.styles';
+import { styles as homeStyles } from '@/styles/HomeScreen.styles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
 
@@ -215,59 +216,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
           </View>
 
           {/* Recent Transactions */}
-          <View style={homeStyles.transactionsSection}>
-            <View style={homeStyles.transactionsHeader}>
-              <Text style={homeStyles.sectionTitle}>Recent Transactions</Text>
-              <Text style={homeStyles.seeAllText} onPress={() => navigation.navigate('AllTransactions')}>See all</Text>
-            </View>
-            {loading ? (
-              <HomeTransactionsSkeleton count={3} />
-            ) : (
-              <Card style={homeStyles.transactionsCard}>
-                <Card.Content style={homeStyles.transactionsCardContent}>
-                  {recentTransactions.length === 0 ? (
-                    <View style={homeStyles.emptyCard}>
-                      <Text style={homeStyles.emptyText}>No transactions yet</Text>
-                    </View>
-                  ) : (
-                    recentTransactions.map((transaction, index) => (
-                      <View key={transaction.id}>
-                        <View style={homeStyles.transactionItem}>
-                          <View style={homeStyles.transactionLeft}>
-                            <View style={[
-                              homeStyles.transactionIcon,
-                              { backgroundColor: getTransactionColor(transaction.type) }
-                            ]}>
-                              <Ionicons
-                                name={getTransactionIcon(transaction.type) as any}
-                                size={16}
-                                color="white"
-                              />
-                            </View>
-                            <View style={homeStyles.transactionInfo}>
-                              <Text style={homeStyles.transactionName} numberOfLines={1} ellipsizeMode="tail">{transaction.name || transaction.title}</Text>
-                              <Text style={homeStyles.transactionDate}>{transaction.formatted_date}</Text>
-                            </View>
-                          </View>
-                          <View style={homeStyles.transactionRight}>
-                            <Text style={[
-                              homeStyles.transactionAmount,
-                              { color: getTransactionColor(transaction.type) }
-                            ]}>
-                              {transaction.formatted_amount}
-                            </Text>
-                          </View>
-                        </View>
-                        {index < recentTransactions.length - 1 && (
-                          <Divider style={homeStyles.transactionDivider} />
-                        )}
-                      </View>
-                    ))
-                  )}
-                </Card.Content>
-              </Card>
-            )}
-          </View>
+          <RecentTransactions
+            transactions={recentTransactions}
+            loading={loading}
+            onSeeAll={() => navigation.navigate('AllTransactions')}
+          />
         </ScrollView>
       </SafeAreaView>
     </PaperProvider>

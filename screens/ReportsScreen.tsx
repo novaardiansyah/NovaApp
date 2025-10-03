@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity, Alert, Modal, Pressable, StyleSheet, TextInput as RNTextInput } from 'react-native';
+import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity, Alert, Modal, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Card, Button, Divider, TextInput, FAB } from 'react-native-paper';
+import { PaperProvider, Card, Divider, TextInput, FAB } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
-import { ReportsPeriodSkeleton, ReportsSummarySkeleton, ReportsTransactionsSkeleton, FormButton } from '@/components';
+import { commonStyles, formatCurrency, statusBarConfig } from '@/styles';
+import { ReportsPeriodSkeleton, ReportsSummarySkeleton, FormButton } from '@/components';
+import RecentTransactions from '@/components/RecentTransactions';
 
 interface ReportsScreenProps {
   navigation: any;
@@ -44,13 +44,11 @@ interface MonthlyData {
 }
 
 const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
-  const insets = useSafeAreaInsets();
-  const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [periodModalVisible, setPeriodModalVisible] = useState(false);
   const [emailModalVisible, setEmailModalVisible] = useState(false);
   const [emailInput, setEmailInput] = useState('');
-  const [loading, setLoading] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const currentDate = new Date();
@@ -59,7 +57,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     return `${year}-${month}`;
   });
 
-  // Generate month options (3 months back, 3 months forward from current month)
   const getMonthOptions = () => {
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
@@ -90,12 +87,10 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     return options;
   };
 
-  // Generate sample data for all months
   const generateMonthlyData = () => {
     const monthOptions = getMonthOptions();
     const data: Record<string, MonthlyData> = {};
 
-    // Generate dynamic base data based on current date
     const baseData: Record<string, Omit<MonthlyData, 'financialItems' | 'recentTransactions'>> = {};
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
@@ -108,7 +103,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const monthKey = `${year}-${month}`;
 
-      // Generate varied but realistic data
       const baseIncome = 8000000 + Math.random() * 2000000;
       const baseExpenses = 6000000 + Math.random() * 1500000;
       const transfers = 1000000 + Math.random() * 800000;
@@ -171,7 +165,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     return data;
   };
 
-  // Generate sample transactions for a specific month
   const generateSampleTransactions = (monthYear: string): Transaction[] => {
     const [year, month] = monthYear.split('-');
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -199,7 +192,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
   const monthlyData: Record<string, MonthlyData> = generateMonthlyData();
 
-  // Helper function untuk format bulan
+  // Helper function to format month and year
   const formatMonthYear = (monthYear: string) => {
     const [year, month] = monthYear.split('-');
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -208,22 +201,19 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    setDataLoaded(false); // Show skeleton during refresh
+    setDataLoaded(false);
 
-    // Simulate API call with 2 second timeout
     setTimeout(() => {
       setDataLoaded(true);
       setRefreshing(false);
     }, 2000);
   };
 
-  
   const handleMonthSelect = (monthYear: string) => {
     setSelectedMonth(monthYear);
     setPeriodModalVisible(false);
-    setDataLoaded(false); // Show skeleton during month change
+    setDataLoaded(false);
 
-    // Simulate loading new data with 2 second timeout
     setTimeout(() => {
       setDataLoaded(true);
     }, 2000);
@@ -231,7 +221,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
   const handleExportReport = () => {
     setEmailModalVisible(true);
-    // Set default email from user data
     if (user?.email) {
       setEmailInput(user.email);
     }
@@ -243,7 +232,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
       return;
     }
 
-    // Simple email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(emailInput)) {
       Alert.alert('Error', 'Please enter a valid email address');
@@ -252,10 +240,8 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
     setEmailModalVisible(false);
 
-    // Show loading state
     Alert.alert('Sending Report', `Sending financial report to ${emailInput}...`);
 
-    // Simulate sending email
     setTimeout(() => {
       Alert.alert(
         'Success',
@@ -266,23 +252,13 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     }, 2000);
   };
 
-  const getTransactionColor = (type: 'income' | 'expense') => {
-    return type === 'income' ? '#10b981' : '#ef4444';
-  };
-
-  const getTransactionIcon = (type: 'income' | 'expense'): string => {
-    return type === 'income' ? 'arrow-down' : 'arrow-up';
-  };
-
-  // Get current month data
   const currentMonthData: MonthlyData = monthlyData[selectedMonth] || monthlyData[Object.keys(monthlyData)[0]];
 
-  // Simulate initial data loading
   useEffect(() => {
     if (isAuthenticated) {
       const timer = setTimeout(() => {
         setDataLoaded(true);
-      }, 2000); // 2 second initial load simulation
+      }, 2000);
 
       return () => clearTimeout(timer);
     }
@@ -303,18 +279,16 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
       <SafeAreaView style={commonStyles.container} edges={['top', 'left', 'right']}>
         <StatusBar {...statusBarConfig} />
         <ScrollView
-          contentContainerStyle={getScrollContainerStyle(insets)}
+          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 60, minHeight: '100%' }}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
         >
-          {/* Header */}
           <View style={commonStyles.header}>
             <Ionicons name="document-text" size={24} color="#6366f1" style={commonStyles.headerIcon} />
             <Text style={commonStyles.headerTitle}>Financial Reports</Text>
           </View>
 
-          {/* Period Selector */}
           {dataLoaded ? (
             <Card style={styles.periodCard}>
               <Card.Content style={styles.periodContent}>
@@ -334,7 +308,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
             <ReportsPeriodSkeleton style={styles.periodCard} />
           )}
 
-          {/* Financial Summary */}
           <View style={styles.summarySection}>
             {dataLoaded ? (
               <Card style={styles.summaryCard}>
@@ -369,62 +342,11 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
             )}
           </View>
 
-  
-          {/* Recent Transactions */}
-          <View style={styles.transactionsSection}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Recent Transactions</Text>
-              {dataLoaded && (
-                <TouchableOpacity onPress={() => navigation.navigate('AllTransactions')}>
-                  <Text style={styles.seeAllText}>See All</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-
-            {dataLoaded ? (
-              <Card style={styles.transactionsCard}>
-                <Card.Content style={styles.transactionsCardContent}>
-                  {currentMonthData.recentTransactions.map((transaction, index) => (
-                    <View key={transaction.id}>
-                      <View style={styles.transactionItem}>
-                        <View style={styles.transactionLeft}>
-                          <View style={[
-                            styles.transactionIcon,
-                            { backgroundColor: getTransactionColor(transaction.type) }
-                          ]}>
-                            <Ionicons
-                              name={getTransactionIcon(transaction.type) as any}
-                              size={16}
-                              color="white"
-                            />
-                          </View>
-                          <View style={styles.transactionInfo}>
-                            <Text style={styles.transactionName}>{transaction.name}</Text>
-                            <Text style={styles.transactionDate}>
-                              {transaction.formatted_date}
-                            </Text>
-                          </View>
-                        </View>
-                        <View style={styles.transactionRight}>
-                          <Text style={[
-                            styles.transactionAmount,
-                            { color: getTransactionColor(transaction.type) }
-                          ]}>
-                            {transaction.formatted_amount}
-                          </Text>
-                        </View>
-                      </View>
-                      {index < currentMonthData.recentTransactions.length - 1 && (
-                        <Divider style={styles.transactionDivider} />
-                      )}
-                    </View>
-                  ))}
-                </Card.Content>
-              </Card>
-            ) : (
-              <ReportsTransactionsSkeleton style={styles.transactionsCard} />
-            )}
-          </View>
+          <RecentTransactions
+            transactions={currentMonthData.recentTransactions}
+            loading={!dataLoaded}
+            onSeeAll={() => navigation.navigate('AllTransactions')}
+          />
 
         </ScrollView>
       </SafeAreaView>
@@ -438,7 +360,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
         onPress={handleExportReport}
       />
 
-      {/* Period Selection Modal */}
       <Modal
         visible={periodModalVisible}
         transparent
@@ -483,7 +404,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
         </SafeAreaView>
       </Modal>
 
-      {/* Email Modal */}
       <Modal
         visible={emailModalVisible}
         transparent
@@ -649,64 +569,6 @@ const styles = StyleSheet.create({
   financialDivider: {
     marginVertical: 0,
   },
-  transactionsSection: {
-    marginBottom: 24,
-  },
-  transactionsCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  transactionsCardContent: {
-    paddingVertical: 8,
-  },
-  transactionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-  },
-  transactionLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  transactionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  transactionInfo: {
-    flex: 1,
-    maxWidth: '60%',
-  },
-  transactionName: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1f2937',
-    marginBottom: 4,
-  },
-  transactionDate: {
-    fontSize: 12,
-    color: '#6b7280',
-  },
-  transactionRight: {
-    alignItems: 'flex-end',
-  },
-  transactionAmount: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  transactionDivider: {
-    marginVertical: 0,
-  },
   fab: {
     position: 'absolute',
     margin: 16,
@@ -715,9 +577,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#6366f1',
     borderRadius: 30,
   },
-  transactionItemLast: {
-    paddingBottom: 0,
-  },
-});
+  });
 
 export default ReportsScreen;

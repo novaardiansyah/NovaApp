@@ -2,11 +2,11 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Card, Divider } from 'react-native-paper';
 
-interface HomeTransactionsSkeletonProps {
+interface RecentTransactionsSkeletonProps {
   count?: number;
 }
 
-const HomeTransactionsSkeleton: React.FC<HomeTransactionsSkeletonProps> = ({ count = 3 }) => {
+const RecentTransactionsSkeleton: React.FC<RecentTransactionsSkeletonProps> = ({ count = 3 }) => {
   return (
     <Card style={styles.card}>
       <Card.Content>
@@ -86,4 +86,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeTransactionsSkeleton;
+export default RecentTransactionsSkeleton;

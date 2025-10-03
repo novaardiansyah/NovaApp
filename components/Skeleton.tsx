@@ -209,33 +209,6 @@ export const ReportsSummarySkeleton: React.FC<ReportsSummarySkeletonProps> = ({ 
 };
 
 
-interface ReportsTransactionsSkeletonProps {
-  style?: object;
-}
-
-export const ReportsTransactionsSkeleton: React.FC<ReportsTransactionsSkeletonProps> = ({ style }) => {
-  return (
-    <Card style={[style, { borderRadius: 12, backgroundColor: '#ffffff', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 }]}>
-      <Card.Content style={{ paddingVertical: 8 }}>
-        {Array.from({ length: 5 }).map((_, index) => (
-          <View key={index}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                <Skeleton width={40} height={40} style={{ borderRadius: 20, marginRight: 16 }} />
-                <View style={{ flex: 1, maxWidth: '60%' }}>
-                  <Skeleton width={120} height={14} style={{ marginBottom: 4 }} />
-                  <Skeleton width={80} height={12} />
-                </View>
-              </View>
-              <Skeleton width={70} height={14} />
-            </View>
-            {index < 4 && <Divider style={{ marginVertical: 0 }} />}
-          </View>
-        ))}
-      </Card.Content>
-    </Card>
-  );
-};
 
 // AddPaymentItemScreen Search Skeleton Components
 interface SearchItemSkeletonProps {

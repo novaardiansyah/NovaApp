@@ -124,81 +124,7 @@ export const styles = StyleSheet.create({
     marginTop: 8,
   },
 
-  // Recent Transactions
-  transactionsSection: {
-    marginBottom: 24,
-  },
-  transactionsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 14,
-  },
-  seeAllText: {
-    fontSize: 14,
-    color: '#6366f1',
-    fontWeight: '500',
-  },
-  transactionsCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  transactionsCardContent: {
-    paddingVertical: 8,
-  },
-  emptyCard: {
-    padding: 16,
-    alignItems: 'center',
-  },
-  transactionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-  },
-  transactionLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  transactionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  transactionInfo: {
-    flex: 1,
-    maxWidth: '60%',
-  },
-  transactionName: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1f2937',
-    marginBottom: 4,
-  },
-  transactionDate: {
-    fontSize: 12,
-    color: '#6b7280',
-  },
-  transactionRight: {
-    alignItems: 'flex-end',
-  },
-  transactionAmount: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  transactionDivider: {
-    marginVertical: 0,
-  },
-
+  
   // Loading & Empty States
   loginButton: {
     marginTop: 16,
@@ -209,36 +135,5 @@ export const styles = StyleSheet.create({
     color: '#6b7280',
     fontSize: 14,
   },
-  emptyText: {
-    textAlign: 'center',
-    padding: 20,
-    color: '#6b7280',
-    fontSize: 14,
-  },
-});
+  });
 
-// Helper functions
-export const getTransactionColor = (type: string): string => {
-  const colors = {
-    income: '#10b981',
-    expense: '#ef4444',
-    transfer: '#3b82f6',
-    withdrawal: '#f59e0b',
-  };
-
-  switch (type) {
-    case 'income': return colors.income;
-    case 'expense': return colors.expense;
-    case 'transfer': return colors.transfer;
-    default: return colors.withdrawal;
-  }
-};
-
-export const getTransactionIcon = (type: string): any => {
-  switch (type) {
-    case 'income': return 'arrow-down';
-    case 'expense': return 'arrow-up';
-    case 'transfer': return 'swap-horizontal';
-    default: return 'arrow-down';
-  }
-};
