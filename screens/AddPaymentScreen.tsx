@@ -26,14 +26,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   const [notification, setNotification] = useState<string | null>(null);
   const [optionsExpanded, setOptionsExpanded] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
-      e.preventDefault();
-      navigation.navigate('HomeMain', { refresh: Date.now() });
-    });
-
-    return unsubscribe;
-  }, [navigation]);
+  // No navigation listeners needed for this screen
   
   const [loadingPaymentTypes, setLoadingPaymentTypes] = useState(false);
   const [loadingPaymentAccounts, setLoadingPaymentAccounts] = useState(false);
@@ -450,7 +443,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
 
             <FormButton
               title="Cancel"
-              onPress={() => navigation.navigate('HomeMain', { refresh: Date.now() })}
+              onPress={() => navigation.goBack()}
               variant="outline"
               loading={loading}
               style={styles.cancelButton}
@@ -480,11 +473,10 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
 
           if (formData.has_items) {
             navigation.navigate('AddPaymentItem', {
-              paymentId,
-              fromScreen: 'AddPayment' // Tambahkan parameter fromScreen
+              paymentId
             });
           } else {
-            navigation.navigate('AllTransactions', { refresh: Date.now() })
+            navigation.goBack()
           }
         }}
         type="success"

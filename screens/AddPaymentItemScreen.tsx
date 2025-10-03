@@ -22,29 +22,17 @@ interface AddPaymentItemScreenProps {
   route?: {
     params?: {
       paymentId?: number;
-      fromScreen?: string; // Optional: track which screen we came from
     };
   };
 }
 
 const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation, route }) => {
-  const { paymentId, fromScreen } = route?.params || {};
+  const { paymentId } = route?.params || {};
   const { token } = useAuth();
 
   if (!token || !paymentId) return null;
 
-  useEffect(() => {
-    if (!navigation) return;
-
-    const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
-      e.preventDefault();
-
-      const targetScreen = fromScreen || 'AllTransactions';
-      navigation.navigate(targetScreen, { refresh: Date.now() });
-    });
-
-    return unsubscribe;
-  }, [navigation, fromScreen]);
+  // No navigation listeners needed for this screen
 
 
   const [items, setItems] = useState<PaymentItem[]>([
@@ -371,9 +359,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
               <FormButton
                 title="Cancel"
                 onPress={() => {
-                  // Navigate back to the previous screen with refresh parameter
-                  const targetScreen = fromScreen || 'AllTransactions';
-                  navigation?.navigate(targetScreen, { refresh: Date.now() });
+                  navigation?.navigate('AllTransactions', { refresh: Date.now() })
                 }}
                 variant="outline"
                 style={styles.cancelButton}
@@ -514,8 +500,8 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
         visible={!!notification}
         message={notification || ''}
         onDismiss={() => {
-          setNotification(null);
-          navigation?.navigate('AllTransactions', { refresh: Date.now() });
+          setNotification(null)
+          navigation?.navigate('AllTransactions', { refresh: Date.now() })
         }}
         type="success"
       />
