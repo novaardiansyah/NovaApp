@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { Card } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { commonStyles } from '@/styles';
+import { styles as searchItemStyles } from '@/styles/AddPaymentItemScreen.styles';
 
 interface SkeletonProps {
   width?: number | string;
@@ -233,6 +234,41 @@ export const ReportsTransactionsSkeleton: React.FC<ReportsTransactionsSkeletonPr
         ))}
       </Card.Content>
     </Card>
+  );
+};
+
+// AddPaymentItemScreen Search Skeleton Components
+interface SearchItemSkeletonProps {
+  style?: object;
+}
+
+export const SearchItemSkeleton: React.FC<SearchItemSkeletonProps> = ({ style }) => {
+  return (
+    <View style={[searchItemStyles.searchResultItem, style]}>
+      <View style={searchItemStyles.searchResultContent}>
+        <Skeleton width={180} height={16} style={{ marginBottom: 4 }} />
+        <View style={searchItemStyles.searchResultDetails}>
+          <Skeleton width={80} height={12} style={{ marginRight: 16 }} />
+          <Skeleton width={60} height={14} />
+        </View>
+        <Skeleton width={40} height={20} style={[searchItemStyles.searchResultType]} />
+      </View>
+    </View>
+  );
+};
+
+interface SearchResultsSkeletonProps {
+  count?: number;
+  style?: object;
+}
+
+export const SearchResultsSkeleton: React.FC<SearchResultsSkeletonProps> = ({ count = 5, style }) => {
+  return (
+    <View style={style}>
+      {Array.from({ length: count }).map((_, index) => (
+        <SearchItemSkeleton key={index} style={index < count - 1 ? { marginBottom: 4 } : { marginBottom: 0 }} />
+      ))}
+    </View>
   );
 };
 

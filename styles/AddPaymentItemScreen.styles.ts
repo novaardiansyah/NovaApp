@@ -14,6 +14,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingBottom: 32,
+    marginTop: 8,
   },
 
   header: {
@@ -52,25 +53,25 @@ export const styles = StyleSheet.create({
   },
 
   itemContent: {
-    paddingVertical: 16,
+    paddingVertical: 12,
   },
 
   itemHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
 
   itemNumber: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
     color: '#374151',
   },
 
   input: {
     backgroundColor: '#ffffff',
-    marginBottom: 16,
+    marginBottom: 12,
   },
 
   addItemButton: {
@@ -159,10 +160,6 @@ export const styles = StyleSheet.create({
     marginRight: 12,
   },
 
-  searchIcon: {
-    marginRight: 8,
-  },
-
   searchInput: {
     flex: 1,
     backgroundColor: '#ffffff',
@@ -179,7 +176,6 @@ export const styles = StyleSheet.create({
   searchResultsContainer: {
     flex: 1,
     backgroundColor: '#f9fafb',
-    paddingVertical: 8,
   },
 
   loadingContainer: {
@@ -198,10 +194,10 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
+    padding: 12,
     backgroundColor: '#ffffff',
     marginHorizontal: 16,
-    marginVertical: 6,
+    marginVertical: 4,
     borderRadius: 12,
     elevation: 2,
     shadowColor: '#000',
@@ -215,21 +211,21 @@ export const styles = StyleSheet.create({
   },
 
   searchResultName: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#1f2937',
-    marginBottom: 6,
+    marginBottom: 4,
   },
 
   searchResultDetails: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
 
   searchResultCode: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#6b7280',
     fontStyle: 'italic',
     backgroundColor: '#f9fafb',
@@ -239,23 +235,23 @@ export const styles = StyleSheet.create({
   },
 
   searchResultPrice: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
     color: '#059669',
   },
 
   searchResultType: {
     backgroundColor: '#e0e7ff',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
     alignSelf: 'flex-start',
     borderWidth: 1,
     borderColor: '#c7d2fe',
   },
 
   searchResultTypeText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '600',
     color: '#4338ca',
     textTransform: 'uppercase',
@@ -304,6 +300,21 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
   },
 
+  // Search Results Header
+  searchResultsHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+
+  searchResultsText: {
+    fontSize: 14,
+    color: '#6b7280',
+    fontWeight: '500',
+  },
+
   // Searched Item Indicator
   itemHeaderLeft: {
     flexDirection: 'row',
@@ -322,7 +333,7 @@ export const styles = StyleSheet.create({
   },
 
   searchedText: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '600',
     color: '#6d28d9',
     textTransform: 'uppercase',
@@ -330,27 +341,13 @@ export const styles = StyleSheet.create({
 
   
   searchResultItemDisabled: {
-    opacity: 0.6,
-    backgroundColor: '#f9fafb',
+    opacity: 0.8,
+    backgroundColor: '#f3f4f6',
   },
 
-  addedIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#d1fae5',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 12,
-    gap: 4,
+  addedIcon: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-  },
-
-  addedText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#065f46',
-    textTransform: 'uppercase',
+    top: -4,
+    right: -4,
   },
 });

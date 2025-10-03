@@ -122,9 +122,33 @@ class PaymentService {
     }
   }
 
-  async searchNotAttachedItems(token: string, paymentId: number, searchQuery: string): Promise<SearchItem[]> {
+  async getNotAttachedItems(token: string, paymentId: number, limit: number = 10): Promise<SearchItem[]> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/items/not-attached?search=${encodeURIComponent(searchQuery)}`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/items/not-attached?limit=${limit}`, {
+        method: 'GET',
+        headers: this.getHeaders(token),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        return data.data;
+      }
+
+      throw new Error('Failed to fetch items');
+    } catch (error) {
+      console.error('Error fetching items:', error);
+      throw error;
+    }
+  }
+
+  async searchNotAttachedItems(token: string, paymentId: number, searchQuery: string, limit: number = 10): Promise<SearchItem[]> {
+    try {
+      const url = searchQuery.trim()
+        ? `${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/items/not-attached?limit=${limit}&search=${encodeURIComponent(searchQuery)}`
+        : `${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/items/not-attached?limit=${limit}`;
+
+      const response = await fetch(url, {
         method: 'GET',
         headers: this.getHeaders(token),
       });

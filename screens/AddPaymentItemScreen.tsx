@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card, TextInput, Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
-import { FormButton, Notification } from '@/components';
+import { FormButton, Notification, SearchResultsSkeleton } from '@/components';
 import { commonStyles } from '@/styles';
 import { styles } from '@/styles/AddPaymentItemScreen.styles';
 import { useAuth } from '@/contexts/AuthContext';
@@ -46,7 +46,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
     return unsubscribe;
   }, [navigation, fromScreen]);
 
-  
+
   const [items, setItems] = useState<PaymentItem[]>([
     { name: '', amount: '', qty: '1' }
   ]);
@@ -59,6 +59,26 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
   const [searchResults, setSearchResults] = useState<SearchItem[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
+
+  // Load initial items when modal opens
+  useEffect(() => {
+    if (showSearchModal && searchResults.length === 0 && !searchQuery) {
+      loadInitialItems();
+    }
+  }, [showSearchModal]);
+
+  const loadInitialItems = async () => {
+    setSearchLoading(true);
+    try {
+      const results = await paymentService.getNotAttachedItems(token, paymentId, 10);
+      setSearchResults(results);
+    } catch (error) {
+      setSearchResults([]);
+      console.error('Error loading initial items:', error);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
 
   const addItem = () => {
     setItems([...items, { name: '', amount: '', qty: '1' }]);
@@ -113,7 +133,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
 
     setSearchLoading(true);
     try {
-      const results = await paymentService.searchNotAttachedItems(token, paymentId, searchQuery);
+      const results = await paymentService.searchNotAttachedItems(token, paymentId, searchQuery, 10);
       setSearchResults(results);
     } catch (error) {
       setSearchResults([]);
@@ -166,7 +186,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
 
   const clearSearch = () => {
     setSearchQuery('');
-    setSearchResults([]);
+    loadInitialItems(); // Reload initial items when clearing search
   };
 
   const validateItems = () => {
@@ -379,7 +399,6 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
             {/* Search Header */}
             <View style={styles.searchModalHeader}>
               <View style={styles.searchInputContainer}>
-                <Ionicons name="search" size={20} color="#6b7280" style={styles.searchIcon} />
                 <TextInput
                   placeholder="Search items..."
                   value={searchQuery}
@@ -408,64 +427,70 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
             </View>
 
             {/* Search Button */}
-            <View style={styles.searchButtonContainer}>
-              <Button
-                mode="contained"
-                onPress={handleSearch}
-                loading={searchLoading}
-                disabled={searchLoading || searchQuery.trim().length < 2}
-                style={styles.searchActionButton}
-                buttonColor="#6366f1"
-                textColor="#ffffff"
-                icon={() => <Ionicons name="search" size={18} color="#ffffff" />}
-              >
-                Search Items
-              </Button>
-            </View>
+            {searchQuery.trim().length > 0 && (
+              <View style={styles.searchButtonContainer}>
+                <Button
+                  mode="contained"
+                  onPress={handleSearch}
+                  loading={searchLoading}
+                  disabled={searchLoading || searchQuery.trim().length < 2}
+                  style={styles.searchActionButton}
+                  buttonColor="#6366f1"
+                  textColor="#ffffff"
+                  icon={() => <Ionicons name="search" size={18} color="#ffffff" />}
+                >
+                  Search Items
+                </Button>
+              </View>
+            )}
 
             {/* Search Results */}
-            <View style={styles.searchResultsContainer}>
+            <ScrollView style={styles.searchResultsContainer}>
               {searchLoading ? (
-                <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="large" color="#6366f1" />
-                  <Text style={styles.loadingText}>Searching...</Text>
-                </View>
+                <SearchResultsSkeleton count={5} />
               ) : searchResults.length > 0 ? (
-                <View style={styles.searchResultsContainer}>
-                  {searchResults.map((item) => {
-                    const isItemAdded = items.some(existingItem => existingItem.item_id === item.id);
+                <View>
+                  {searchQuery.length > 0 && (
+                    <View style={styles.searchResultsHeader}>
+                      <Text style={styles.searchResultsText}>
+                        {searchResults.length} item{searchResults.length !== 1 ? 's' : ''} found
+                      </Text>
+                    </View>
+                  )}
 
-                    return (
-                    <TouchableOpacity
-                      key={item.id}
-                      style={[
-                        styles.searchResultItem,
-                        isItemAdded && styles.searchResultItemDisabled
-                      ]}
-                      onPress={() => handleSearchItemSelect(item)}
-                      disabled={isItemAdded}
-                    >
-                      <View style={styles.searchResultContent}>
-                        <Text style={styles.searchResultName}>{item.name}</Text>
-                        <View style={styles.searchResultDetails}>
-                          <Text style={styles.searchResultCode}>{item.code}</Text>
-                          <Text style={styles.searchResultPrice}>{item.formatted_amount}</Text>
-                        </View>
-                        <View style={[styles.searchResultType, !item.code && styles.searchResultTypeNoSku]}>
-                          <Text style={[styles.searchResultTypeText, !item.code && styles.searchResultTypeTextNoSku]}>
-                            {item.type}
-                          </Text>
-                        </View>
-                        {isItemAdded && (
-                          <View style={styles.addedIndicator}>
-                            <Ionicons name="checkmark-circle" size={20} color="#10b981" />
-                            <Text style={styles.addedText}>Added</Text>
+                  <View style={{ marginTop: 16, paddingBottom: 32 }}>
+                    {searchResults.map((item) => {
+                      const isItemAdded = items.some(existingItem => existingItem.item_id === item.id);
+
+                      return (
+                      <TouchableOpacity
+                        key={item.id}
+                        style={[
+                          styles.searchResultItem,
+                          isItemAdded && styles.searchResultItemDisabled
+                        ]}
+                        onPress={() => handleSearchItemSelect(item)}
+                        disabled={isItemAdded}
+                      >
+                        <View style={styles.searchResultContent}>
+                          <Text style={styles.searchResultName}>{item.name}</Text>
+                          <View style={styles.searchResultDetails}>
+                            <Text style={styles.searchResultCode}>{item.code}</Text>
+                            <Text style={styles.searchResultPrice}>{item.formatted_amount}</Text>
                           </View>
-                        )}
-                      </View>
-                    </TouchableOpacity>
-                  );
-                  })}
+                          <View style={[styles.searchResultType, !item.code && styles.searchResultTypeNoSku]}>
+                            <Text style={[styles.searchResultTypeText, !item.code && styles.searchResultTypeTextNoSku]}>
+                              {item.type}
+                            </Text>
+                          </View>
+                          {isItemAdded && (
+                            <Ionicons name="checkmark-circle" size={20} color="#10b981" style={styles.addedIcon} />
+                          )}
+                        </View>
+                      </TouchableOpacity>
+                    );
+                    })}
+                  </View>
                 </View>
               ) : searchQuery.length > 0 ? (
                 <View style={styles.emptyContainer}>
@@ -476,11 +501,11 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
               ) : (
                 <View style={styles.emptyContainer}>
                   <Ionicons name="search" size={48} color="#d1d5db" />
-                  <Text style={styles.emptyText}>Search Items</Text>
-                  <Text style={styles.emptySubtext}>Enter keywords and click "Search Items" button</Text>
+                  <Text style={styles.emptyText}>Available Items</Text>
+                  <Text style={styles.emptySubtext}>No items available or search for specific items</Text>
                 </View>
               )}
-            </View>
+            </ScrollView>
           </View>
         </SafeAreaView>
       </Modal>
