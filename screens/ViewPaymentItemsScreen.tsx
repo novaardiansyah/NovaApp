@@ -550,7 +550,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    marginBottom: 16,
   },
 
   itemsCardContent: {
@@ -720,22 +719,25 @@ const styles = StyleSheet.create({
 
   endOfList: {
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingTop: 16,
   },
 
   endOfListText: {
-    fontSize: 12,
-    color: '#6b7280',
+    fontSize: 14,
+    color: '#9ca3af',
+    fontStyle: 'italic',
     textAlign: 'center',
   },
 
   loadMoreButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#f3f4f6',
-    alignItems: 'center',
+    backgroundColor: 'transparent',
+    borderRadius: 50,
+    width: 40,
+    height: 40,
     justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#6366f1',
   },
 
   });
