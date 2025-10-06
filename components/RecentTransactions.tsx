@@ -20,15 +20,43 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   style,
   loading: parentLoading
 }) => {
-  const { token } = useAuth();
+  const { token, validateToken, logout } = useAuth();
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [hasValidated, setHasValidated] = useState(false);
+
+  const validateSession = async (): Promise<boolean> => {
+    if (!token || hasValidated) return false;
+
+    try {
+      const isValid = await validateToken();
+      setHasValidated(true);
+
+      if (!isValid) {
+        console.log('Session invalid, logging out...');
+        await logout();
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error('Error validating session:', error);
+      setHasValidated(true);
+      return false;
+    }
+  };
 
   const loadTransactions = async () => {
     if (!token) return;
 
     try {
+      // Validate session first
+      const isValid = await validateSession();
+      if (!isValid) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       const data = await transactionService.getRecentTransactions(token, limit);
       setTransactions(data);
@@ -42,13 +70,14 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
 
   const handleRefresh = async () => {
     setRefreshing(true);
+    setHasValidated(false); // Reset validation on refresh
     await loadTransactions();
     setRefreshing(false);
   };
 
   useEffect(() => {
     loadTransactions();
-  }, [limit]);
+  }, [limit, token]);
 
   return (
     <View style={[styles.transactionsSection, style]}>
