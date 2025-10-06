@@ -245,4 +245,73 @@ export const SearchResultsSkeleton: React.FC<SearchResultsSkeletonProps> = ({ co
   );
 };
 
+// Payment Items Skeleton Components
+interface PaymentItemSkeletonProps {
+  style?: object;
+}
+
+export const PaymentItemSkeleton: React.FC<PaymentItemSkeletonProps> = ({ style }) => {
+  return (
+    <View style={[{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 8 }, style]}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 12 }}>
+        <View style={{ flex: 1 }}>
+          <Skeleton width={150} height={14} style={{ marginBottom: 4 }} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Skeleton width={40} height={12} />
+            <Skeleton width={30} height={12} />
+          </View>
+        </View>
+      </View>
+      <View style={{ alignItems: 'flex-end' }}>
+        <Skeleton width={60} height={14} style={{ marginBottom: 2 }} />
+        <Skeleton width={50} height={12} />
+      </View>
+    </View>
+  );
+};
+
+interface PaymentItemsSkeletonProps {
+  count?: number;
+  style?: object;
+}
+
+export const PaymentItemsSkeleton: React.FC<PaymentItemsSkeletonProps> = ({ count = 5, style }) => {
+  return (
+    <Card style={[style, { borderRadius: 12, backgroundColor: '#ffffff', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 }]}>
+      <Card.Content style={{ paddingVertical: 8 }}>
+        {Array.from({ length: count }).map((_, index) => (
+          <View key={index}>
+            <PaymentItemSkeleton />
+            {index < count - 1 && (
+              <View style={{ borderBottomWidth: 1, borderBottomColor: '#f3f4f6', marginVertical: 0 }} />
+            )}
+          </View>
+        ))}
+      </Card.Content>
+    </Card>
+  );
+};
+
+// Payment Summary Skeleton Component
+interface PaymentSummarySkeletonProps {
+  style?: object;
+}
+
+export const PaymentSummarySkeleton: React.FC<PaymentSummarySkeletonProps> = ({ style }) => {
+  return (
+    <Card style={[style, { borderRadius: 12, backgroundColor: '#ffffff', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, marginVertical: 16 }]}>
+      <Card.Content style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 20, paddingHorizontal: 16 }}>
+        <View style={{ flex: 1 }}>
+          <Skeleton width={80} height={16} style={{ marginBottom: 2 }} />
+          <Skeleton width={100} height={12} />
+        </View>
+        <View style={{ alignItems: 'flex-end' }}>
+          <Skeleton width={40} height={14} style={{ marginBottom: 2 }} />
+          <Skeleton width={80} height={18} />
+        </View>
+      </Card.Content>
+    </Card>
+  );
+};
+
 export default Skeleton;

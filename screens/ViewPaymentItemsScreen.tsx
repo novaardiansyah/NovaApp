@@ -7,6 +7,7 @@ import { Theme } from '@/constants/colors';
 import { commonStyles, formatCurrency, getScrollContainerStyle } from '@/styles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
+import { PaymentItemsSkeleton, PaymentSummarySkeleton } from '@/components/Skeleton';
 import paymentService from '@/services/paymentService';
 
 interface PaymentItem {
@@ -50,8 +51,10 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
   const insets = useSafeAreaInsets();
   const { isAuthenticated, token } = useAuth();
   const { paymentId, paymentTitle } = route?.params || {};
-  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadingSummary, setLoadingSummary] = useState(false);
+  const [loadingItems, setLoadingItems] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [selectedItem, setSelectedItem] = useState<PaymentItem | null>(null);
   const [actionSheetVisible, setActionSheetVisible] = useState(false);
@@ -64,7 +67,7 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
     if (!isAuthenticated || !token || !paymentId) return;
 
     if (page === 1) {
-      setLoading(true);
+      setLoadingItems(true);
     } else {
       setLoadingMore(true);
     }
@@ -88,7 +91,7 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
       Alert.alert('Error', 'Failed to fetch payment items. Please try again.');
     } finally {
       if (page === 1) {
-        setLoading(false);
+        setLoadingItems(false);
       } else {
         setLoadingMore(false);
       }
@@ -98,6 +101,7 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
   const fetchPaymentSummary = async () => {
     if (!isAuthenticated || !token || !paymentId) return;
 
+    setLoadingSummary(true);
     try {
       const response = await paymentService.getPaymentItemsSummary(token, paymentId);
 
@@ -109,24 +113,44 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
     } catch (error) {
       console.error('Error fetching payment summary:', error);
       Alert.alert('Error', 'Failed to fetch payment summary. Please try again.');
+    } finally {
+      setLoadingSummary(false);
     }
   };
 
   useEffect(() => {
     if (isAuthenticated && paymentId) {
-      fetchPaymentSummary();
-      fetchPaymentItems();
+      const loadInitialData = async () => {
+        try {
+          await Promise.all([fetchPaymentSummary(), fetchPaymentItems(1)]);
+        } catch (error) {
+          console.error('Error loading initial data:', error);
+        }
+      };
+
+      loadInitialData();
     }
   }, [isAuthenticated, paymentId]);
 
+  // Sync overall loading state with individual loading states
+  useEffect(() => {
+    setLoading(loadingSummary || loadingItems);
+  }, [loadingSummary, loadingItems]);
+
   const handleRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([fetchPaymentSummary(), fetchPaymentItems(1)]);
-    setRefreshing(false);
+    try {
+      await Promise.all([fetchPaymentSummary(), fetchPaymentItems(1)]);
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+      Alert.alert('Error', 'Failed to refresh data. Please try again.');
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const handleLoadMore = () => {
-    if (pagination && currentPage < pagination.last_page && !loading && !loadingMore) {
+    if (pagination && currentPage < pagination.last_page && !loadingItems && !loadingMore) {
       fetchPaymentItems(currentPage + 1);
     }
   };
@@ -201,45 +225,27 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
   return (
     <PaperProvider theme={Theme}>
       <SafeAreaView style={commonStyles.container} edges={['top', 'left', 'right']}>
-
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Ionicons name="receipt-outline" size={20} color="#6366f1" style={styles.headerIcon} />
             <Text style={styles.headerTitle}>Payment Items</Text>
           </View>
-          <Text style={styles.headerSubtitle}>{paymentSummary ? paymentSummary.payment_code : ''}</Text>
+          <Text style={styles.headerSubtitle}>
+            {refreshing || loadingSummary ? '...' : paymentSummary?.payment_code || ''}
+          </Text>
         </View>
-
-        {/* Summary Card */}
-        {loading && !paymentSummary ? (
-          <Card style={styles.summaryCard}>
-            <Card.Content style={styles.summaryContent}>
-              <ActivityIndicator size="small" color="#6366f1" />
-            </Card.Content>
-          </Card>
-        ) : paymentSummary ? (
-          <Card style={styles.summaryCard}>
-            <Card.Content style={styles.summaryContent}>
-              <View style={styles.summaryLeft}>
-                <Text style={styles.summaryTitle}>{getUniqueItemsCount()} Items</Text>
-                <Text style={styles.summarySubtitle}>{getItemsCount()} Total Quantity</Text>
-              </View>
-              <View style={styles.summaryRight}>
-                <Text style={styles.summaryTotalLabel}>Total</Text>
-                <Text style={styles.summaryTotalAmount}>
-                  {paymentSummary.formatted_amount || formatCurrency(getTotalAmount())}
-                </Text>
-              </View>
-            </Card.Content>
-          </Card>
-        ) : null}
 
         {/* Items List */}
         <ScrollView
-          contentContainerStyle={getScrollContainerStyle(insets)}
+          contentContainerStyle={[getScrollContainerStyle(insets), { paddingTop: 0 }]}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              colors={['#6366f1']}
+              tintColor="#6366f1"
+            />
           }
           onScroll={({ nativeEvent }) => {
             if (isCloseToBottom(nativeEvent)) {
@@ -249,11 +255,27 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
           scrollEventThrottle={400}
         >
           <View style={styles.itemsSection}>
-            {loading && paymentItems.length === 0 ? (
-              <View style={styles.loadingContent}>
-                <ActivityIndicator size="large" color="#6366f1" />
-                <Text style={styles.loadingText}>Loading items...</Text>
-              </View>
+            {/* Summary Card */}
+            {loading || refreshing ? (
+              <PaymentSummarySkeleton />
+            ) : paymentSummary ? (
+              <Card style={styles.summaryCard}>
+                <Card.Content style={styles.summaryContent}>
+                  <View style={styles.summaryLeft}>
+                    <Text style={styles.summaryTitle}>{getUniqueItemsCount()} Items</Text>
+                    <Text style={styles.summarySubtitle}>{getItemsCount()} Total Quantity</Text>
+                  </View>
+                  <View style={styles.summaryRight}>
+                    <Text style={styles.summaryTotalLabel}>Total</Text>
+                    <Text style={styles.summaryTotalAmount}>
+                      {paymentSummary.formatted_amount || formatCurrency(getTotalAmount())}
+                    </Text>
+                  </View>
+                </Card.Content>
+              </Card>
+            ) : null}
+            {loading || refreshing ? (
+              <PaymentItemsSkeleton count={5} />
             ) : paymentItems.length === 0 ? (
               <Card style={styles.emptyCard}>
                 <Card.Content style={styles.emptyCardContent}>
@@ -432,7 +454,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    marginHorizontal: 16,
     marginVertical: 16,
   },
 
@@ -440,7 +461,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: 20,
     paddingHorizontal: 16,
   },
 
@@ -453,7 +474,7 @@ const styles = StyleSheet.create({
   },
 
   summaryTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
     color: '#374151',
   },
@@ -465,15 +486,14 @@ const styles = StyleSheet.create({
   },
 
   summaryTotalLabel: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#6b7280',
   },
 
   summaryTotalAmount: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
     color: '#6366f1',
-    marginTop: 2,
   },
 
   summaryCode: {
@@ -484,7 +504,7 @@ const styles = StyleSheet.create({
   },
 
   itemsSection: {
-    gap: 8,
+    gap: 12,
   },
 
   emptyCard: {
