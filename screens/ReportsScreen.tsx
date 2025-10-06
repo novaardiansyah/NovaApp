@@ -8,7 +8,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
 import { ReportsPeriodSkeleton, ReportsSummarySkeleton, FormButton } from '@/components';
-import RecentTransactions from '@/components/RecentTransactions';
 
 interface ReportsScreenProps {
   navigation: any;
@@ -23,16 +22,24 @@ interface FinancialItem {
   icon: string;
 }
 
-interface Transaction {
-  id: number;
-  name: string;
+interface DailySummary {
   date: string;
-  formatted_date: string;
-  amount: number;
-  formatted_amount: string;
-  type: 'income' | 'expense';
-  category: string;
+  income: number;
+  expenses: number;
+  transfers: number;
+  withdrawals: number;
+  balance: number;
 }
+
+interface WeeklySummary {
+  week: string;
+  income: number;
+  expenses: number;
+  transfers: number;
+  withdrawals: number;
+  balance: number;
+}
+
 
 interface MonthlyData {
   income: number;
@@ -41,8 +48,7 @@ interface MonthlyData {
   withdrawals: number;
   balance: number;
   financialItems: FinancialItem[];
-  recentTransactions: Transaction[];
-}
+  }
 
 const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     const insets = useSafeAreaInsets();
@@ -160,39 +166,73 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
             icon: 'arrow-down-circle-outline'
           },
         ],
-        recentTransactions: generateSampleTransactions(monthYear)
-      };
+        };
     });
 
     return data;
   };
 
-  const generateSampleTransactions = (monthYear: string): Transaction[] => {
-    const [year, month] = monthYear.split('-');
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const monthName = monthNames[parseInt(month) - 1];
+  
+  const monthlyData: Record<string, MonthlyData> = generateMonthlyData();
 
-    const baseTransactions = [
-      { name: 'Grocery Shopping', amount: 450000, type: 'expense' as const, category: 'Food & Dining' },
-      { name: 'Salary', amount: 8500000, type: 'income' as const, category: 'Income' },
-      { name: 'Gas Station', amount: 200000, type: 'expense' as const, category: 'Transportation' },
-      { name: 'Online Shopping', amount: 350000, type: 'expense' as const, category: 'Shopping' },
-      { name: 'Movie Ticket', amount: 80000, type: 'expense' as const, category: 'Entertainment' },
-    ];
-
-    return baseTransactions.map((transaction, index) => ({
-      id: index + 1,
-      name: transaction.name,
-      date: `${year}-${month}-${String(25 - index).padStart(2, '0')}`,
-      formatted_date: `${monthName} ${25 - index}, ${year}`,
-      amount: transaction.amount,
-      formatted_amount: formatCurrency(transaction.amount),
-      type: transaction.type,
-      category: transaction.category
-    }));
+  const getCurrentDate = (): string => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
-  const monthlyData: Record<string, MonthlyData> = generateMonthlyData();
+  const generateDailySummary = (): DailySummary[] => {
+    const today = getCurrentDate();
+    const income = 2500000;
+    const expenses = 1200000;
+    const transfers = 800000;
+    const withdrawals = 500000;
+    const balance = income - expenses - transfers - withdrawals;
+
+    return [
+      { date: today, income, expenses, transfers, withdrawals, balance }
+    ];
+  };
+
+  const generateWeeklySummary = (): WeeklySummary[] => {
+    let totalIncome = 0;
+    let totalExpenses = 0;
+    let totalTransfers = 0;
+    let totalWithdrawals = 0;
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+
+      const dayIncome = i === 6 ? 8500000 : Math.random() > 0.7 ? 2500000 : 0;
+      const dayExpenses = 800000 + Math.random() * 1500000;
+      const dayTransfers = Math.random() > 0.5 ? 500000 + Math.random() * 1000000 : 0;
+      const dayWithdrawals = Math.random() > 0.6 ? 300000 + Math.random() * 700000 : 0;
+
+      totalIncome += dayIncome;
+      totalExpenses += dayExpenses;
+      totalTransfers += dayTransfers;
+      totalWithdrawals += dayWithdrawals;
+    }
+
+    const balance = totalIncome - totalExpenses - totalTransfers - totalWithdrawals;
+
+    return [
+      {
+        week: 'Last 7 Days',
+        income: Math.round(totalIncome),
+        expenses: Math.round(totalExpenses),
+        transfers: Math.round(totalTransfers),
+        withdrawals: Math.round(totalWithdrawals),
+        balance: Math.round(balance)
+      }
+    ];
+  };
+
+  const dailySummary: DailySummary[] = generateDailySummary();
+  const weeklySummary: WeeklySummary[] = generateWeeklySummary();
 
   // Helper function to format month and year
   const formatMonthYear = (monthYear: string) => {
@@ -344,11 +384,178 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
             )}
           </View>
 
-          <RecentTransactions
-            loading={!dataLoaded || refreshing}
-            limit={5}
-            onSeeAll={() => navigation.navigate('AllTransactions')}
-          />
+          <View style={styles.dailySection}>
+            <Text style={styles.sectionTitle}>Today's Summary</Text>
+            {dataLoaded ? (
+              <Card style={styles.dailyCard}>
+                <Card.Content style={styles.dailyContent}>
+                  {dailySummary.map((day, index) => (
+                    <View key={day.date}>
+                      <View style={styles.dailyItem}>
+                        <View style={styles.dailyLeft}>
+                          <View style={styles.dailyIconContainer}>
+                            <Ionicons name="arrow-down" size={16} color="white" />
+                          </View>
+                          <Text style={styles.dailyLabel}>Income</Text>
+                        </View>
+                        <View style={styles.dailyRight}>
+                          <Text style={[styles.dailyAmount, { color: '#10b981' }]}>
+                            {formatCurrency(day.income)}
+                          </Text>
+                        </View>
+                      </View>
+                      <Divider style={styles.dailyDivider} />
+
+                      <View style={styles.dailyItem}>
+                        <View style={styles.dailyLeft}>
+                          <View style={[styles.dailyIconContainer, { backgroundColor: '#ef4444' }]}>
+                            <Ionicons name="arrow-up" size={16} color="white" />
+                          </View>
+                          <Text style={styles.dailyLabel}>Expenses</Text>
+                        </View>
+                        <View style={styles.dailyRight}>
+                          <Text style={[styles.dailyAmount, { color: '#ef4444' }]}>
+                            {formatCurrency(day.expenses)}
+                          </Text>
+                        </View>
+                      </View>
+                      <Divider style={styles.dailyDivider} />
+
+                      <View style={styles.dailyItem}>
+                        <View style={styles.dailyLeft}>
+                          <View style={[styles.dailyIconContainer, { backgroundColor: '#3b82f6' }]}>
+                            <Ionicons name="swap-horizontal-outline" size={16} color="white" />
+                          </View>
+                          <Text style={styles.dailyLabel}>Transfers</Text>
+                        </View>
+                        <View style={styles.dailyRight}>
+                          <Text style={[styles.dailyAmount, { color: '#3b82f6' }]}>
+                            {formatCurrency(day.transfers)}
+                          </Text>
+                        </View>
+                      </View>
+                      <Divider style={styles.dailyDivider} />
+
+                      <View style={styles.dailyItem}>
+                        <View style={styles.dailyLeft}>
+                          <View style={[styles.dailyIconContainer, { backgroundColor: '#f59e0b' }]}>
+                            <Ionicons name="arrow-down-circle-outline" size={16} color="white" />
+                          </View>
+                          <Text style={styles.dailyLabel}>Withdrawals</Text>
+                        </View>
+                        <View style={styles.dailyRight}>
+                          <Text style={[styles.dailyAmount, { color: '#f59e0b' }]}>
+                            {formatCurrency(day.withdrawals)}
+                          </Text>
+                        </View>
+                      </View>
+                      <Divider style={styles.dailyDivider} />
+
+                      <View style={styles.dailyItem}>
+                        <View style={styles.dailyLeft}>
+                          <Text style={styles.dailyLabel}>Balance</Text>
+                        </View>
+                        <View style={styles.dailyRight}>
+                          <Text style={[styles.dailyBalance, day.balance >= 0 ? { color: '#10b981' } : { color: '#ef4444' }]}>
+                            {formatCurrency(day.balance)}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  ))}
+                </Card.Content>
+              </Card>
+            ) : (
+              <ReportsSummarySkeleton style={styles.dailyCard} />
+            )}
+          </View>
+
+          <View style={styles.weeklySection}>
+            <Text style={styles.sectionTitle}>Last 7 Days Summary</Text>
+            {dataLoaded ? (
+              <Card style={styles.weeklyCard}>
+                <Card.Content style={styles.weeklyContent}>
+                  {weeklySummary.map((week, index) => (
+                    <View key={week.week}>
+                      <View style={styles.weeklyItem}>
+                        <View style={styles.weeklyLeft}>
+                          <View style={styles.weeklyIconContainer}>
+                            <Ionicons name="arrow-down" size={16} color="white" />
+                          </View>
+                          <Text style={styles.weeklyLabel}>Income</Text>
+                        </View>
+                        <View style={styles.weeklyRight}>
+                          <Text style={[styles.weeklyAmount, { color: '#10b981' }]}>
+                            {formatCurrency(week.income)}
+                          </Text>
+                        </View>
+                      </View>
+                      <Divider style={styles.weeklyDivider} />
+
+                      <View style={styles.weeklyItem}>
+                        <View style={styles.weeklyLeft}>
+                          <View style={[styles.weeklyIconContainer, { backgroundColor: '#ef4444' }]}>
+                            <Ionicons name="arrow-up" size={16} color="white" />
+                          </View>
+                          <Text style={styles.weeklyLabel}>Expenses</Text>
+                        </View>
+                        <View style={styles.weeklyRight}>
+                          <Text style={[styles.weeklyAmount, { color: '#ef4444' }]}>
+                            {formatCurrency(week.expenses)}
+                          </Text>
+                        </View>
+                      </View>
+                      <Divider style={styles.weeklyDivider} />
+
+                      <View style={styles.weeklyItem}>
+                        <View style={styles.weeklyLeft}>
+                          <View style={[styles.weeklyIconContainer, { backgroundColor: '#3b82f6' }]}>
+                            <Ionicons name="swap-horizontal-outline" size={16} color="white" />
+                          </View>
+                          <Text style={styles.weeklyLabel}>Transfers</Text>
+                        </View>
+                        <View style={styles.weeklyRight}>
+                          <Text style={[styles.weeklyAmount, { color: '#3b82f6' }]}>
+                            {formatCurrency(week.transfers)}
+                          </Text>
+                        </View>
+                      </View>
+                      <Divider style={styles.weeklyDivider} />
+
+                      <View style={styles.weeklyItem}>
+                        <View style={styles.weeklyLeft}>
+                          <View style={[styles.weeklyIconContainer, { backgroundColor: '#f59e0b' }]}>
+                            <Ionicons name="arrow-down-circle-outline" size={16} color="white" />
+                          </View>
+                          <Text style={styles.weeklyLabel}>Withdrawals</Text>
+                        </View>
+                        <View style={styles.weeklyRight}>
+                          <Text style={[styles.weeklyAmount, { color: '#f59e0b' }]}>
+                            {formatCurrency(week.withdrawals)}
+                          </Text>
+                        </View>
+                      </View>
+                      <Divider style={styles.weeklyDivider} />
+
+                      <View style={styles.weeklyItem}>
+                        <View style={styles.weeklyLeft}>
+                          <Text style={styles.weeklyLabel}>Balance</Text>
+                        </View>
+                        <View style={styles.weeklyRight}>
+                          <Text style={[styles.weeklyBalance, week.balance >= 0 ? { color: '#10b981' } : { color: '#ef4444' }]}>
+                            {formatCurrency(week.balance)}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  ))}
+                </Card.Content>
+              </Card>
+            ) : (
+              <ReportsSummarySkeleton style={styles.weeklyCard} />
+            )}
+          </View>
+
 
         </ScrollView>
       </SafeAreaView>
@@ -522,11 +729,120 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#1f2937',
+    marginBottom: 12,
   },
   seeAllText: {
     fontSize: 14,
     color: '#6366f1',
     fontWeight: '500',
+  },
+  dailySection: {
+    marginBottom: 24,
+  },
+  dailyCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  dailyContent: {
+    paddingVertical: 8,
+  },
+  dailyItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+  },
+  dailyLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dailyRight: {
+    alignItems: 'flex-end',
+  },
+  dailyIconContainer: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#10b981',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  dailyLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#1f2937',
+  },
+  dailyAmount: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  dailyBalance: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  dailyDivider: {
+    marginVertical: 0,
+  },
+  weeklySection: {
+    marginBottom: 24,
+  },
+  weeklyCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  weeklyContent: {
+    paddingVertical: 8,
+  },
+  weeklyItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+  },
+  weeklyLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  weeklyRight: {
+    alignItems: 'flex-end',
+  },
+  weeklyIconContainer: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#10b981',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  weeklyLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#1f2937',
+  },
+  weeklyAmount: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  weeklyBalance: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  weeklyDivider: {
+    marginVertical: 0,
   },
   financialItem: {
     flexDirection: 'row',
