@@ -9,20 +9,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
 import { styles } from '@/styles/AllTransactionsScreen.styles';
-import { getTransactionColor, getTransactionIcon } from '@/utils/transactionUtils';
+import { getTransactionColor, getTransactionIcon, getTransactionType } from '@/utils/transactionUtils';
 import transactionService from '@/services/transactionService';
+import paymentService from '@/services/paymentService';
 
-interface Transaction extends transactionService.Transaction {
-  // Transaction interface already defined in transactionService
-}
+type Transaction = import('@/services/transactionService').Transaction;
 
-interface Pagination extends transactionService.Pagination {
-  // Pagination interface already defined in transactionService
-}
+type Pagination = import('@/services/transactionService').Pagination;
 
-interface ApiResponse extends transactionService.TransactionsResponse {
-  // TransactionsResponse interface already defined in transactionService
-}
+type ApiResponse = import('@/services/transactionService').TransactionsResponse;
 
 interface AllTransactionsScreenProps {
   navigation: any;
@@ -109,7 +104,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
       case 'view_items':
         navigation.navigate('ViewPaymentItems', {
           paymentId: selectedTransaction.id,
-          paymentTitle: selectedTransaction.title || `Payment #${selectedTransaction.id}`
+          refresh: new Date().getTime()
         });
         break;
       case 'add_items':
@@ -157,7 +152,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
       if (response.success) {
         setTransactions(prev => prev.filter(t => t.id !== paymentId));
 
-        setPagination(prev => prev ? {
+        setPagination((prev: Pagination | null) => prev ? {
           ...prev,
           total: prev.total - 1,
           to: Math.max(0, prev.to - 1)
@@ -185,22 +180,6 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
 
   const closeActionSheet = () => {
     setActionSheetVisible(false);
-  };
-
-  const getTransactionType = (transaction: Transaction): string => {
-    // Cek apakah transaksi adalah withdrawal atau transfer berdasarkan nama/code
-    const nameLower = transaction.name.toLowerCase();
-    const codeLower = transaction.code.toLowerCase();
-
-    if (nameLower.includes('withdrawal') || nameLower.includes('withdraw') || codeLower.includes('wd')) {
-      return 'withdrawal';
-    }
-
-    if (nameLower.includes('transfer') || nameLower.includes('tf') || codeLower.includes('tf')) {
-      return 'transfer';
-    }
-
-    return transaction.type;
   };
 
   const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: any) => {

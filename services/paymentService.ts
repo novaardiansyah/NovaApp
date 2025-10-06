@@ -36,6 +36,44 @@ export interface PaymentItemData {
   item_id?: number | null;
 }
 
+export interface PaymentItemsSummary {
+  payment_id: number;
+  payment_code: string;
+  total_items: number;
+  total_qty: number;
+  total_amount: number;
+  formatted_amount: string;
+}
+
+export interface PaymentItem {
+  id: number;
+  name: string;
+  type_id: number;
+  type: string;
+  code: string;
+  price: number;
+  quantity: number;
+  total: number;
+  formatted_price: string;
+  formatted_total: string;
+  updated_at: string;
+}
+
+export interface Pagination {
+  current_page: number;
+  from: number;
+  last_page: number;
+  per_page: number;
+  to: number;
+  total: number;
+}
+
+export interface PaymentItemsResponse {
+  success: boolean;
+  data: PaymentItem[];
+  pagination: Pagination;
+}
+
 export interface AttachMultipleItemsData {
   items: PaymentItemData[];
   totalAmount: number;
@@ -178,6 +216,36 @@ class PaymentService {
       return data;
     } catch (error) {
       console.error('Error attaching multiple items:', error);
+      throw error;
+    }
+  }
+
+  async getPaymentItemsSummary(token: string, paymentId: number): Promise<ApiResponse<PaymentItemsSummary>> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/items/summary`, {
+        method: 'GET',
+        headers: this.getHeaders(token),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching payment items summary:', error);
+      throw error;
+    }
+  }
+
+  async getPaymentItems(token: string, paymentId: number, page: number = 1): Promise<PaymentItemsResponse> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/items/attached?page=${page}`, {
+        method: 'GET',
+        headers: this.getHeaders(token),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching payment items:', error);
       throw error;
     }
   }

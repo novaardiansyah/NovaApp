@@ -1,19 +1,44 @@
-import React, { useState } from 'react';
-import { View, ScrollView, Text, RefreshControl, Alert, Modal, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, ScrollView, Text, RefreshControl, Alert, Modal, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card, Button, FAB } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
-import { commonStyles, formatCurrency } from '@/styles';
+import { commonStyles, formatCurrency, getScrollContainerStyle } from '@/styles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '@/contexts/AuthContext';
+import paymentService from '@/services/paymentService';
 
 interface PaymentItem {
-  id: string;
+  id: number;
   name: string;
-  quantity: number;
+  type_id: number;
+  type: string;
+  code: string;
   price: number;
-  type: 'Product' | 'Service';
-  notes?: string;
+  quantity: number;
+  total: number;
+  formatted_price: string;
+  formatted_total: string;
+  updated_at: string;
+}
+
+interface Pagination {
+  current_page: number;
+  from: number;
+  last_page: number;
+  per_page: number;
+  to: number;
+  total: number;
+}
+
+interface PaymentSummary {
+  payment_id: number;
+  payment_code: string;
+  total_items: number;
+  total_qty: number;
+  total_amount: number;
+  formatted_amount: string;
 }
 
 interface ViewPaymentItemsScreenProps {
@@ -23,53 +48,87 @@ interface ViewPaymentItemsScreenProps {
 
 const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
+  const { isAuthenticated, token } = useAuth();
   const { paymentId, paymentTitle } = route?.params || {};
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [selectedItem, setSelectedItem] = useState<PaymentItem | null>(null);
   const [actionSheetVisible, setActionSheetVisible] = useState(false);
+  const [paymentSummary, setPaymentSummary] = useState<PaymentSummary | null>(null);
+  const [paymentItems, setPaymentItems] = useState<PaymentItem[]>([]);
+  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Dummy data untuk payment items
-  const [paymentItems, setPaymentItems] = useState<PaymentItem[]>([
-    {
-      id: '1',
-      name: 'Laptop ASUS ROG',
-      quantity: 1,
-      price: 15000000,
-      type: 'Product',
-      notes: 'Gaming laptop with RGB keyboard'
-    },
-    {
-      id: '2',
-      name: 'Wireless Mouse',
-      quantity: 2,
-      price: 350000,
-      type: 'Product',
-      notes: 'Bluetooth gaming mouse'
-    },
-    {
-      id: '3',
-      name: 'Website Development',
-      quantity: 1,
-      price: 5000000,
-      type: 'Service',
-      notes: 'Custom website development service'
-    },
-    {
-      id: '4',
-      name: 'SEO Optimization',
-      quantity: 1,
-      price: 2500000,
-      type: 'Service',
+  const fetchPaymentItems = async (page: number = 1) => {
+    if (!isAuthenticated || !token || !paymentId) return;
+
+    if (page === 1) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
     }
-  ]);
+
+    try {
+      const response = await paymentService.getPaymentItems(token, paymentId, page);
+
+      if (response.success) {
+        if (page === 1) {
+          setPaymentItems(response.data);
+        } else {
+          setPaymentItems(prev => [...prev, ...response.data]);
+        }
+        setPagination(response.pagination);
+        setCurrentPage(page);
+      } else {
+        Alert.alert('Error', 'Failed to fetch payment items');
+      }
+    } catch (error) {
+      console.error('Error fetching payment items:', error);
+      Alert.alert('Error', 'Failed to fetch payment items. Please try again.');
+    } finally {
+      if (page === 1) {
+        setLoading(false);
+      } else {
+        setLoadingMore(false);
+      }
+    }
+  };
+
+  const fetchPaymentSummary = async () => {
+    if (!isAuthenticated || !token || !paymentId) return;
+
+    try {
+      const response = await paymentService.getPaymentItemsSummary(token, paymentId);
+
+      if (response.success) {
+        setPaymentSummary(response.data);
+      } else {
+        Alert.alert('Error', response.message || 'Failed to fetch payment summary');
+      }
+    } catch (error) {
+      console.error('Error fetching payment summary:', error);
+      Alert.alert('Error', 'Failed to fetch payment summary. Please try again.');
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated && paymentId) {
+      fetchPaymentSummary();
+      fetchPaymentItems();
+    }
+  }, [isAuthenticated, paymentId]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    // Simulasi loading data
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1000);
+    await Promise.all([fetchPaymentSummary(), fetchPaymentItems(1)]);
+    setRefreshing(false);
+  };
+
+  const handleLoadMore = () => {
+    if (pagination && currentPage < pagination.last_page && !loading && !loadingMore) {
+      fetchPaymentItems(currentPage + 1);
+    }
   };
 
   const handleItemPress = (item: PaymentItem) => {
@@ -115,24 +174,33 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
   };
 
   const getTotalAmount = () => {
-    return paymentItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return paymentSummary ? paymentSummary.total_amount : 0;
   };
 
   const getItemsCount = () => {
-    return paymentItems.reduce((total, item) => total + item.quantity, 0);
+    return paymentSummary ? paymentSummary.total_qty : 0;
   };
 
-  const getTypeColor = (type: 'Product' | 'Service') => {
+  const getUniqueItemsCount = () => {
+    return paymentSummary ? paymentSummary.total_items : 0;
+  };
+
+  const getTypeColor = (type: string) => {
     return type === 'Product' ? '#10b981' : '#3b82f6';
   };
 
-  const getTypeIcon = (type: 'Product' | 'Service') => {
+  const getTypeIcon = (type: string) => {
     return type === 'Product' ? 'cube-outline' : 'briefcase-outline';
+  };
+
+  const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: any) => {
+    const paddingToBottom = 20;
+    return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
   };
 
   return (
     <PaperProvider theme={Theme}>
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={commonStyles.container} edges={['top', 'left', 'right']}>
 
         {/* Header */}
         <View style={styles.header}>
@@ -140,46 +208,58 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
             <Ionicons name="receipt-outline" size={20} color="#6366f1" style={styles.headerIcon} />
             <Text style={styles.headerTitle}>Payment Items</Text>
           </View>
-          <Text style={styles.headerSubtitle}>{paymentTitle || 'Payment Details'}</Text>
+          <Text style={styles.headerSubtitle}>{paymentSummary ? paymentSummary.payment_code : ''}</Text>
         </View>
 
         {/* Summary Card */}
-        <Card style={styles.summaryCard}>
-          <Card.Content style={styles.summaryContent}>
-            <View style={styles.summaryLeft}>
-              <Text style={styles.summaryTitle}>{paymentItems.length} Items</Text>
-              <Text style={styles.summarySubtitle}>{getItemsCount()} Total Quantity</Text>
-            </View>
-            <View style={styles.summaryRight}>
-              <Text style={styles.summaryTotalLabel}>Total</Text>
-              <Text style={styles.summaryTotalAmount}>{formatCurrency(getTotalAmount())}</Text>
-            </View>
-          </Card.Content>
-        </Card>
+        {loading && !paymentSummary ? (
+          <Card style={styles.summaryCard}>
+            <Card.Content style={styles.summaryContent}>
+              <ActivityIndicator size="small" color="#6366f1" />
+            </Card.Content>
+          </Card>
+        ) : paymentSummary ? (
+          <Card style={styles.summaryCard}>
+            <Card.Content style={styles.summaryContent}>
+              <View style={styles.summaryLeft}>
+                <Text style={styles.summaryTitle}>{getUniqueItemsCount()} Items</Text>
+                <Text style={styles.summarySubtitle}>{getItemsCount()} Total Quantity</Text>
+              </View>
+              <View style={styles.summaryRight}>
+                <Text style={styles.summaryTotalLabel}>Total</Text>
+                <Text style={styles.summaryTotalAmount}>
+                  {paymentSummary.formatted_amount || formatCurrency(getTotalAmount())}
+                </Text>
+              </View>
+            </Card.Content>
+          </Card>
+        ) : null}
 
         {/* Items List */}
         <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={getScrollContainerStyle(insets)}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
+          onScroll={({ nativeEvent }) => {
+            if (isCloseToBottom(nativeEvent)) {
+              handleLoadMore();
+            }
+          }}
+          scrollEventThrottle={400}
         >
           <View style={styles.itemsSection}>
-            {paymentItems.length === 0 ? (
+            {loading && paymentItems.length === 0 ? (
+              <View style={styles.loadingContent}>
+                <ActivityIndicator size="large" color="#6366f1" />
+                <Text style={styles.loadingText}>Loading items...</Text>
+              </View>
+            ) : paymentItems.length === 0 ? (
               <Card style={styles.emptyCard}>
                 <Card.Content style={styles.emptyCardContent}>
                   <Ionicons name="cube-outline" size={48} color="#d1d5db" />
                   <Text style={styles.emptyText}>No items found</Text>
                   <Text style={styles.emptySubtext}>Add items to this payment</Text>
-                  <Button
-                    mode="contained"
-                    onPress={() => navigation.navigate('AddPaymentItem', { paymentId })}
-                    style={styles.emptyButton}
-                    icon="plus"
-                  >
-                    Add First Item
-                  </Button>
                 </Card.Content>
               </Card>
             ) : (
@@ -210,8 +290,8 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
                             </View>
                           </View>
                           <View style={styles.itemRight}>
-                            <Text style={styles.itemTotal}>{formatCurrency(item.price * item.quantity)}</Text>
-                            <Text style={styles.itemPrice}>{formatCurrency(item.price)} each</Text>
+                            <Text style={styles.itemTotal}>{item.formatted_total}</Text>
+                            <Text style={styles.itemPrice}>{item.formatted_price}</Text>
                           </View>
                         </View>
                       </TouchableOpacity>
@@ -223,19 +303,42 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
                 </Card.Content>
               </Card>
             )}
+
+            {loadingMore && (
+              <View style={styles.loadingMoreContent}>
+                <ActivityIndicator size={30} color="#6366f1" />
+              </View>
+            )}
+
+            {pagination && currentPage >= pagination.last_page && paymentItems.length > 0 ? (
+              <View style={styles.endOfList}>
+                <Text style={styles.endOfListText}>
+                  Showing {paymentItems.length} of {pagination.total} items
+                </Text>
+              </View>
+            ) : loadingMore ? (
+              <></>
+            ) : paymentItems.length > 0 && pagination && currentPage < pagination.last_page ? (
+              <View style={styles.endOfList}>
+                <TouchableOpacity
+                  style={styles.loadMoreButton}
+                  onPress={handleLoadMore}
+                >
+                  <Ionicons name="chevron-down" size={16} color="#6366f1" />
+                </TouchableOpacity>
+              </View>
+            ) : null}
           </View>
         </ScrollView>
 
-        {paymentItems.length > 0 && (
-          <FAB
-            icon="plus"
-            color="#ffffff"
-            style={[styles.fab, {
-              bottom: -6
-            }]}
-            onPress={() => navigation.navigate('AddPaymentItem', { paymentId })}
-          />
-        )}
+        <FAB
+          icon="plus"
+          color="#ffffff"
+          style={[styles.fab, {
+            bottom: -6
+          }]}
+          onPress={() => navigation.navigate('AddPaymentItem', { paymentId })}
+        />
 
         {/* Action Sheet Modal */}
         <Modal
@@ -287,10 +390,6 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9fafb',
-  },
 
   header: {
     flexDirection: 'row',
@@ -325,15 +424,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
-  scrollView: {
-    flex: 1,
-  },
-
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 32,
-  },
-
   summaryCard: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
@@ -343,7 +433,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     marginHorizontal: 16,
-    marginTop: 16,
+    marginVertical: 16,
   },
 
   summaryContent: {
@@ -383,6 +473,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#6366f1',
+    marginTop: 2,
+  },
+
+  summaryCode: {
+    fontSize: 12,
+    color: '#9ca3af',
+    fontWeight: '500',
     marginTop: 2,
   },
 
@@ -433,7 +530,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    marginVertical: 16,
+    marginBottom: 16,
   },
 
   itemsCardContent: {
@@ -581,6 +678,44 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: '#6366f1',
     borderRadius: 30,
+  },
+
+  loadingContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 32,
+  },
+
+  loadingText: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginTop: 8,
+  },
+
+  loadingMoreContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+  },
+
+  endOfList: {
+    alignItems: 'center',
+    paddingVertical: 16,
+  },
+
+  endOfListText: {
+    fontSize: 12,
+    color: '#6b7280',
+    textAlign: 'center',
+  },
+
+  loadMoreButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   });

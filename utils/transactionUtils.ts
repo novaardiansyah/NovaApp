@@ -24,3 +24,19 @@ export const getTransactionIcon = (type: string): string => {
     default: return 'arrow-down';
   }
 };
+
+export const getTransactionType = (transaction: any): string => {
+  // Cek apakah transaksi adalah withdrawal atau transfer berdasarkan nama/code
+  const nameLower = transaction.name.toLowerCase();
+  const codeLower = transaction.code.toLowerCase();
+
+  if (nameLower.includes('withdrawal') || nameLower.includes('withdraw') || codeLower.includes('wd')) {
+    return 'withdrawal';
+  }
+
+  if (nameLower.includes('transfer') || nameLower.includes('tf') || codeLower.includes('tf')) {
+    return 'transfer';
+  }
+
+  return transaction.type;
+};
