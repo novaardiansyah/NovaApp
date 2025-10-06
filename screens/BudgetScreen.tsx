@@ -141,7 +141,7 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
             <Text style={commonStyles.sectionTitle}>Payment Accounts</Text>
 
             {loading ? (
-              <AccountsListSkeleton count={3} />
+              <AccountsListSkeleton count={5} />
             ) : (
               <View style={styles.accountsList}>
                 <Card style={styles.accountsCard}>

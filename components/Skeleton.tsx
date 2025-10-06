@@ -120,9 +120,27 @@ interface AccountsListSkeletonProps {
 export const AccountsListSkeleton: React.FC<AccountsListSkeletonProps> = ({ count = 3, style }) => {
   return (
     <View style={style}>
-      {Array.from({ length: count }).map((_, index) => (
-        <AccountCardSkeleton key={index} style={index < count - 1 ? { marginBottom: 0 } : { marginBottom: 0 }} />
-      ))}
+      <Card style={{ backgroundColor: '#ffffff', borderRadius: 12, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 }}>
+        <Card.Content style={{ paddingVertical: 8 }}>
+          {Array.from({ length: count }).map((_, index) => (
+            <View key={index}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12, paddingHorizontal: 8 }}>
+                <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+                  <Skeleton width={48} height={48} style={{ borderRadius: 24, marginRight: 16, backgroundColor: '#e5e7eb' }} />
+                  <View style={{ flex: 1 }}>
+                    <Skeleton width={100} height={14} style={{ marginBottom: 4 }} />
+                    <Skeleton width={80} height={14} />
+                  </View>
+                </View>
+                <Skeleton width={20} height={20} />
+              </View>
+              {index < count - 1 && (
+                <View style={{ height: 1, backgroundColor: '#f3f4f6', marginVertical: 0 }} />
+              )}
+            </View>
+          ))}
+        </Card.Content>
+      </Card>
     </View>
   );
 };
