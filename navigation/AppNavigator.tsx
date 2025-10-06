@@ -12,6 +12,7 @@ import UpdateProfileScreen from '@/screens/UpdateProfileScreen';
 import AllTransactionsScreen from '@/screens/AllTransactionsScreen';
 import AddPaymentScreen from '@/screens/AddPaymentScreen';
 import AddPaymentItemScreen from '@/screens/AddPaymentItemScreen';
+import ViewPaymentItemsScreen from '@/screens/ViewPaymentItemsScreen';
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
@@ -61,6 +62,11 @@ const HomeStackNavigator = () => {
         name="AddPaymentItem"
         component={AddPaymentItemScreen}
         options={{ title: 'Add Payment Items' }}
+      />
+      <MainStack.Screen
+        name="ViewPaymentItems"
+        component={ViewPaymentItemsScreen}
+        options={{ title: 'Payment Items' }}
       />
     </MainStack.Navigator>
   );

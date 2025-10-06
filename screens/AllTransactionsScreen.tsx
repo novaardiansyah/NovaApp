@@ -107,7 +107,10 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
 
     switch (action) {
       case 'view_items':
-        Alert.alert('Coming Soon', 'View payment item details feature will be available soon.');
+        navigation.navigate('ViewPaymentItems', {
+          paymentId: selectedTransaction.id,
+          paymentTitle: selectedTransaction.title || `Payment #${selectedTransaction.id}`
+        });
         break;
       case 'add_items':
         navigation.navigate('AddPaymentItem', { paymentId: selectedTransaction.id });
@@ -417,10 +420,10 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
             </View>
 
             <TouchableOpacity
-              style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 16, borderRadius: 12, backgroundColor: '#f3f4f6', alignItems: 'center' }}
+              style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 12, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
               onPress={closeActionSheet}
             >
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#374151' }}>Cancel</Text>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#6366f1' }}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
