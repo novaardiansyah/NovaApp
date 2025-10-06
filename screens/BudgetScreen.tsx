@@ -91,7 +91,9 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
 
     switch (action) {
       case 'audit':
-        Alert.alert('Audit', `Audit feature for ${selectedAccount.name} coming soon!`);
+        navigation.navigate('AuditPaymentAccount', {
+          accountId: selectedAccount.id
+        });
         break;
       case 'view_transactions':
         Alert.alert('Transactions', `View transactions for ${selectedAccount.name} feature coming soon!`);

@@ -13,10 +13,12 @@ import AllTransactionsScreen from '@/screens/AllTransactionsScreen';
 import AddPaymentScreen from '@/screens/AddPaymentScreen';
 import AddPaymentItemScreen from '@/screens/AddPaymentItemScreen';
 import ViewPaymentItemsScreen from '@/screens/ViewPaymentItemsScreen';
+import AuditScreen from '@/screens/AuditScreen';
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const MainStack = createStackNavigator();
+const BudgetStack = createStackNavigator();
 
 const ProfileStackNavigator = () => {
   return (
@@ -37,6 +39,23 @@ const ProfileStackNavigator = () => {
         options={{ title: 'Change Password' }}
       />
     </ProfileStack.Navigator>
+  );
+};
+
+const BudgetStackNavigator = () => {
+  return (
+    <BudgetStack.Navigator screenOptions={{ headerShown: false }}>
+      <BudgetStack.Screen
+        name="BudgetMain"
+        component={BudgetScreen}
+        options={{ title: 'Budget & Accounts' }}
+      />
+      <BudgetStack.Screen
+        name="AuditPaymentAccount"
+        component={AuditScreen}
+        options={{ headerShown: false }}
+      />
+    </BudgetStack.Navigator>
   );
 };
 
@@ -107,7 +126,7 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name="Budget"
-        component={BudgetScreen}
+        component={BudgetStackNavigator}
         options={{
           tabBarLabel: 'Budget',
           tabBarIcon: ({ color, size }) => (

@@ -444,7 +444,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                     </View>
                   )}
 
-                  <View style={{ marginTop: 16, paddingBottom: 32 }}>
+                  <View style={{ marginTop: 16, paddingBottom: 50 }}>
                     {searchResults.map((item) => {
                       const isItemAdded = items.some(existingItem => existingItem.item_id === item.id);
 
