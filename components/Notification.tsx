@@ -39,7 +39,7 @@ export const Notification: React.FC<NotificationProps> = ({
       style={{
         backgroundColor: getBackgroundColor(),
         borderRadius: 8,
-        marginBottom: 20,
+        marginBottom: 0,
       }}
     >
       <Text style={{ color: 'white', fontWeight: '500' }}>
