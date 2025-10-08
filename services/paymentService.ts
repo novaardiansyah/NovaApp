@@ -144,6 +144,21 @@ class PaymentService {
     }
   }
 
+  async getPaymentAccount(token: string, accountId: number): Promise<ApiResponse<PaymentAccount>> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payment-accounts/${accountId}`, {
+        method: 'GET',
+        headers: this.getHeaders(token),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching payment account:', error);
+      throw error;
+    }
+  }
+
   async createPayment(token: string, paymentData: PaymentData): Promise<ApiResponse<any>> {
     try {
       const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments`, {
@@ -261,6 +276,22 @@ class PaymentService {
       return data;
     } catch (error) {
       console.error('Error deleting payment:', error);
+      throw error;
+    }
+  }
+
+  async auditPaymentAccount(token: string, accountId: number, deposit: number): Promise<ApiResponse<any>> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payment-accounts/${accountId}/audit`, {
+        method: 'POST',
+        headers: this.getHeaders(token),
+        body: JSON.stringify({ deposit }),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error auditing payment account:', error);
       throw error;
     }
   }

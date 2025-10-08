@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Animated } from 'react-native';
 import { Card, Divider } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { commonStyles } from '@/styles';
@@ -12,14 +12,41 @@ interface SkeletonProps {
 }
 
 const Skeleton: React.FC<SkeletonProps> = ({ width = '100%', height = 20, style }) => {
+  const animatedValue = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(animatedValue, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedValue, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: false,
+        }),
+      ])
+    );
+    animation.start();
+    return () => animation.stop();
+  }, [animatedValue]);
+
+  const opacity = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.4, 0.7],
+  });
+
   return (
-    <View
+    <Animated.View
       style={[
         {
           width,
           height,
           backgroundColor: '#e5e7eb',
           borderRadius: 4,
+          opacity,
         },
         style,
       ]}
@@ -329,6 +356,60 @@ export const PaymentSummarySkeleton: React.FC<PaymentSummarySkeletonProps> = ({ 
         </View>
       </Card.Content>
     </Card>
+  );
+};
+
+// Audit Screen Skeleton Components
+interface AuditAccountCardSkeletonProps {
+  style?: object;
+}
+
+export const AuditAccountCardSkeleton: React.FC<AuditAccountCardSkeletonProps> = ({ style }) => {
+  return (
+    <Card style={[style, { backgroundColor: '#ffffff', borderRadius: 12, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, marginBottom: 24 }]}>
+      <Card.Content style={{ paddingVertical: 20, paddingHorizontal: 16 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flex: 1 }}>
+            <Skeleton width={120} height={20} style={{ marginBottom: 8 }} />
+            <Skeleton width={80} height={14} />
+          </View>
+          <View style={{ alignItems: 'flex-end' }}>
+            <Skeleton width={60} height={20} style={{ borderRadius: 12 }} />
+          </View>
+        </View>
+      </Card.Content>
+    </Card>
+  );
+};
+
+interface AuditFormSkeletonProps {
+  style?: object;
+}
+
+export const AuditFormSkeleton: React.FC<AuditFormSkeletonProps> = ({ style }) => {
+  return (
+    <View style={style}>
+      <Skeleton width={150} height={24} style={{ marginBottom: 16, marginTop: -12 }} />
+
+      <Skeleton width="100%" height={56} style={{ marginBottom: 16 }} />
+      <Skeleton width="100%" height={56} style={{ marginBottom: 16 }} />
+
+      <Card style={{ backgroundColor: '#ffffff', borderRadius: 12, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, marginBottom: 16 }}>
+        <Card.Content style={{ paddingVertical: 20, paddingHorizontal: 16 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <Skeleton width={80} height={16} />
+            <Skeleton width={100} height={18} />
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Skeleton width={60} height={16} />
+            <Skeleton width={80} height={18} />
+          </View>
+        </Card.Content>
+      </Card>
+
+      <Skeleton width="100%" height={48} style={{ marginBottom: 8, borderRadius: 8 }} />
+      <Skeleton width="100%" height={48} style={{ borderRadius: 8 }} />
+    </View>
   );
 };
 

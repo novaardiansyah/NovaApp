@@ -165,9 +165,9 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
                                 <Text style={styles.accountName}>{account.name}</Text>
                                 <Text style={[
                                   styles.accountBalance,
-                                  account.deposit > 50000
+                                  account.deposit >= 50000
                                     ? { color: '#10b981' }
-                                    : account.deposit > 0 && account.deposit <= 50000
+                                    : account.deposit > 0 && account.deposit < 50000
                                       ? { color: '#f59e0b' }
                                       : { color: '#ef4444' }
                                 ]}>

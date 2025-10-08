@@ -419,11 +419,12 @@ export const commonStyles = StyleSheet.create({
 
 // Helper function for currency formatting
 export const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('id-ID', {
+  const formatted = new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
   }).format(amount);
+  return formatted.replace(/\s/g, '');
 };
 
 // Helper function for scroll container with safe area
