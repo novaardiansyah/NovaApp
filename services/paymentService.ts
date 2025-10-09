@@ -295,6 +295,22 @@ class PaymentService {
       throw error;
     }
   }
+
+  async submitMonthlyReport(token: string, email: string, periode: string): Promise<ApiResponse<any>> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payment-accounts/report-monthly`, {
+        method: 'POST',
+        headers: this.getHeaders(token),
+        body: JSON.stringify({ email, periode }),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error submitting monthly report:', error);
+      throw error;
+    }
+  }
 }
 
 export default new PaymentService();

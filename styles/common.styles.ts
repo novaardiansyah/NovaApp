@@ -430,7 +430,7 @@ export const formatCurrency = (amount: number) => {
 // Helper function for scroll container with safe area
 export const getScrollContainerStyle = (insets: { top: number }) => [
   commonStyles.scrollContainer,
-  { paddingTop: Platform.OS === 'ios' ? insets.top + 4 : 0 }
+  { paddingTop: Platform.OS === 'ios' ? insets.top + 4 : insets.top - 20 }
 ];
 
 // Helper function for status bar config

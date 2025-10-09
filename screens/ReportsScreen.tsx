@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity, Alert, Modal, StyleSheet } from 'react-native';
+import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity, Alert, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Card, Divider, TextInput, FAB } from 'react-native-paper';
+import { PaperProvider, Card, Divider, TextInput, FAB, HelperText } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
-import { ReportsPeriodSkeleton, ReportsSummarySkeleton, FormButton } from '@/components';
+import { ReportsPeriodSkeleton, ReportsSummarySkeleton, FormButton, Notification } from '@/components';
+import { styles } from '@/styles/ReportScreen.styles'
+import PaymentService from '@/services/paymentService';
 
 interface ReportsScreenProps {
   navigation: any;
@@ -40,7 +42,6 @@ interface WeeklySummary {
   balance: number;
 }
 
-
 interface MonthlyData {
   income: number;
   expenses: number;
@@ -48,31 +49,65 @@ interface MonthlyData {
   withdrawals: number;
   balance: number;
   financialItems: FinancialItem[];
-  }
+}
 
 const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
-    const insets = useSafeAreaInsets();
-    const { isAuthenticated, user } = useAuth();
-  const [refreshing, setRefreshing] = useState(false);
-  const [periodModalVisible, setPeriodModalVisible] = useState(false);
-  const [emailModalVisible, setEmailModalVisible] = useState(false);
-  const [emailInput, setEmailInput] = useState('');
-  const [dataLoaded, setDataLoaded] = useState(false);
+  const insets = useSafeAreaInsets()
+  const { isAuthenticated, user, token } = useAuth()
+  const [refreshing, setRefreshing] = useState(false)
+  const [periodModalVisible, setPeriodModalVisible] = useState(false)
+  const [emailModalVisible, setEmailModalVisible] = useState(false)
+  const [dataLoaded, setDataLoaded] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [notification, setNotification] = useState<string | null>(null)
+
+  const initialFormData = {
+    email: '',
+    periode: '',
+    periodeStr: ''
+  };
+
+  const initialErrors = {
+    email: '',
+    periode: '',
+    periodeStr: ''
+  }
+
+  const [formData, setFormData] = useState(initialFormData)
+  const [errors, setErrors] = useState(initialErrors)
+
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+
+    if (errors[field as keyof typeof errors]) {
+      setErrors(prev => ({ ...prev, [field as keyof typeof errors]: '' }));
+    }
+  };
+  
+  const formatMonthYear = (monthYear: string) => {
+    const [year, month] = monthYear.split('-');
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return `${monthNames[parseInt(month) - 1]} ${year}`;
+  };
+
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-    return `${year}-${month}`;
+    const year        = currentDate.getFullYear();
+    const month       = String(currentDate.getMonth() + 1).padStart(2, '0');
+
+    const selected = `${year}-${month}`
+    setFormData(prev => ({ ...prev, periode: selected, periodeStr: formatMonthYear(selected) }))
+    
+    return selected
   });
 
   const getMonthOptions = () => {
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
+    const currentMonth = currentDate.getMonth() + 1; 
 
     const options = [];
 
-    // Add 3 months back
     for (let i = 3; i >= 1; i--) {
       const date = new Date(currentYear, currentMonth - i - 1, 1);
       const year = date.getFullYear();
@@ -80,11 +115,9 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
       options.push(`${year}-${month}`);
     }
 
-    // Add current month
     const currentMonthStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
     options.push(currentMonthStr);
 
-    // Add 3 months forward
     for (let i = 1; i <= 3; i++) {
       const date = new Date(currentYear, currentMonth + i - 1, 1);
       const year = date.getFullYear();
@@ -100,11 +133,11 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     const data: Record<string, MonthlyData> = {};
 
     const baseData: Record<string, Omit<MonthlyData, 'financialItems' | 'recentTransactions'>> = {};
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
+
+    const currentDate  = new Date();
+    const currentYear  = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth() + 1;
 
-    // Generate data for 3 months back, current month, and 3 months forward
     for (let i = -3; i <= 3; i++) {
       const date = new Date(currentYear, currentMonth + i - 1, 1);
       const year = date.getFullYear();
@@ -127,7 +160,8 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
     monthOptions.forEach(monthYear => {
       const base = baseData[monthYear];
-      if (!base) return; // Skip if no data for this month
+      
+      if (!base) return;
       const total = base.income + base.expenses + base.transfers + base.withdrawals;
 
       data[monthYear] = {
@@ -172,7 +206,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     return data;
   };
 
-  
   const monthlyData: Record<string, MonthlyData> = generateMonthlyData();
 
   const getCurrentDate = (): string => {
@@ -234,13 +267,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
   const dailySummary: DailySummary[] = generateDailySummary();
   const weeklySummary: WeeklySummary[] = generateWeeklySummary();
 
-  // Helper function to format month and year
-  const formatMonthYear = (monthYear: string) => {
-    const [year, month] = monthYear.split('-');
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    return `${monthNames[parseInt(month) - 1]} ${year}`;
-  };
-
   const handleRefresh = async () => {
     setRefreshing(true);
     setDataLoaded(false);
@@ -248,7 +274,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     setTimeout(() => {
       setDataLoaded(true);
       setRefreshing(false);
-    }, 2000);
+    }, 100);
   };
 
   const handleMonthSelect = (monthYear: string) => {
@@ -258,51 +284,66 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
     setTimeout(() => {
       setDataLoaded(true);
-    }, 2000);
+    }, 100);
   };
 
   const handleExportReport = () => {
     setEmailModalVisible(true);
     if (user?.email) {
-      setEmailInput(user.email);
+      setFormData(prev => ({ ...prev, email: user.email }))
     }
   };
 
-  const handleSendEmail = () => {
-    if (!emailInput.trim()) {
+  const handleSendEmail = async () => {
+    if (!token || submitting) return;
+
+    if (!formData.email.trim()) {
       Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(emailInput)) {
-      Alert.alert('Error', 'Please enter a valid email address');
-      return;
+    if (!emailRegex.test(formData.email)) {
+      setErrors(prev => ({ ...prev, email: 'Please enter a valid email address' }))
+      return
     }
 
-    setEmailModalVisible(false);
+    try {
+      setSubmitting(true);
+      const response = await PaymentService.submitMonthlyReport(token, formData.email, formData.periode);
 
-    Alert.alert('Sending Report', `Sending financial report to ${emailInput}...`);
+      if (response.success) {
+        setNotification('Monthly report submitted successfully');
+        setEmailModalVisible(false);
+        setFormData(initialFormData);
+      } else {
+        setSubmitting(false);
+        if (response.errors) {
+          const newErrors = { ...errors };
 
-    setTimeout(() => {
-      Alert.alert(
-        'Success',
-        `Financial report for ${formatMonthYear(selectedMonth)} has been sent to ${emailInput}`,
-        [{ text: 'OK' }]
-      );
-      setEmailInput('');
-    }, 2000);
-  };
+          Object.entries(response.errors).forEach(([field, messages]) => {
+            if (Array.isArray(messages) && messages.length > 0 && field in newErrors) {
+              newErrors[field as keyof typeof errors] = messages[0] as string;
+            }
+          });
+
+          setErrors(newErrors);
+        } else {
+          Alert.alert('Error', response.message || 'Failed to submit report. Please try again.');
+        }
+      }
+    } catch (error) {
+      console.error('Error submitting monthly report:', error);
+      setSubmitting(false);
+      Alert.alert('Error', 'Failed to submit report');
+    }
+  }
 
   const currentMonthData: MonthlyData = monthlyData[selectedMonth] || monthlyData[Object.keys(monthlyData)[0]];
 
   useEffect(() => {
     if (isAuthenticated) {
-      const timer = setTimeout(() => {
-        setDataLoaded(true);
-      }, 2000);
-
-      return () => clearTimeout(timer);
+      setDataLoaded(true);
     }
   }, [isAuthenticated]);
 
@@ -633,19 +674,37 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
             <View style={{ paddingHorizontal: 20 }}>
               <TextInput
-                label="Email Address"
-                value={emailInput}
-                onChangeText={setEmailInput}
+                label="Report periode"
+                placeholder="Report periode"
+                value={formData.periodeStr}
+                onChangeText={(value) => handleInputChange('periodeStr', value)}
                 mode="outlined"
                 outlineColor="#e5e7eb"
                 activeOutlineColor="#6366f1"
-                style={styles.emailInput}
-                placeholder="Enter email address"
+                style={styles.input}
+                keyboardType="default"
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={false}
+                left={<TextInput.Icon icon="calendar-month" color="#6b7280" />}
+              />
+              {errors.periodeStr && <HelperText type="error" style={styles.helperText}>{errors.periodeStr}</HelperText>}
+
+              <TextInput
+                label="Email address"
+                placeholder="Email address"
+                value={formData.email}
+                onChangeText={(value) => handleInputChange('email', value)}
+                mode="outlined"
+                outlineColor="#e5e7eb"
+                activeOutlineColor="#6366f1"
+                style={styles.input}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
                 left={<TextInput.Icon icon="email-outline" color="#6b7280" />}
               />
+              {errors.email && <HelperText type="error" style={styles.helperText}>{errors.email}</HelperText>}
 
               <View style={{ flexDirection: 'row', gap: 12 }}>
                 <FormButton
@@ -654,247 +713,35 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
                   fullWidth={false}
                   style={{ flex: 1 }}
                   onPress={() => setEmailModalVisible(false)}
+                  loading={submitting}
                 />
+
                 <FormButton
                   title="Send"
                   fullWidth={false}
                   style={{ flex: 1 }}
                   onPress={handleSendEmail}
                   icon="send"
+                  loading={submitting}
                 />
               </View>
             </View>
           </View>
         </SafeAreaView>
       </Modal>
+
+      <Notification
+        visible={!!notification}
+        message={notification || ''}
+        onDismiss={() => {
+          setNotification(null)
+          setSubmitting(false)
+        }}
+        type="success"
+        duration={2000}
+      />
     </PaperProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  emailInput: {
-    backgroundColor: '#ffffff',
-    marginBottom: 16,
-  },
-  periodCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    marginBottom: 16,
-  },
-  periodContent: {
-    paddingVertical: 8,
-  },
-  periodSelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  periodInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  periodText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#1f2937',
-    marginLeft: 8,
-  },
-  summarySection: {
-    marginBottom: 24,
-  },
-  summaryCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  summaryContent: {
-    paddingVertical: 8,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: 12,
-  },
-  seeAllText: {
-    fontSize: 14,
-    color: '#6366f1',
-    fontWeight: '500',
-  },
-  dailySection: {
-    marginBottom: 24,
-  },
-  dailyCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  dailyContent: {
-    paddingVertical: 8,
-  },
-  dailyItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-  },
-  dailyLeft: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  dailyRight: {
-    alignItems: 'flex-end',
-  },
-  dailyIconContainer: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#10b981',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  dailyLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1f2937',
-  },
-  dailyAmount: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  dailyBalance: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  dailyDivider: {
-    marginVertical: 0,
-  },
-  weeklySection: {
-    marginBottom: 24,
-  },
-  weeklyCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  weeklyContent: {
-    paddingVertical: 8,
-  },
-  weeklyItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-  },
-  weeklyLeft: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  weeklyRight: {
-    alignItems: 'flex-end',
-  },
-  weeklyIconContainer: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#10b981',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  weeklyLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1f2937',
-  },
-  weeklyAmount: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  weeklyBalance: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  weeklyDivider: {
-    marginVertical: 0,
-  },
-  financialItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-  },
-  financialLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  financialIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  financialInfo: {
-    flex: 1,
-  },
-  financialName: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1f2937',
-    marginBottom: 4,
-  },
-  financialAmount: {
-    fontSize: 12,
-    color: '#6b7280',
-  },
-  financialRight: {
-    alignItems: 'flex-end',
-  },
-  financialPercentage: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1f2937',
-  },
-  financialDivider: {
-    marginVertical: 0,
-  },
-  fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#6366f1',
-    borderRadius: 30,
-  },
-  });
 
 export default ReportsScreen;

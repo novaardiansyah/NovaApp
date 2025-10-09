@@ -37,7 +37,7 @@ const AuditScreen: React.FC<AuditScreenProps> = ({ navigation, route }) => {
     deposit: ''
   }
 
-  const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] = useState(initialFormData)
   const [errors, setErrors] = useState(initialErrors)
 
   // Fetch account data on component mount
