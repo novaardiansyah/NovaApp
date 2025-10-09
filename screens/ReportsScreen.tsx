@@ -158,9 +158,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
   };
 
   const fetchAllSummaries = async () => {
-    if (!token || isDataLoading) return;
-
-    setIsDataLoading(true);
+    if (!token) return;
 
     try {
       const today = new Date();
@@ -192,8 +190,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
       });
     } catch (error) {
       console.error('Error fetching summaries:', error);
-    } finally {
-      setIsDataLoading(false);
     }
   };
 
@@ -289,6 +285,8 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
     try {
       await fetchAllSummaries();
+    } catch (error) {
+      console.error('Error refreshing data:', error);
     } finally {
       setRefreshing(false);
       setIsDataLoading(false);
@@ -385,7 +383,15 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetchAllSummaries();
+      const initializeData = async () => {
+        setIsDataLoading(true);
+        setIsMonthlyLoading(true);
+        await fetchAllSummaries();
+        setIsDataLoading(false);
+        setIsMonthlyLoading(false);
+      };
+
+      initializeData();
     }
   }, [isAuthenticated]);
 
