@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity, Alert, Modal } from 'react-native';
+import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity, Alert, Modal, Platform, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card, Divider, TextInput, FAB, HelperText } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -348,7 +348,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
       if (response.success) {
         setNotification('Monthly report submitted successfully');
         setEmailModalVisible(false);
-        setFormData(initialFormData);
       } else {
         setSubmitting(false);
         if (response.errors) {
@@ -395,6 +394,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     }
   }, [isAuthenticated]);
 
+  
   if (!isAuthenticated) {
     return (
       <PaperProvider theme={Theme}>
@@ -708,73 +708,83 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
         animationType="slide"
         onRequestClose={() => setEmailModalVisible(false)}
       >
-        <SafeAreaView style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <TouchableOpacity
             style={{ flex: 1 }}
             activeOpacity={1}
             onPress={() => setEmailModalVisible(false)}
           />
 
-          <View style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 14 }}>
-            <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
-              Send Report via Email
-            </Text>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 0, justifyContent: 'flex-end' }}
+          >
+            <View style={{
+              backgroundColor: 'white',
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              paddingBottom: 14
+            }}>
+              <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
+                Send Report via Email
+              </Text>
 
-            <View style={{ paddingHorizontal: 20 }}>
-              <TextInput
-                label="Report periode"
-                placeholder="Report periode"
-                value={formData.periodeStr}
-                onChangeText={(value) => handleInputChange('periodeStr', value)}
-                mode="outlined"
-                outlineColor="#e5e7eb"
-                activeOutlineColor="#6366f1"
-                style={styles.input}
-                keyboardType="default"
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={false}
-                left={<TextInput.Icon icon="calendar-month" color="#6b7280" />}
-              />
-              {errors.periodeStr && <HelperText type="error" style={styles.helperText}>{errors.periodeStr}</HelperText>}
-
-              <TextInput
-                label="Email address"
-                placeholder="Email address"
-                value={formData.email}
-                onChangeText={(value) => handleInputChange('email', value)}
-                mode="outlined"
-                outlineColor="#e5e7eb"
-                activeOutlineColor="#6366f1"
-                style={styles.input}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                left={<TextInput.Icon icon="email-outline" color="#6b7280" />}
-              />
-              {errors.email && <HelperText type="error" style={styles.helperText}>{errors.email}</HelperText>}
-
-              <View style={{ flexDirection: 'row', gap: 12 }}>
-                <FormButton
-                  title="Cancel"
-                  variant="outline"
-                  fullWidth={false}
-                  style={{ flex: 1 }}
-                  onPress={() => setEmailModalVisible(false)}
-                  loading={submitting}
+              <View style={{ paddingHorizontal: 20 }}>
+                <TextInput
+                  label="Report periode"
+                  placeholder="Report periode"
+                  value={formData.periodeStr}
+                  onChangeText={(value) => handleInputChange('periodeStr', value)}
+                  mode="outlined"
+                  outlineColor="#e5e7eb"
+                  activeOutlineColor="#6366f1"
+                  style={styles.input}
+                  keyboardType="default"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={false}
+                  left={<TextInput.Icon icon="calendar-month" color="#6b7280" />}
                 />
+                {errors.periodeStr && <HelperText type="error" style={styles.helperText}>{errors.periodeStr}</HelperText>}
 
-                <FormButton
-                  title="Send"
-                  fullWidth={false}
-                  style={{ flex: 1 }}
-                  onPress={handleSendEmail}
-                  icon="send"
-                  loading={submitting}
+                <TextInput
+                  label="Email address"
+                  placeholder="Email address"
+                  value={formData.email}
+                  onChangeText={(value) => handleInputChange('email', value)}
+                  mode="outlined"
+                  outlineColor="#e5e7eb"
+                  activeOutlineColor="#6366f1"
+                  style={styles.input}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  left={<TextInput.Icon icon="email-outline" color="#6b7280" />}
                 />
+                {errors.email && <HelperText type="error" style={styles.helperText}>{errors.email}</HelperText>}
+
+                <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+                  <FormButton
+                    title="Cancel"
+                    variant="outline"
+                    fullWidth={false}
+                    style={{ flex: 1 }}
+                    onPress={() => setEmailModalVisible(false)}
+                    loading={submitting}
+                  />
+
+                  <FormButton
+                    title="Send"
+                    fullWidth={false}
+                    style={{ flex: 1 }}
+                    onPress={handleSendEmail}
+                    icon="send"
+                    loading={submitting}
+                  />
+                </View>
               </View>
             </View>
-          </View>
+          </KeyboardAvoidingView>
         </SafeAreaView>
       </Modal>
 
