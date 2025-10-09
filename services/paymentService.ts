@@ -89,6 +89,25 @@ export interface SearchItem {
   type_id: number;
 }
 
+export interface PaymentSummaryData {
+  total_balance: number;
+  initial_balance: number;
+  income: number;
+  expenses: number;
+  withdrawal: number;
+  transfer: number;
+  percents: {
+    income: number;
+    expenses: number;
+    withdrawal: number;
+    transfer: number;
+  };
+  period: {
+    start_date: string;
+    end_date: string;
+  };
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
@@ -292,6 +311,21 @@ class PaymentService {
       return data;
     } catch (error) {
       console.error('Error auditing payment account:', error);
+      throw error;
+    }
+  }
+
+  async getPaymentSummary(token: string, startDate: string, endDate: string): Promise<ApiResponse<PaymentSummaryData>> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/summary?startDate=${startDate}&endDate=${endDate}`, {
+        method: 'GET',
+        headers: this.getHeaders(token),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching payment summary:', error);
       throw error;
     }
   }

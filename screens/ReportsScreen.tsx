@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
 import { ReportsPeriodSkeleton, ReportsSummarySkeleton, FormButton, Notification } from '@/components';
 import { styles } from '@/styles/ReportScreen.styles'
-import PaymentService from '@/services/paymentService';
+import PaymentService, { PaymentSummaryData } from '@/services/paymentService';
 
 interface ReportsScreenProps {
   navigation: any;
@@ -51,15 +51,27 @@ interface MonthlyData {
   financialItems: FinancialItem[];
 }
 
+interface SummaryData {
+  monthly: PaymentSummaryData | null;
+  weekly: PaymentSummaryData | null;
+  daily: PaymentSummaryData | null;
+}
+
 const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets()
   const { isAuthenticated, user, token } = useAuth()
   const [refreshing, setRefreshing] = useState(false)
   const [periodModalVisible, setPeriodModalVisible] = useState(false)
   const [emailModalVisible, setEmailModalVisible] = useState(false)
-  const [dataLoaded, setDataLoaded] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [notification, setNotification] = useState<string | null>(null)
+  const [summaryData, setSummaryData] = useState<SummaryData>({
+    monthly: null,
+    weekly: null,
+    daily: null
+  })
+  const [isDataLoading, setIsDataLoading] = useState(false)
+  const [isMonthlyLoading, setIsMonthlyLoading] = useState(false)
 
   const initialFormData = {
     email: '',
@@ -90,14 +102,17 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     return `${monthNames[parseInt(month) - 1]} ${year}`;
   };
 
+  const saveSelectedMonth = (selected: string) => {
+    setFormData(prev => ({ ...prev, periode: selected, periodeStr: formatMonthYear(selected) }))
+  }
+
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const currentDate = new Date();
     const year        = currentDate.getFullYear();
     const month       = String(currentDate.getMonth() + 1).padStart(2, '0');
 
     const selected = `${year}-${month}`
-    setFormData(prev => ({ ...prev, periode: selected, periodeStr: formatMonthYear(selected) }))
-    
+    saveSelectedMonth(selected)
     return selected
   });
 
@@ -128,85 +143,105 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     return options;
   };
 
-  const generateMonthlyData = () => {
-    const monthOptions = getMonthOptions();
-    const data: Record<string, MonthlyData> = {};
+  const fetchPaymentSummary = async (startDate: string, endDate: string): Promise<PaymentSummaryData | null> => {
+    if (!token) return null;
 
-    const baseData: Record<string, Omit<MonthlyData, 'financialItems' | 'recentTransactions'>> = {};
-
-    const currentDate  = new Date();
-    const currentYear  = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth() + 1;
-
-    for (let i = -3; i <= 3; i++) {
-      const date = new Date(currentYear, currentMonth + i - 1, 1);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const monthKey = `${year}-${month}`;
-
-      const baseIncome = 8000000 + Math.random() * 2000000;
-      const baseExpenses = 6000000 + Math.random() * 1500000;
-      const transfers = 1000000 + Math.random() * 800000;
-      const withdrawals = 600000 + Math.random() * 300000;
-
-      baseData[monthKey] = {
-        income: Math.round(baseIncome),
-        expenses: Math.round(baseExpenses),
-        transfers: Math.round(transfers),
-        withdrawals: Math.round(withdrawals),
-        balance: Math.round(baseIncome - baseExpenses)
-      };
+    try {
+      const response = await PaymentService.getPaymentSummary(token, startDate, endDate);
+      if (response.success && response.data) {
+        return response.data;
+      }
+    } catch (error) {
+      console.error('Error fetching payment summary:', error);
     }
-
-    monthOptions.forEach(monthYear => {
-      const base = baseData[monthYear];
-      
-      if (!base) return;
-      const total = base.income + base.expenses + base.transfers + base.withdrawals;
-
-      data[monthYear] = {
-        ...base,
-        financialItems: [
-          {
-            id: 1,
-            name: 'Income',
-            amount: base.income,
-            percentage: Math.round((base.income / total) * 100),
-            color: '#10b981',
-            icon: 'arrow-down'
-          },
-          {
-            id: 2,
-            name: 'Expenses',
-            amount: base.expenses,
-            percentage: Math.round((base.expenses / total) * 100),
-            color: '#ef4444',
-            icon: 'arrow-up'
-          },
-          {
-            id: 3,
-            name: 'Transfers',
-            amount: base.transfers,
-            percentage: Math.round((base.transfers / total) * 100),
-            color: '#3b82f6',
-            icon: 'swap-horizontal-outline'
-          },
-          {
-            id: 4,
-            name: 'Withdrawals',
-            amount: base.withdrawals,
-            percentage: Math.round((base.withdrawals / total) * 100),
-            color: '#f59e0b',
-            icon: 'arrow-down-circle-outline'
-          },
-        ],
-        };
-    });
-
-    return data;
+    return null;
   };
 
-  const monthlyData: Record<string, MonthlyData> = generateMonthlyData();
+  const fetchAllSummaries = async () => {
+    if (!token || isDataLoading) return;
+
+    setIsDataLoading(true);
+
+    try {
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
+
+      // Get 7 days ago
+      const sevenDaysAgo = new Date(today);
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
+
+      // Get month start and end based on selected month
+      const [selectedYear, selectedMonthNum] = selectedMonth.split('-');
+      const monthStart = new Date(parseInt(selectedYear), parseInt(selectedMonthNum) - 1, 1);
+      const monthEnd = new Date(parseInt(selectedYear), parseInt(selectedMonthNum), 0);
+      const monthStartStr = monthStart.toISOString().split('T')[0];
+      const monthEndStr = monthEnd.toISOString().split('T')[0];
+
+      // Fetch all summaries in parallel
+      const [dailyData, weeklyData, monthlyData] = await Promise.all([
+        fetchPaymentSummary(todayStr, todayStr),
+        fetchPaymentSummary(sevenDaysAgoStr, todayStr),
+        fetchPaymentSummary(monthStartStr, monthEndStr)
+      ]);
+
+      setSummaryData({
+        daily: dailyData,
+        weekly: weeklyData,
+        monthly: monthlyData
+      });
+    } catch (error) {
+      console.error('Error fetching summaries:', error);
+    } finally {
+      setIsDataLoading(false);
+    }
+  };
+
+  const convertPaymentSummaryToMonthlyData = (summary: PaymentSummaryData): MonthlyData => {
+    const total = summary.income + summary.expenses + summary.transfer + summary.withdrawal;
+
+    return {
+      income: summary.income,
+      expenses: summary.expenses,
+      transfers: summary.transfer,
+      withdrawals: summary.withdrawal,
+      balance: summary.total_balance,
+      financialItems: [
+        {
+          id: 1,
+          name: 'Income',
+          amount: summary.income,
+          percentage: summary.percents.income,
+          color: '#10b981',
+          icon: 'arrow-down'
+        },
+        {
+          id: 2,
+          name: 'Expenses',
+          amount: summary.expenses,
+          percentage: summary.percents.expenses,
+          color: '#ef4444',
+          icon: 'arrow-up'
+        },
+        {
+          id: 3,
+          name: 'Transfers',
+          amount: summary.transfer,
+          percentage: summary.percents.transfer,
+          color: '#3b82f6',
+          icon: 'swap-horizontal-outline'
+        },
+        {
+          id: 4,
+          name: 'Withdrawals',
+          amount: summary.withdrawal,
+          percentage: summary.percents.withdrawal,
+          color: '#f59e0b',
+          icon: 'arrow-down-circle-outline'
+        },
+      ],
+    };
+  };
 
   const getCurrentDate = (): string => {
     const today = new Date();
@@ -216,75 +251,75 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     return `${year}-${month}-${day}`;
   };
 
-  const generateDailySummary = (): DailySummary[] => {
+  const getDailySummaryFromData = (): DailySummary[] => {
+    if (!summaryData.daily) return [];
+
     const today = getCurrentDate();
-    const income = 2500000;
-    const expenses = 1200000;
-    const transfers = 800000;
-    const withdrawals = 500000;
-    const balance = income - expenses - transfers - withdrawals;
+    const { income, expenses, transfer: transfers, withdrawal: withdrawals, initial_balance: balance } = summaryData.daily;
 
     return [
       { date: today, income, expenses, transfers, withdrawals, balance }
     ];
   };
 
-  const generateWeeklySummary = (): WeeklySummary[] => {
-    let totalIncome = 0;
-    let totalExpenses = 0;
-    let totalTransfers = 0;
-    let totalWithdrawals = 0;
+  const getWeeklySummaryFromData = (): WeeklySummary[] => {
+    if (!summaryData.weekly) return [];
 
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-
-      const dayIncome = i === 6 ? 8500000 : Math.random() > 0.7 ? 2500000 : 0;
-      const dayExpenses = 800000 + Math.random() * 1500000;
-      const dayTransfers = Math.random() > 0.5 ? 500000 + Math.random() * 1000000 : 0;
-      const dayWithdrawals = Math.random() > 0.6 ? 300000 + Math.random() * 700000 : 0;
-
-      totalIncome += dayIncome;
-      totalExpenses += dayExpenses;
-      totalTransfers += dayTransfers;
-      totalWithdrawals += dayWithdrawals;
-    }
-
-    const balance = totalIncome - totalExpenses - totalTransfers - totalWithdrawals;
+    const { income, expenses, transfer: transfers, withdrawal: withdrawals, initial_balance: balance } = summaryData.weekly;
 
     return [
       {
         week: 'Last 7 Days',
-        income: Math.round(totalIncome),
-        expenses: Math.round(totalExpenses),
-        transfers: Math.round(totalTransfers),
-        withdrawals: Math.round(totalWithdrawals),
-        balance: Math.round(balance)
+        income,
+        expenses,
+        transfers,
+        withdrawals,
+        balance
       }
     ];
   };
 
-  const dailySummary: DailySummary[] = generateDailySummary();
-  const weeklySummary: WeeklySummary[] = generateWeeklySummary();
+  const dailySummary: DailySummary[] = getDailySummaryFromData();
+  const weeklySummary: WeeklySummary[] = getWeeklySummaryFromData();
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    setDataLoaded(false);
+    setIsDataLoading(true);
+    setIsMonthlyLoading(true);
 
-    setTimeout(() => {
-      setDataLoaded(true);
+    try {
+      await fetchAllSummaries();
+    } finally {
       setRefreshing(false);
-    }, 100);
+      setIsDataLoading(false);
+      setIsMonthlyLoading(false);
+    }
   };
 
-  const handleMonthSelect = (monthYear: string) => {
-    setSelectedMonth(monthYear);
-    setPeriodModalVisible(false);
-    setDataLoaded(false);
+  const handleMonthSelect = async (monthYear: string) => {
+    setPeriodModalVisible(false)
+    setIsMonthlyLoading(true)
 
-    setTimeout(() => {
-      setDataLoaded(true);
-    }, 100);
+    saveSelectedMonth(monthYear)
+    setSelectedMonth(monthYear)
+
+    // Fetch data for selected month
+    if (token) {
+      const [year, month] = monthYear.split('-');
+      const monthStart = new Date(parseInt(year), parseInt(month) - 1, 1);
+      const monthEnd = new Date(parseInt(year), parseInt(month), 0);
+      const monthStartStr = monthStart.toISOString().split('T')[0];
+      const monthEndStr = monthEnd.toISOString().split('T')[0];
+
+      const monthlyData = await fetchPaymentSummary(monthStartStr, monthEndStr);
+
+      setSummaryData(prev => ({
+        ...prev,
+        monthly: monthlyData
+      }));
+    }
+
+    setIsMonthlyLoading(false)
   };
 
   const handleExportReport = () => {
@@ -339,11 +374,18 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     }
   }
 
-  const currentMonthData: MonthlyData = monthlyData[selectedMonth] || monthlyData[Object.keys(monthlyData)[0]];
+  const currentMonthData: MonthlyData = summaryData.monthly ? convertPaymentSummaryToMonthlyData(summaryData.monthly) : {
+    income: 0,
+    expenses: 0,
+    transfers: 0,
+    withdrawals: 0,
+    balance: 0,
+    financialItems: []
+  };
 
   useEffect(() => {
     if (isAuthenticated) {
-      setDataLoaded(true);
+      fetchAllSummaries();
     }
   }, [isAuthenticated]);
 
@@ -372,7 +414,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
             <Text style={commonStyles.headerTitle}>Financial Reports</Text>
           </View>
 
-          {dataLoaded ? (
+          {!isMonthlyLoading ? (
             <Card style={styles.periodCard}>
               <Card.Content style={styles.periodContent}>
                 <TouchableOpacity
@@ -392,7 +434,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
           )}
 
           <View style={styles.summarySection}>
-            {dataLoaded ? (
+            {!isMonthlyLoading ? (
               <Card style={styles.summaryCard}>
                 <Card.Content style={styles.summaryContent}>
                   {currentMonthData.financialItems.map((item, index) => (
@@ -427,7 +469,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
           <View style={styles.dailySection}>
             <Text style={styles.sectionTitle}>Today's Summary</Text>
-            {dataLoaded ? (
+            {!isDataLoading && !refreshing ? (
               <Card style={styles.dailyCard}>
                 <Card.Content style={styles.dailyContent}>
                   {dailySummary.map((day, index) => (
@@ -513,7 +555,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
           <View style={styles.weeklySection}>
             <Text style={styles.sectionTitle}>Last 7 Days Summary</Text>
-            {dataLoaded ? (
+            {!isDataLoading && !refreshing ? (
               <Card style={styles.weeklyCard}>
                 <Card.Content style={styles.weeklyContent}>
                   {weeklySummary.map((week, index) => (
@@ -630,7 +672,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
             <View style={{ paddingHorizontal: 20 }}>
               <Text style={{ fontSize: 14, fontWeight: '600', color: '#6b7280', marginBottom: 12, marginLeft: 4 }}>Select Month</Text>
-              {Object.keys(monthlyData).map((monthYear) => (
+              {getMonthOptions().map((monthYear) => (
                 <TouchableOpacity
                   key={monthYear}
                   style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: selectedMonth === monthYear ? '#f0f9ff' : '#f9fafb', marginBottom: 8 }}
