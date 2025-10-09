@@ -717,13 +717,13 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ flex: 0, justifyContent: 'flex-end' }}
+            style={{ flex: 1, justifyContent: 'flex-end' }}
           >
             <View style={{
               backgroundColor: 'white',
               borderTopLeftRadius: 20,
               borderTopRightRadius: 20,
-              paddingBottom: 14
+              paddingBottom: Platform.OS === 'ios' ? 14 : 24
             }}>
               <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
                 Send Report via Email
