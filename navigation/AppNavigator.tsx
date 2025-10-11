@@ -16,6 +16,7 @@ import AddPaymentScreen from '@/screens/AddPaymentScreen';
 import AddPaymentItemScreen from '@/screens/AddPaymentItemScreen';
 import ViewPaymentItemsScreen from '@/screens/ViewPaymentItemsScreen';
 import AuditScreen from '@/screens/AuditScreen';
+import AddAttachmentScreen from '@/screens/AddAttachmentScreen';
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
@@ -98,6 +99,11 @@ const HomeStackNavigator = () => {
         name="AddGoal"
         component={AddGoalScreen}
         options={{ title: 'Create Financial Goal' }}
+      />
+      <MainStack.Screen
+        name="AddAttachment"
+        component={AddAttachmentScreen}
+        options={{ title: 'Add Attachments' }}
       />
     </MainStack.Navigator>
   );
@@ -193,6 +199,11 @@ const MainNavigator = () => {
         name="AddPaymentItem"
         component={AddPaymentItemScreen}
         options={{ title: 'Add Payment Items' }}
+      />
+      <MainStack.Screen
+        name="AddAttachment"
+        component={AddAttachmentScreen}
+        options={{ title: 'Add Attachments' }}
       />
     </MainStack.Navigator>
   );
