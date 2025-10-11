@@ -227,6 +227,10 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
       return;
     }
 
+    if (loading) {
+      return;
+    }
+
     setLoading(true);
     try {
       let payment_account_to_id = isTransferOrWidrawal ? parseInt(formData.payment_account_to_id) : null;
@@ -443,7 +447,11 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
 
             <FormButton
               title="Cancel"
-              onPress={() => navigation.goBack()}
+              onPress={() => {
+                if (!loading) {
+                  navigation.goBack();
+                }
+              }}
               variant="outline"
               loading={loading}
               style={styles.cancelButton}
