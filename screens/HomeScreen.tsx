@@ -185,10 +185,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
                 </Card.Content>
               </Card>
 
-              <Card style={commonStyles.actionCard} onPress={() => Alert.alert('Info', 'Transfer feature coming soon!')}>
+              <Card style={commonStyles.actionCard} onPress={() => navigation.navigate('Goals')}>
                 <Card.Content style={commonStyles.actionCardContent}>
-                  <Ionicons name="swap-horizontal" size={24} color="#6366f1" />
-                  <Text style={commonStyles.actionText}>Transfer</Text>
+                  <Ionicons name="trophy" size={24} color="#6366f1" />
+                  <Text style={commonStyles.actionText}>Goals</Text>
                 </Card.Content>
               </Card>
 

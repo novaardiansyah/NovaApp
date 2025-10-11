@@ -7,6 +7,8 @@ import HomeScreen from '@/screens/HomeScreen';
 import ProfileScreen from '@/screens/ProfileScreen';
 import BudgetScreen from '@/screens/BudgetScreen';
 import ReportsScreen from '@/screens/ReportsScreen';
+import GoalsScreen from '@/screens/GoalsScreen';
+import AddGoalScreen from '@/screens/AddGoalScreen';
 import ChangePasswordScreen from '@/screens/ChangePasswordScreen';
 import UpdateProfileScreen from '@/screens/UpdateProfileScreen';
 import AllTransactionsScreen from '@/screens/AllTransactionsScreen';
@@ -86,6 +88,16 @@ const HomeStackNavigator = () => {
         name="ViewPaymentItems"
         component={ViewPaymentItemsScreen}
         options={{ title: 'Payment Items' }}
+      />
+      <MainStack.Screen
+        name="Goals"
+        component={GoalsScreen}
+        options={{ title: 'Financial Goals' }}
+      />
+      <MainStack.Screen
+        name="AddGoal"
+        component={AddGoalScreen}
+        options={{ title: 'Create Financial Goal' }}
       />
     </MainStack.Navigator>
   );
