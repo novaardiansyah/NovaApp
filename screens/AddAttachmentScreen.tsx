@@ -19,7 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import { Theme } from '@/constants/colors';
 import { FormButton } from '@/components';
-import attachmentService from '@/services/attachmentService';
+import paymentService from '@/services/paymentService';
 import * as ImagePicker from 'expo-image-picker';
 
 interface AddAttachmentScreenProps {
@@ -48,7 +48,7 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
 
   
   const validateFile = (asset: any): { isValid: boolean; error?: string } => {
-    return attachmentService.validateFile(asset);
+    return paymentService.validateFile(asset);
   };
 
   const pickImage = async () => {
@@ -101,7 +101,7 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
 
     // Convert to base64
     try {
-      const base64String = await attachmentService.convertFileToBase64(asset.uri, newAttachment.type);
+      const base64String = await paymentService.convertFileToBase64(asset.uri, newAttachment.type);
       setSelectedAttachments(prev =>
         prev.map(att =>
           att.id === attachmentId ? { ...att, base64: base64String } : att
@@ -129,86 +129,90 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
     }
 
     setLoading(true);
-    let successCount = 0;
-    let failCount = 0;
 
-    for (const attachment of readyToUpload) {
-      try {
-        // Mark as uploading
-        setSelectedAttachments(prev =>
-          prev.map(att =>
-            att.id === attachment.id
-              ? { ...att, isUploading: true, uploadProgress: 0 }
-              : att
-          )
-        );
-
-        const uploadData = {
-          file_base64: attachment.base64!,
-          filename: attachment.name,
-          mime_type: attachment.type,
-          file_size: attachment.size,
-        };
-
-        const response = await attachmentService.uploadAttachment(token, paymentId, uploadData);
-
-        if (response.success) {
-          successCount++;
-          setSelectedAttachments(prev =>
-            prev.map(att =>
-              att.id === attachment.id
-                ? { ...att, uploaded: true, isUploading: false, uploadProgress: 100 }
-                : att
-            )
-          );
-        } else {
-          failCount++;
-          setSelectedAttachments(prev =>
-            prev.map(att =>
-              att.id === attachment.id
-                ? { ...att, isUploading: false, error: response.message || 'Upload failed' }
-                : att
-            )
-          );
-        }
-      } catch (error) {
-        failCount++;
-        setSelectedAttachments(prev =>
-          prev.map(att =>
-            att.id === attachment.id
-              ? { ...att, isUploading: false, error: 'Network error' }
-              : att
-          )
-        );
-      }
-    }
-
-    setLoading(false);
-
-    // Show summary
-    // Note: Refresh functionality will be added later
-
-    Alert.alert(
-      'Upload Complete',
-      `Successfully uploaded ${successCount} file${successCount !== 1 ? 's' : ''}${
-        failCount > 0 ? `, ${failCount} failed` : ''
-      }`,
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            // Remove successfully uploaded items from selection
-            setSelectedAttachments(prev => prev.filter(att => !att.uploaded));
-          },
-        },
-      ]
+    // Mark all as uploading
+    setSelectedAttachments(prev =>
+      prev.map(att =>
+        att.base64 && !att.uploaded && !att.isUploading
+          ? { ...att, isUploading: true, uploadProgress: 0 }
+          : att
+      )
     );
+
+    try {
+      // Prepare multiple files for batch upload
+      const attachmentBase64Array = readyToUpload.map(att => att.base64!);
+
+      const response = await paymentService.uploadMultipleAttachments(token, paymentId, {
+        attachment_base64_array: attachmentBase64Array
+      });
+
+      if (response.success) {
+        // Mark all as uploaded successfully
+        setSelectedAttachments(prev =>
+          prev.map(att =>
+            att.base64 && !att.uploaded
+              ? { ...att, uploaded: true, isUploading: false, uploadProgress: 100 }
+              : att
+          )
+        );
+
+        const attachmentsCount = response.data?.attachments_count || readyToUpload.length;
+        Alert.alert(
+          'Upload Complete',
+          `Successfully uploaded ${attachmentsCount} file${attachmentsCount !== 1 ? 's' : ''}`,
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                setSelectedAttachments(prev => prev.filter(att => !att.uploaded));
+              },
+            },
+          ]
+        );
+      } else {
+        // Mark all as failed
+        setSelectedAttachments(prev =>
+          prev.map(att =>
+            att.base64 && !att.uploaded
+              ? { ...att, isUploading: false, error: response.message || 'Upload failed' }
+              : att
+          )
+        );
+
+        // Handle validation errors jika ada
+        let errorMessage = response.message || 'Failed to upload attachments';
+        if (response.errors) {
+          if (Array.isArray(response.errors)) {
+            errorMessage = response.errors.join(', ');
+          } else if (typeof response.errors === 'object') {
+            const errorMessages = Object.values(response.errors).flat();
+            errorMessage = errorMessages.join(', ');
+          }
+        }
+
+        Alert.alert('Error', errorMessage);
+      }
+    } catch (error) {
+      // Mark all as failed
+      setSelectedAttachments(prev =>
+        prev.map(att =>
+          att.base64 && !att.uploaded
+            ? { ...att, isUploading: false, error: 'Network error' }
+            : att
+        )
+      );
+
+      Alert.alert('Error', 'Failed to upload attachments. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   
   
   const renderSelectedAttachmentItem = (attachment: AttachmentItem) => {
-    const isImage = attachmentService.isImageFile(attachment.type);
+    const isImage = paymentService.isImageFile(attachment.type);
 
     return (
       <Card key={attachment.id} style={styles.selectedAttachmentCard}>
@@ -230,7 +234,7 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
                 {attachment.name}
               </Text>
               <Text style={styles.attachmentDetails}>
-                {attachmentService.formatFileSize(attachment.size)}
+                {paymentService.formatFileSize(attachment.size)}
                 {attachment.uploaded && ' ✓'}
                 {attachment.error && ` - ${attachment.error}`}
               </Text>
