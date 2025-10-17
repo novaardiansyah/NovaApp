@@ -194,7 +194,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
 
               <Card style={commonStyles.actionCard} onPress={() => navigation.navigate('Reports')}>
                 <Card.Content style={commonStyles.actionCardContent}>
-                  <Ionicons name="bar-chart" size={24} color="#6366f1" />
+                  <Ionicons name="document-text" size={24} color="#6366f1" />
                   <Text style={commonStyles.actionText}>Reports</Text>
                 </Card.Content>
               </Card>

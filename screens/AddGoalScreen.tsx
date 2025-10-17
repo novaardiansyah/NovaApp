@@ -246,7 +246,7 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
               style={styles.input}
               multiline
               numberOfLines={3}
-              left={<TextInput.Icon icon="document-text" color="#6b7280" />}
+              left={<TextInput.Icon icon="file-document-outline" color="#6b7280" />}
             />
 
             <TextInput
