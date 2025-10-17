@@ -119,8 +119,8 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
       case 'delete_payment':
         handleDeletePayment(selectedTransaction);
         break;
-      case 'add_attachment':
-        navigation.navigate('AddAttachment', {
+      case 'view_attachment':
+        navigation.navigate('CurrentAttachments', {
           paymentId: selectedTransaction.id
         });
         break;
@@ -396,10 +396,10 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
 
               <TouchableOpacity
                 style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f0f9ff', marginBottom: 8 }}
-                onPress={() => handleActionSelect('add_attachment')}
+                onPress={() => handleActionSelect('view_attachment')}
               >
                 <Ionicons name="attach-outline" size={24} color="#3b82f6" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Add Attachment</Text>
+                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>View Attachment</Text>
               </TouchableOpacity>
 
               <TouchableOpacity

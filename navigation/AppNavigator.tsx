@@ -17,6 +17,8 @@ import AddPaymentItemScreen from '@/screens/AddPaymentItemScreen';
 import ViewPaymentItemsScreen from '@/screens/ViewPaymentItemsScreen';
 import AuditScreen from '@/screens/AuditScreen';
 import AddAttachmentScreen from '@/screens/AddAttachmentScreen';
+import ViewAttachmentScreen from '@/screens/ViewAttachmentScreen';
+import CurrentAttachmentsScreen from '@/screens/CurrentAttachmentsScreen';
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
@@ -104,6 +106,16 @@ const HomeStackNavigator = () => {
         name="AddAttachment"
         component={AddAttachmentScreen}
         options={{ title: 'Add Attachments' }}
+      />
+      <MainStack.Screen
+        name="CurrentAttachments"
+        component={CurrentAttachmentsScreen}
+        options={{ title: 'Current Attachments' }}
+      />
+      <MainStack.Screen
+        name="ViewAttachment"
+        component={ViewAttachmentScreen}
+        options={{ title: 'Attachment Details' }}
       />
     </MainStack.Navigator>
   );
@@ -204,6 +216,16 @@ const MainNavigator = () => {
         name="AddAttachment"
         component={AddAttachmentScreen}
         options={{ title: 'Add Attachments' }}
+      />
+      <MainStack.Screen
+        name="CurrentAttachments"
+        component={CurrentAttachmentsScreen}
+        options={{ title: 'Current Attachments' }}
+      />
+      <MainStack.Screen
+        name="ViewAttachment"
+        component={ViewAttachmentScreen}
+        options={{ title: 'Attachment Details' }}
       />
     </MainStack.Navigator>
   );

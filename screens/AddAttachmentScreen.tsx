@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -10,12 +10,9 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
-  Modal,
-  Pressable,
-  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Appbar, Card, Divider, FAB } from 'react-native-paper';
+import { PaperProvider, Appbar, Card, FAB } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import { Theme } from '@/constants/colors';
@@ -43,52 +40,12 @@ interface AttachmentItem {
 
 const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, route }) => {
   const { paymentId } = route.params;
-  const { token, isAuthenticated } = useAuth();
+  const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [selectedAttachments, setSelectedAttachments] = useState<AttachmentItem[]>([]);
-  const [currentAttachments, setCurrentAttachments] = useState<any[]>([]);
-  const [viewAttachmentsModalVisible, setViewAttachmentsModalVisible] = useState(false);
-  const [loadingCurrentAttachments, setLoadingCurrentAttachments] = useState(false);
-
-  useEffect(() => {
-    loadCurrentAttachments();
-  }, []);
 
   const validateFile = (asset: any): { isValid: boolean; error?: string } => {
     return paymentService.validateFile(asset);
-  };
-
-  // Load current attachments from API
-  const loadCurrentAttachments = async () => {
-    if (!token || !paymentId) return;
-
-    setLoadingCurrentAttachments(true);
-    try {
-      const response = await paymentService.getPaymentAttachments(token, paymentId);
-
-      if (response.success && response.data) {
-        // The API returns data as an array directly according to the provided response
-        const attachments = response.data.map((attachment: any) => ({
-          ...attachment,
-          mime_type: 'image/png', // Assuming images based on the response
-          formatted_date: new Date().toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
-          })
-        }));
-        setCurrentAttachments(attachments);
-      } else {
-        // Handle API error
-        setCurrentAttachments([]);
-        console.error('Failed to load attachments:', response.message);
-      }
-    } catch (error) {
-      console.error('Error loading current attachments:', error);
-      setCurrentAttachments([]);
-    } finally {
-      setLoadingCurrentAttachments(false);
-    }
   };
 
   const pickImage = async () => {
@@ -206,8 +163,6 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
               text: 'OK',
               onPress: () => {
                 setSelectedAttachments(prev => prev.filter(att => !att.uploaded));
-                // Refresh current attachments after successful upload
-                loadCurrentAttachments();
               },
             },
           ]
@@ -249,19 +204,6 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
     } finally {
       setLoading(false);
     }
-  };
-
-  
-  
-  // Open modal to view current attachments
-  const openViewAttachmentsModal = async () => {
-    // Refresh attachments before showing modal
-    await loadCurrentAttachments();
-    setViewAttachmentsModalVisible(true);
-  };
-
-  const closeViewAttachmentsModal = () => {
-    setViewAttachmentsModalVisible(false);
   };
 
   const renderSelectedAttachmentItem = (attachment: AttachmentItem) => {
@@ -372,103 +314,8 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
           icon="eye"
           color="#ffffff"
           style={styles.fab}
-          onPress={openViewAttachmentsModal}
+          onPress={() => navigation.navigate('CurrentAttachments', { paymentId })}
         />
-
-        {/* View Current Attachments Modal */}
-        <Modal
-          visible={viewAttachmentsModalVisible}
-          transparent
-          animationType="slide"
-          onRequestClose={closeViewAttachmentsModal}
-        >
-          <SafeAreaView style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-            <TouchableOpacity
-              style={{ flex: 1 }}
-              activeOpacity={1}
-              onPress={closeViewAttachmentsModal}
-            />
-
-            <View style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16 }}>
-                <Text style={{ fontSize: 20, fontWeight: '600', color: '#111827' }}>
-                  Current Attachments
-                </Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <TouchableOpacity
-                    onPress={loadCurrentAttachments}
-                    style={{ padding: 4, marginRight: 8 }}
-                    disabled={loadingCurrentAttachments}
-                  >
-                    <Ionicons name="refresh" size={24} color={loadingCurrentAttachments ? "#d1d5db" : "#6b7280"} />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={closeViewAttachmentsModal}
-                    style={{ padding: 4 }}
-                  >
-                    <Ionicons name="close" size={24} color="#6b7280" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <ScrollView style={{ paddingHorizontal: 20, maxHeight: 400 }}>
-                {loadingCurrentAttachments ? (
-                  <View style={{ paddingVertical: 40, alignItems: 'center' }}>
-                    <ActivityIndicator size="large" color="#6366f1" />
-                    <Text style={{ marginTop: 16, color: '#6b7280', fontSize: 14 }}>
-                      Loading attachments...
-                    </Text>
-                  </View>
-                ) : currentAttachments.length === 0 ? (
-                  <Card style={styles.emptyCard}>
-                    <Card.Content style={styles.emptyCardContent}>
-                      <Ionicons name="attach-outline" size={48} color="#9ca3af" />
-                      <Text style={styles.emptyText}>No attachments yet</Text>
-                      <Text style={styles.emptySubtext}>Add your first attachment to this payment</Text>
-                    </Card.Content>
-                  </Card>
-                ) : (
-                  currentAttachments.map((attachment) => (
-                    <View key={attachment.id} style={{ marginBottom: 12 }}>
-                      <Card style={styles.currentAttachmentCard}>
-                        <Card.Content style={styles.currentAttachmentContent}>
-                          <View style={styles.currentAttachmentLeft}>
-                            <Image
-                              source={{ uri: attachment.url }}
-                              style={styles.currentAttachmentThumbnail}
-                              resizeMode="cover"
-                            />
-                            <View style={styles.currentAttachmentInfo}>
-                              <Text style={styles.currentAttachmentName} numberOfLines={1}>
-                                {attachment.filename}
-                              </Text>
-                              <Text style={styles.currentAttachmentDetails}>
-                                {attachment.formatted_size} • {attachment.formatted_date}
-                              </Text>
-                            </View>
-                          </View>
-                          <TouchableOpacity
-                            style={styles.viewButton}
-                            onPress={() => Alert.alert('Download', 'Download functionality will be available soon.')}
-                          >
-                            <Ionicons name="download-outline" size={20} color="#6b7280" />
-                          </TouchableOpacity>
-                        </Card.Content>
-                      </Card>
-                    </View>
-                  ))
-                )}
-              </ScrollView>
-
-              <TouchableOpacity
-                style={{ marginHorizontal: 20, marginTop: 16, paddingVertical: 12, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
-                onPress={closeViewAttachmentsModal}
-              >
-                <Text style={{ fontSize: 16, fontWeight: '600', color: '#6366f1' }}>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </SafeAreaView>
-        </Modal>
       </View>
     </PaperProvider>
   );
@@ -556,9 +403,6 @@ const styles = StyleSheet.create({
   uploadButton: {
     marginTop: 12,
   },
-  addButton: {
-    marginTop: 12,
-  },
   attachmentOptionFull: {
     backgroundColor: 'white',
     borderRadius: 12,
@@ -593,72 +437,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: '#6366f1',
   },
-  emptyCard: {
-    backgroundColor: '#f9fafb',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  emptyCardContent: {
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  emptyText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#6b7280',
-    marginTop: 12,
-    marginBottom: 8,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: '#9ca3af',
-    textAlign: 'center',
-  },
-  currentAttachmentCard: {
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  currentAttachmentContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  currentAttachmentLeft: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  currentAttachmentThumbnail: {
-    width: 48,
-    height: 48,
-    borderRadius: 8,
-    marginRight: 12,
-  },
-  currentAttachmentIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  currentAttachmentInfo: {
-    flex: 1,
-  },
-  currentAttachmentName: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1f2937',
-    marginBottom: 2,
-  },
-  currentAttachmentDetails: {
-    fontSize: 12,
-    color: '#6b7280',
-  },
-  viewButton: {
-    padding: 8,
-  },
-  });
+});
 
 export default AddAttachmentScreen;
