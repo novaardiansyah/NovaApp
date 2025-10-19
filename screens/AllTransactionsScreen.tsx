@@ -4,7 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card, FAB, Divider } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
-import { AllTransactionsSkeleton, Notification } from '@/components';
+import { Notification } from '@/components';
+import { TransactionsSkeleton } from '@/components/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
@@ -107,15 +108,13 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           refresh: new Date().getTime()
         });
         break;
-      case 'add_items':
-        navigation.navigate('AddPaymentItem', { paymentId: selectedTransaction.id });
-        break;
+      // 'add_items' case removed - feature moved to ViewItemsScreen
       case 'view_details':
-        Alert.alert('Coming Soon', 'View payment details feature will be available soon.');
+        navigation.navigate('ViewPaymentDetails', {
+          paymentId: selectedTransaction.id
+        });
         break;
-      case 'edit_payment':
-        Alert.alert('Coming Soon', 'Edit payment feature will be available soon.');
-        break;
+      // 'edit_payment' case removed - feature not implemented yet
       case 'delete_payment':
         handleDeletePayment(selectedTransaction);
         break;
@@ -224,7 +223,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           </View>
           <View style={styles.transactionsSection}>
             {loading || (refreshing && transactions.length === 0) ? (
-              <AllTransactionsSkeleton count={10} />
+              <TransactionsSkeleton count={10} />
             ) : (
               <View style={styles.transactionsList}>
                 {transactions.length === 0 ? (
@@ -366,32 +365,16 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                 <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>View Details</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
-                onPress={() => handleActionSelect('edit_payment')}
-              >
-                <Ionicons name="create-outline" size={24} color="#10b981" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Edit Payment</Text>
-              </TouchableOpacity>
+              {/* Edit payment button removed - feature not implemented yet */}
 
               {selectedTransaction?.has_items && (
-                <>
-                  <TouchableOpacity
-                    style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
-                    onPress={() => handleActionSelect('view_items')}
-                  >
-                    <Ionicons name="list-outline" size={24} color="#f59e0b" style={{ marginRight: 16 }} />
-                    <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>View Items</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
-                    onPress={() => handleActionSelect('add_items')}
-                  >
-                    <Ionicons name="add-circle-outline" size={24} color="#8b5cf6" style={{ marginRight: 16 }} />
-                    <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Add More Items</Text>
-                  </TouchableOpacity>
-                </>
+                <TouchableOpacity
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                  onPress={() => handleActionSelect('view_items')}
+                >
+                  <Ionicons name="list-outline" size={24} color="#f59e0b" style={{ marginRight: 16 }} />
+                  <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>View Items</Text>
+                </TouchableOpacity>
               )}
 
               <TouchableOpacity

@@ -29,6 +29,23 @@ export interface PaymentData {
   is_scheduled: boolean;
 }
 
+export interface PaymentDetailsData {
+  id: number;
+  code: string;
+  name: string;
+  date: string;
+  amount: number;
+  has_items: boolean;
+  formatted_amount: string;
+  formatted_date: string;
+  type: string;
+  type_id: number;
+  updated_at: string;
+  formatted_updated_at: string;
+  attachments_count: number;
+  items_count: number;
+}
+
 export interface PaymentItemData {
   name: string;
   amount: number;
@@ -192,6 +209,21 @@ class PaymentService {
       throw new Error('Failed to fetch payment accounts');
     } catch (error) {
       console.error('Error fetching payment accounts:', error);
+      throw error;
+    }
+  }
+
+  async getPaymentDetails(token: string, paymentId: number): Promise<ApiResponse<PaymentDetailsData>> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}`, {
+        method: 'GET',
+        headers: this.getHeaders(token),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching payment details:', error);
       throw error;
     }
   }
