@@ -17,6 +17,7 @@ import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 import paymentService from '@/services/paymentService';
 import { commonStyles, statusBarConfig } from '@/styles';
+import { Notification } from '@/components';
 
 interface ViewAttachmentScreenProps {
   navigation: any;
@@ -33,15 +34,19 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
     fileSize,
     mimeType,
     attachmentId,
-    paymentId
+    paymentId,
+    filepath
   } = route.params;
 
   const [imageLoading, setImageLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
 
   
   const handleDelete = async () => {
-    if (!token || !paymentId || !attachmentId) return;
+    if (!token || !paymentId || !filepath) {
+      return;
+    }
 
     Alert.alert(
       'Delete Attachment',
@@ -57,11 +62,10 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
           onPress: async () => {
             setDeleting(true);
             try {
-              const response = await paymentService.deleteAttachment(token, paymentId, attachmentId);
+              const response = await paymentService.deleteAttachmentByFilepath(token, paymentId, filepath);
 
               if (response.success) {
-                Alert.alert('Success', 'Attachment deleted successfully');
-                navigation.goBack();
+                setNotification('Attachment deleted successfully');
               } else {
                 Alert.alert('Error', response.message || 'Failed to delete attachment');
               }
@@ -78,7 +82,7 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
 
   return (
     <PaperProvider theme={Theme}>
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.container} edges={['left', 'right']}>
         <StatusBar {...statusBarConfig} />
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
@@ -86,11 +90,11 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
         </Appbar.Header>
 
         <ScrollView
-          contentContainerStyle={{ paddingBottom: 100 }}
+          contentContainerStyle={{ paddingBottom: 75 }}
           showsVerticalScrollIndicator={false}
         >
           {/* Image Display */}
-          <View style={styles.imageContainer}>
+          <Card style={styles.imageContainer}>
             {imageLoading && (
               <View style={styles.imageLoadingContainer}>
                 <ActivityIndicator size="large" color="#6366f1" />
@@ -106,21 +110,17 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
               style={styles.image}
               resizeMode="contain"
               onLoad={() => {
-                console.log('Image loaded successfully:', imageUrl);
                 setImageLoading(false);
               }}
               onError={(error) => {
-                console.log('Image load error:', error.nativeEvent.error);
-                console.log('Image URL:', imageUrl);
                 setImageLoading(false);
                 Alert.alert('Error', 'Failed to load image. Please check your connection.');
               }}
             />
-          </View>
+          </Card>
 
           {/* Attachment Details */}
           <Card style={styles.detailsCard}>
-            <Card.Content>
               <View style={styles.detailsRow}>
                 <Text style={styles.detailsLabel}>File Name</Text>
                 <Text style={styles.detailsValue} numberOfLines={1}>
@@ -141,21 +141,32 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
                   {mimeType || 'image/png'}
                 </Text>
               </View>
-            </Card.Content>
           </Card>
         </ScrollView>
 
-        <FAB
-          icon="trash-can-outline"
-          color="#ffffff"
-          style={[styles.fab, {
-            bottom: -6
-          }]}
-          onPress={handleDelete}
-          disabled={deleting}
-          loading={deleting}
-        />
+        {!deleting && !notification && (
+          <FAB
+            icon="trash-can-outline"
+            color="#ffffff"
+            style={styles.fab}
+            onPress={handleDelete}
+          />
+        )}
       </SafeAreaView>
+
+      <Notification
+        visible={!!notification}
+        message={notification || ''}
+        onDismiss={() => {
+          setNotification(null);
+          navigation.navigate('CurrentAttachments', {
+            paymentId: paymentId,
+            refresh: true
+          });
+        }}
+        type="success"
+        duration={2000}
+      />
     </PaperProvider>
   );
 };
@@ -170,13 +181,13 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     backgroundColor: '#ffffff',
-    width: '100%',
-    height: height * 0.5,
+    width: '92%',
+    height: 300,
     position: 'relative',
-    marginHorizontal: 16,
+    alignSelf: 'center',
     marginTop: 16,
-    borderRadius: 12,
-    overflow: 'hidden',
+    borderRadius: 8,
+    elevation: 3,
   },
   imageLoadingContainer: {
     position: 'absolute',
@@ -191,18 +202,24 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
+    resizeMode: 'cover',
   },
   detailsCard: {
-    margin: 16,
-    backgroundColor: 'white',
+    marginHorizontal: 16,
+    marginBottom: 16,
+    marginTop: 8,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: '#e5e7eb',
+    elevation: 2,
   },
   detailsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#f3f4f6',
   },

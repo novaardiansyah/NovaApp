@@ -18,7 +18,7 @@ interface CurrentAttachmentsScreenProps {
 const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
   const { token } = useAuth();
-  const { paymentId } = route.params;
+  const { paymentId, refresh } = route.params;
   const [currentAttachments, setCurrentAttachments] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -51,8 +51,12 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
   };
 
   useEffect(() => {
-    loadCurrentAttachments();
-  }, [paymentId]);
+    if (refresh) {
+      handleRefresh();
+    } else {
+      loadCurrentAttachments();
+    }
+  }, [paymentId, refresh]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -69,7 +73,8 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
       fileSize: attachment.formatted_size || paymentService.formatFileSize(attachment.file_size),
       mimeType: attachment.mime_type || 'image/png',
       attachmentId: attachment.id,
-      paymentId: paymentId
+      paymentId: paymentId,
+      filepath: attachment.filepath
     });
   };
 
@@ -110,10 +115,10 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
     );
   };
 
-  if (loading && !refreshing) {
+  if (loading || refreshing) {
     return (
       <PaperProvider theme={Theme}>
-        <SafeAreaView style={commonStyles.container} edges={['top', 'left', 'right']}>
+        <SafeAreaView style={commonStyles.container} edges={['left', 'right']}>
           <StatusBar {...statusBarConfig} />
           <Appbar.Header>
             <Appbar.BackAction onPress={() => navigation.goBack()} />
@@ -129,7 +134,7 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
 
   return (
     <PaperProvider theme={Theme}>
-      <SafeAreaView style={commonStyles.container} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={commonStyles.container} edges={['left', 'right']}>
         <StatusBar {...statusBarConfig} />
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
@@ -139,7 +144,7 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
         <ScrollView
           contentContainerStyle={getScrollContainerStyle(insets)}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+            <RefreshControl refreshing={false} onRefresh={handleRefresh} />
           }
           scrollEventThrottle={400}
         >
@@ -185,11 +190,12 @@ const styles = StyleSheet.create({
   },
   attachmentsSection: {
     flex: 1,
+    marginTop: 16,
   },
   emptyCard: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
-    marginVertical: 16,
+    marginBottom: 16,
   },
   emptyCardContent: {
     alignItems: 'center',
@@ -221,6 +227,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    marginBottom: 16,
   },
   attachmentsCardContent: {
     paddingVertical: 8,
@@ -229,7 +236,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   attachmentLeft: {
     flexDirection: 'row',
@@ -237,8 +244,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   attachmentIcon: {
-    width: 48,
-    height: 48,
+    width: 40,
+    height: 40,
     borderRadius: 8,
     marginRight: 16,
     overflow: 'hidden',
@@ -256,7 +263,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: '#1f2937',
-    marginBottom: 4,
+    marginBottom: 2,
     flexShrink: 1,
   },
   attachmentDetails: {
