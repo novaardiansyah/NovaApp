@@ -7,7 +7,7 @@ import { Theme } from '@/constants/colors';
 import { commonStyles, formatCurrency, getScrollContainerStyle } from '@/styles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
-import { PaymentItemsSkeleton, PaymentSummarySkeleton } from '@/components/Skeleton';
+import { PaymentItemsSkeleton, PaymentSummarySkeleton } from '@/components';
 import paymentService from '@/services/paymentService';
 
 interface PaymentItem {

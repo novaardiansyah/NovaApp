@@ -17,7 +17,7 @@ import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
 import paymentService from '@/services/paymentService';
-import { PaymentDetailsSkeleton } from '@/components/skeleton';
+import { PaymentDetailsSkeleton } from '@/components';
 
 type PaymentData = paymentService.PaymentDetailsData;
 

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { View, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { TextInput, HelperText, Card } from 'react-native-paper';
-import { DropdownSkeleton } from './Skeleton';
+import { DropdownSkeleton } from './skeleton';
 
 interface SelectOption {
   id: number | string;

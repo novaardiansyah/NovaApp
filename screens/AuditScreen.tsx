@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, RefreshControl, Alert, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { PaperProvider, Appbar, Card, TextInput, HelperText } from 'react-native-paper';
 import { FormButton, Notification } from '@/components';
-import { AuditAccountCardSkeleton, AuditFormSkeleton } from '@/components/Skeleton';
+import { AuditAccountCardSkeleton, AuditFormSkeleton } from '@/components';
 import { Theme } from '@/constants/colors';
 import { formatCurrency } from '@/styles';
 import { useAuth } from '@/contexts/AuthContext';

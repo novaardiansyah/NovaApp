@@ -5,7 +5,7 @@ import { PaperProvider, Card, FAB, Divider } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { Notification } from '@/components';
-import { TransactionsSkeleton } from '@/components/skeleton';
+import { TransactionsSkeleton } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
