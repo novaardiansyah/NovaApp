@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
 import { Notification } from '@/components';
 import { styles } from '@/styles/GoalsScreen.styles';
+import PaymentService, { PaymentGoalsOverview } from '@/services/paymentService';
 
 interface GoalsScreenProps {
   navigation: any;
@@ -27,11 +28,13 @@ interface Goal {
 
 const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, token } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [goalsOverview, setGoalsOverview] = useState<PaymentGoalsOverview | null>(null);
+  const [overviewLoading, setOverviewLoading] = useState(false);
 
   // Dummy data for goals
   const dummyGoals: Goal[] = [
@@ -77,12 +80,34 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
     },
   ];
 
+  const loadGoalsOverview = async () => {
+    if (!token) return;
+
+    setOverviewLoading(true);
+    try {
+      const response = await PaymentService.getPaymentGoalsOverview(token);
+      
+      if (response.success) {
+        setGoalsOverview(response.data);
+      } else {
+        console.error('Failed to load goals overview:', response.message);
+      }
+    } catch (error) {
+      console.error('Error loading goals overview:', error);
+    } finally {
+      setOverviewLoading(false);
+    }
+  };
+
   const handleRefresh = async () => {
     setRefreshing(true);
     setLoading(true);
 
     try {
-      // Simulate API refresh
+      // Load overview data
+      await loadGoalsOverview();
+
+      // Simulate API refresh for goals list
       setTimeout(() => {
         setGoals(dummyGoals);
         setLoading(false);
@@ -121,26 +146,10 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
     return diffDays;
   };
 
-  const getGoalsStats = () => {
-    const totalGoals = goals.length;
-    const completedGoals = goals.filter(goal => goal.status === 'completed').length;
-    const activeGoals = goals.filter(goal => goal.status === 'active').length;
-    const totalTargetAmount = goals.reduce((sum, goal) => sum + goal.target_amount, 0);
-    const totalSavedAmount = goals.reduce((sum, goal) => sum + goal.current_amount, 0);
-
-    return {
-      totalGoals,
-      completedGoals,
-      activeGoals,
-      totalTargetAmount,
-      totalSavedAmount,
-      completionRate: totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0,
-    };
-  };
-
   useEffect(() => {
     if (isAuthenticated) {
       loadGoals();
+      loadGoalsOverview();
     }
   }, [isAuthenticated]);
 
@@ -148,6 +157,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
     const unsubscribe = navigation.addListener('focus', () => {
       if (isAuthenticated) {
         loadGoals();
+        loadGoalsOverview();
       }
     });
 
@@ -162,8 +172,6 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
       setLoading(false);
     }, 1000);
   };
-
-  const stats = getGoalsStats();
 
   if (!isAuthenticated) {
     return (
@@ -218,15 +226,21 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                 <Text style={styles.overviewTitle}>Goals Overview</Text>
                 <View style={styles.overviewStats}>
                   <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{stats.totalGoals}</Text>
+                    <Text style={styles.statValue}>
+                      {overviewLoading ? '...' : (goalsOverview?.total_goals ?? 0)}
+                    </Text>
                     <Text style={styles.statLabel}>Total Goals</Text>
                   </View>
                   <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{stats.completedGoals}</Text>
+                    <Text style={styles.statValue}>
+                      {overviewLoading ? '...' : (goalsOverview?.completed ?? 0)}
+                    </Text>
                     <Text style={styles.statLabel}>Completed</Text>
                   </View>
                   <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{stats.completionRate}%</Text>
+                    <Text style={styles.statValue}>
+                      {overviewLoading ? '...' : (goalsOverview?.success_rate ?? '0%')}
+                    </Text>
                     <Text style={styles.statLabel}>Success Rate</Text>
                   </View>
                 </View>
@@ -236,8 +250,6 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
 
           {/* Goals List */}
           <View style={styles.goalsList}>
-            <Text style={styles.sectionTitle}>Your Goals</Text>
-
             {loading ? (
               <>
                 {/* Goals List Skeleton */}
@@ -255,8 +267,8 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                           </View>
                         </View>
                         <View>
-                          <View style={{ height: 16, backgroundColor: '#f3f4f6', borderRadius: 4, marginBottom: 4, width: `${60 - (item * 5)}` }} />
-                          <View style={{ height: 12, backgroundColor: '#f3f4f6', borderRadius: 4, width: `${50 - (item * 5)}` }} />
+                          <View style={{ height: 16, backgroundColor: '#f3f4f6', borderRadius: 4, marginBottom: 4, width: `${60 - (item * 5)}%` }} />
+                          <View style={{ height: 12, backgroundColor: '#f3f4f6', borderRadius: 4, width: `${50 - (item * 5)}%` }} />
                         </View>
                       </View>
                       <View style={styles.goalProgressContainer}>
@@ -290,62 +302,68 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                 </Card.Content>
               </Card>
             ) : (
-              goals.map(goal => {
-                const progress = calculateProgress(goal);
-                const statusInfo = getGoalStatus(goal);
-                const daysRemaining = calculateDaysRemaining(goal.target_date);
+              <>
+                <Text style={styles.sectionTitle}>Your Goals</Text>
 
-                return (
-                  <Card key={goal.id} style={styles.goalCard}>
-                    <Card.Content style={styles.goalContent}>
-                      <View style={styles.goalHeader}>
-                        <View style={styles.goalInfo}>
-                          <Text style={styles.goalName} numberOfLines={1} ellipsizeMode="tail">{goal.name}</Text>
-                          <Text style={styles.goalDescription} numberOfLines={2} ellipsizeMode="tail">{goal.description}</Text>
-                          <View style={styles.goalDates}>
-                            <Ionicons name="calendar" size={14} color="#9ca3af" style={{ marginRight: 4 }} />
-                            <Text style={styles.goalDateText}>
-                              {new Date(goal.start_date).toLocaleDateString()} - {new Date(goal.target_date).toLocaleDateString()}
-                            </Text>
+                {
+                  goals.map(goal => {
+                    const progress = calculateProgress(goal);
+                    const statusInfo = getGoalStatus(goal);
+                    const daysRemaining = calculateDaysRemaining(goal.target_date);
+
+                    return (
+                      <Card key={goal.id} style={styles.goalCard}>
+                        <Card.Content style={styles.goalContent}>
+                          <View style={styles.goalHeader}>
+                            <View style={styles.goalInfo}>
+                              <Text style={styles.goalName} numberOfLines={1} ellipsizeMode="tail">{goal.name}</Text>
+                              <Text style={styles.goalDescription} numberOfLines={2} ellipsizeMode="tail">{goal.description}</Text>
+                              <View style={styles.goalDates}>
+                                <Ionicons name="calendar" size={14} color="#9ca3af" style={{ marginRight: 4 }} />
+                                <Text style={styles.goalDateText}>
+                                  {new Date(goal.start_date).toLocaleDateString()} - {new Date(goal.target_date).toLocaleDateString()}
+                                </Text>
+                              </View>
+                            </View>
+                            <View>
+                              <Text style={styles.goalAmount}>
+                                {formatCurrency(goal.current_amount)}
+                              </Text>
+                              <Text style={[styles.goalAmount, { fontSize: 12, color: '#6b7280' }]}>
+                                of {formatCurrency(goal.target_amount)}
+                              </Text>
+                            </View>
                           </View>
-                        </View>
-                        <View>
-                          <Text style={styles.goalAmount}>
-                            {formatCurrency(goal.current_amount)}
-                          </Text>
-                          <Text style={[styles.goalAmount, { fontSize: 12, color: '#6b7280' }]}>
-                            of {formatCurrency(goal.target_amount)}
-                          </Text>
-                        </View>
-                      </View>
 
-                      <View style={styles.goalProgressContainer}>
-                        <View style={styles.progressInfo}>
-                          <Text style={styles.progressText}>Progress</Text>
-                          <Text style={styles.progressPercentage}>{Math.round(progress)}%</Text>
-                        </View>
-                        <View style={styles.progressBarContainer}>
-                          <View style={[styles.progressBar, { width: `${progress}%` }]} />
-                        </View>
-                      </View>
+                          <View style={styles.goalProgressContainer}>
+                            <View style={styles.progressInfo}>
+                              <Text style={styles.progressText}>Progress</Text>
+                              <Text style={styles.progressPercentage}>{Math.round(progress)}%</Text>
+                            </View>
+                            <View style={styles.progressBarContainer}>
+                              <View style={[styles.progressBar, { width: `${progress}%` }]} />
+                            </View>
+                          </View>
 
-                      <View style={styles.goalActions}>
-                        <View style={styles.goalStatus}>
-                          <View style={[styles.statusDot, statusInfo.dotStyle]} />
-                          <Text style={[styles.statusText, { color: statusInfo.color }]}>
-                            {statusInfo.status}
-                          </Text>
-                        </View>
-                        <TouchableOpacity style={styles.actionButton}>
-                          <Text style={styles.actionButtonText}>
-                            {goal.status === 'completed' ? 'View' : 'Add Funds'}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    </Card.Content>
-                  </Card>
-                );
-              })
+                          <View style={styles.goalActions}>
+                            <View style={styles.goalStatus}>
+                              <View style={[styles.statusDot, statusInfo.dotStyle]} />
+                              <Text style={[styles.statusText, { color: statusInfo.color }]}>
+                                {statusInfo.status}
+                              </Text>
+                            </View>
+                            <TouchableOpacity style={styles.actionButton}>
+                              <Text style={styles.actionButtonText}>
+                                {goal.status === 'completed' ? 'View' : 'Add Funds'}
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                        </Card.Content>
+                      </Card>
+                    );
+                  })
+                }
+              </>
             )}
           </View>
         </ScrollView>

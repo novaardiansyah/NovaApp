@@ -138,6 +138,12 @@ export interface Attachment {
   updated_at: string;
 }
 
+export interface PaymentGoalsOverview {
+  total_goals: number;
+  completed: number;
+  success_rate: string;
+}
+
 export interface MultipleAttachmentData {
   attachment_base64_array: string[];
 }
@@ -391,6 +397,21 @@ class PaymentService {
       return data;
     } catch (error) {
       console.error('Error fetching payment summary:', error);
+      throw error;
+    }
+  }
+
+  async getPaymentGoalsOverview(token: string): Promise<ApiResponse<PaymentGoalsOverview>> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payment-goals/overview`, {
+        method: 'GET',
+        headers: this.getHeaders(token),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching payment goals overview:', error);
       throw error;
     }
   }
