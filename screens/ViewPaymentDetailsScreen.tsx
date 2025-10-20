@@ -83,6 +83,7 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
     </View>
   );
 
+  
   const getTypeColor = (type: string) => {
     return type === 'income' ? '#10b981' : '#ef4444';
   };
@@ -138,13 +139,21 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
           }
           showsVerticalScrollIndicator={false}
         >
+          {/* Payment Name Card */}
+          <Card style={styles.nameCard}>
+            <Card.Content>
+              <Text style={styles.nameCardTitle}>Payment Name</Text>
+              <Divider style={styles.cardDivider} />
+              <Text style={styles.nameCardText}>{paymentData.name}</Text>
+            </Card.Content>
+          </Card>
+
           {/* Payment Information */}
           <Card style={styles.infoCard}>
             <Card.Content>
               <Text style={styles.infoCardTitle}>Payment Information</Text>
               <Divider style={styles.cardDivider} />
 
-              {renderInfoRow('Name', paymentData.name, 'document-text-outline', '#6366f1')}
               {renderInfoRow('Transaction Code', paymentData.code, 'pricetag-outline', '#6366f1')}
               {renderInfoRow('Amount', paymentData.formatted_amount, 'cash-outline', getTypeColor(paymentData.type))}
               {renderInfoRow('Date', paymentData.formatted_date, 'calendar-outline', '#6366f1')}
@@ -241,6 +250,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#6b7280',
   },
+  nameCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    marginBottom: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+    nameCardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  nameCardText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+    lineHeight: 20,
+    marginTop: 8,
+  },
   infoCard: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
@@ -292,7 +323,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     flex: 1,
   },
-  actionCard: {
+    actionCard: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
     marginBottom: 16,

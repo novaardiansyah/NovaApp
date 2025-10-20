@@ -515,13 +515,22 @@ const paymentDetailsSkeletonStyles = StyleSheet.create({
 export const PaymentDetailsSkeleton: React.FC<PaymentDetailsSkeletonProps> = ({ style }) => {
   return (
     <View style={style}>
-      {/* Payment Information Card - uses infoCard style */}
+      {/* Payment Name Card */}
+      <Card style={paymentDetailsSkeletonStyles.infoCard}>
+        <Card.Content style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
+          <Skeleton width={120} height={20} style={{ marginBottom: 12 }} />
+          <View style={{ height: 1, backgroundColor: '#f3f4f6', marginVertical: 6 }} />
+          <Skeleton width="80%" height={14} style={{ marginTop: 8 }} />
+        </Card.Content>
+      </Card>
+
+      {/* Payment Information Card */}
       <Card style={paymentDetailsSkeletonStyles.infoCard}>
         <Card.Content style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
           <Skeleton width={140} height={20} style={{ marginBottom: 12 }} />
           <View style={{ height: 1, backgroundColor: '#f3f4f6', marginVertical: 6 }} />
 
-          {Array.from({ length: 6 }).map((_, index) => (
+          {Array.from({ length: 5 }).map((_, index) => (
             <View key={index} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 16 }}>
                 <Skeleton width={20} height={20} style={{ borderRadius: 4, marginRight: 12 }} />
