@@ -6,16 +6,12 @@ export interface PaymentGoalsOverview {
   success_rate: string;
 }
 
-export interface PaymentGoalStatus {
-  id: number;
-  name: string;
-  badge_color: string;
-}
-
 export interface PaymentGoalFormatted {
   amount: string;
   target_amount: string;
   progress: string;
+  start_date: string;
+  target_date: string;
 }
 
 export interface PaymentGoal {
@@ -23,17 +19,10 @@ export interface PaymentGoal {
   code: string;
   name: string;
   description: string;
-  amount: number;
-  target_amount: number;
-  progress_percent: number;
-  progress_color: string;
-  start_date: string;
-  target_date: string;
-  status: PaymentGoalStatus;
+  status: string;
   formatted: PaymentGoalFormatted;
   created_at: string;
   updated_at: string;
-  deleted_at: string | null;
 }
 
 export interface PaymentGoalsMeta {

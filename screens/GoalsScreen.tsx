@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Card, Divider, FAB } from 'react-native-paper';
+import { PaperProvider, Card, FAB } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
-import { Notification } from '@/components';
+import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
 import { styles } from '@/styles/GoalsScreen.styles';
 import PaymentGoalsService, { PaymentGoalsOverview, PaymentGoal } from '@/services/paymentGoalsService';
 
@@ -17,58 +16,42 @@ interface GoalsScreenProps {
 
 const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const { isAuthenticated, user, token } = useAuth();
+  const { isAuthenticated, token } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState<string | null>(null);
   const [goals, setGoals] = useState<PaymentGoal[]>([]);
   const [goalsOverview, setGoalsOverview] = useState<PaymentGoalsOverview | null>(null);
-  const [overviewLoading, setOverviewLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [hasMorePages, setHasMorePages] = useState(false);
 
-  const loadGoalsOverview = async () => {
-    if (!token) return;
-
-    setOverviewLoading(true);
-    try {
-      const response = await PaymentGoalsService.getPaymentGoalsOverview(token);
-
-      if (response.success) {
-        setGoalsOverview(response.data);
-      } else {
-        console.error('Failed to load goals overview:', response.message);
-      }
-    } catch (error) {
-      console.error('Error loading goals overview:', error);
-    } finally {
-      setOverviewLoading(false);
-    }
-  };
-
+  
   const loadGoals = async (page: number = 1, refresh: boolean = false) => {
     if (!token) return;
 
-    if (refresh) {
+    if (page === 1 || refresh) {
       setLoading(true);
     }
 
     try {
-      const response = await PaymentGoalsService.getPaymentGoals(token, page);
+      // Load both overview and goals data
+      const [overviewResponse, goalsResponse] = await Promise.all([
+        PaymentGoalsService.getPaymentGoalsOverview(token),
+        PaymentGoalsService.getPaymentGoals(token, page)
+      ]);
 
-      if (response.success) {
+      // Handle overview response
+      if (overviewResponse.success) {
+        setGoalsOverview(overviewResponse.data);
+      }
+
+      // Handle goals response
+      if (goalsResponse.success) {
         if (page === 1 || refresh) {
-          setGoals(response.data.data);
+          setGoals(goalsResponse.data.data);
         } else {
-          setGoals(prev => [...prev, ...response.data.data]);
+          setGoals(prev => [...prev, ...goalsResponse.data.data]);
         }
-        setHasMorePages(response.data.meta.has_more_pages);
-        setCurrentPage(response.data.meta.current_page);
-      } else {
-        console.error('Failed to load goals:', response.message);
       }
     } catch (error) {
-      console.error('Error loading goals:', error);
+      // Error handling without console logging
     } finally {
       setLoading(false);
     }
@@ -78,52 +61,54 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
     setRefreshing(true);
 
     try {
-      // Load overview data
-      await loadGoalsOverview();
-
-      // Load goals data with refresh
+      // Load both overview and goals data with refresh
       await loadGoals(1, true);
     } catch (error) {
-      console.error('Error refreshing goals:', error);
+      // Error handling without console logging
     } finally {
       setRefreshing(false);
     }
   };
 
-  const getGoalStatusColor = (badgeColor: string): string => {
-    switch (badgeColor) {
-      case 'success':
+  const getGoalStatusColor = (status: string): string => {
+    switch (status.toLowerCase()) {
+      case 'completed':
         return '#10b981';
-      case 'danger':
-        return '#ef4444';
-      case 'warning':
-        return '#f59e0b';
-      case 'info':
+      case 'ongoing':
         return '#3b82f6';
+      case 'pending':
+        return '#f59e0b';
+      case 'cancelled':
+        return '#ef4444';
       default:
         return '#6b7280';
     }
   };
 
-  const getStatusDotStyle = (badgeColor: string): any => {
-    switch (badgeColor) {
-      case 'success':
+  const getStatusDotStyle = (status: string): any => {
+    switch (status.toLowerCase()) {
+      case 'completed':
         return styles.statusCompleted;
-      case 'danger':
+      case 'ongoing':
+        return styles.statusActive;
+      case 'pending':
+        return styles.statusActive;
+      case 'cancelled':
         return styles.statusOverdue;
-      case 'warning':
-        return styles.statusActive;
-      case 'info':
-        return styles.statusActive;
       default:
         return styles.statusActive;
     }
   };
 
+  const getProgressPercent = (progressString: string): number => {
+    // Extract number from percentage string like "10%"
+    const match = progressString.match(/(\d+)%/);
+    return match ? parseInt(match[1], 10) : 0;
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       loadGoals();
-      loadGoalsOverview();
     }
   }, [isAuthenticated]);
 
@@ -131,7 +116,6 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
     const unsubscribe = navigation.addListener('focus', () => {
       if (isAuthenticated) {
         loadGoals();
-        loadGoalsOverview();
       }
     });
 
@@ -192,19 +176,19 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                 <View style={styles.overviewStats}>
                   <View style={styles.statItem}>
                     <Text style={styles.statValue}>
-                      {overviewLoading ? '...' : (goalsOverview?.total_goals ?? 0)}
+                      {goalsOverview?.total_goals ?? 0}
                     </Text>
                     <Text style={styles.statLabel}>Total Goals</Text>
                   </View>
                   <View style={styles.statItem}>
                     <Text style={styles.statValue}>
-                      {overviewLoading ? '...' : (goalsOverview?.completed ?? 0)}
+                      {goalsOverview?.completed ?? 0}
                     </Text>
                     <Text style={styles.statLabel}>Completed</Text>
                   </View>
                   <View style={styles.statItem}>
                     <Text style={styles.statValue}>
-                      {overviewLoading ? '...' : (goalsOverview?.success_rate ?? '0%')}
+                      {goalsOverview?.success_rate ?? '0%'}
                     </Text>
                     <Text style={styles.statLabel}>Success Rate</Text>
                   </View>
@@ -272,6 +256,8 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
 
                 {
                   goals.map(goal => {
+                    const progressPercent = getProgressPercent(goal.formatted.progress);
+
                     return (
                       <Card key={goal.id} style={styles.goalCard}>
                         <Card.Content style={styles.goalContent}>
@@ -282,7 +268,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                               <View style={styles.goalDates}>
                                 <Ionicons name="calendar" size={14} color="#9ca3af" style={{ marginRight: 4 }} />
                                 <Text style={styles.goalDateText}>
-                                  {new Date(goal.start_date).toLocaleDateString()} - {new Date(goal.target_date).toLocaleDateString()}
+                                  {goal.formatted.start_date} - {goal.formatted.target_date}
                                 </Text>
                               </View>
                             </View>
@@ -302,20 +288,20 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                               <Text style={styles.progressPercentage}>{goal.formatted.progress}</Text>
                             </View>
                             <View style={styles.progressBarContainer}>
-                              <View style={[styles.progressBar, { width: `${goal.progress_percent}%` }]} />
+                              <View style={[styles.progressBar, { width: `${progressPercent}%` }]} />
                             </View>
                           </View>
 
                           <View style={styles.goalActions}>
                             <View style={styles.goalStatus}>
-                              <View style={[styles.statusDot, getStatusDotStyle(goal.status.badge_color)]} />
-                              <Text style={[styles.statusText, { color: getGoalStatusColor(goal.status.badge_color) }]}>
-                                {goal.status.name}
+                              <View style={[styles.statusDot, getStatusDotStyle(goal.status)]} />
+                              <Text style={[styles.statusText, { color: getGoalStatusColor(goal.status) }]}>
+                                {goal.status}
                               </Text>
                             </View>
                             <TouchableOpacity style={styles.actionButton}>
                               <Text style={styles.actionButtonText}>
-                                {goal.status.name === 'Completed' ? 'View' : 'Add Funds'}
+                                {goal.status === 'Completed' ? 'View' : 'Add Funds'}
                               </Text>
                             </TouchableOpacity>
                           </View>
@@ -334,15 +320,6 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
           color="#ffffff"
           style={[styles.fab, { bottom: -6 }]}
           onPress={() => navigation.navigate('AddGoal')}
-        />
-
-    
-        <Notification
-          visible={!!notification}
-          message={notification || ''}
-          onDismiss={() => setNotification(null)}
-          type="success"
-          duration={2000}
         />
       </SafeAreaView>
     </PaperProvider>
