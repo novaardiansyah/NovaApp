@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity, Modal, Platform, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Card, FAB } from 'react-native-paper';
+import { PaperProvider, Card, FAB, TextInput, HelperText } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
+import { FormButton, Notification } from '@/components';
 import { styles } from '@/styles/GoalsScreen.styles';
 import PaymentGoalsService, { PaymentGoalsOverview, PaymentGoal } from '@/services/paymentGoalsService';
 
@@ -21,8 +22,100 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [goals, setGoals] = useState<PaymentGoal[]>([]);
   const [goalsOverview, setGoalsOverview] = useState<PaymentGoalsOverview | null>(null);
+  const [addFundModalVisible, setAddFundModalVisible] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState<PaymentGoal | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
 
-  
+  const initialFormData = {
+    amount: ''
+  };
+
+  const initialErrors = {
+    amount: ''
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
+  const [errors, setErrors] = useState(initialErrors);
+
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+
+    if (errors[field as keyof typeof errors]) {
+      setErrors(prev => ({ ...prev, [field as keyof typeof errors]: '' }));
+    }
+  };
+
+  const handleAddFunds = (goal: PaymentGoal) => {
+    setSelectedGoal(goal);
+    setAddFundModalVisible(true);
+    setFormData(initialFormData);
+    setErrors(initialErrors);
+  };
+
+  const handleSubmitAddFunds = async () => {
+    if (!token || submitting || !selectedGoal) return;
+
+    // Validate amount
+    if (!formData.amount.trim()) {
+      setErrors(prev => ({ ...prev, amount: 'Please enter an amount' }));
+      return;
+    }
+
+    const amount = parseFloat(formData.amount.replace(/[^\d.-]/g, ''));
+    if (isNaN(amount) || amount <= 0) {
+      setErrors(prev => ({ ...prev, amount: 'Please enter a valid amount' }));
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      // TODO: Implement API call to add funds to goal
+      // For now, just simulate success
+      setTimeout(() => {
+        setNotification(`Successfully added ${formData.amount} to ${selectedGoal.name}`);
+        setAddFundModalVisible(false);
+        setSubmitting(false);
+        setFormData(initialFormData);
+        setErrors(initialErrors);
+        setSelectedGoal(null);
+
+        // Refresh goals data
+        loadGoals(1, true);
+      }, 1000);
+
+    } catch (error) {
+      setSubmitting(false);
+      // Error handling without console logging
+    }
+  };
+
+  const formatCurrencyInput = (value: string): string => {
+    // Remove all non-digit characters except decimal point
+    const cleanValue = value.replace(/[^\d.]/g, '');
+
+    // Split into integer and decimal parts
+    const parts = cleanValue.split('.');
+    let integerPart = parts[0] || '0';
+    const decimalPart = parts[1] ? `.${parts[1].slice(0, 2)}` : '';
+
+    // Remove leading zeros
+    integerPart = integerPart.replace(/^0+/, '') || '0';
+
+    // Format with thousands separator
+    const formattedInteger = parseInt(integerPart).toLocaleString('id-ID');
+
+    return `Rp ${formattedInteger}${decimalPart}`;
+  };
+
+  const handleAmountChange = (value: string) => {
+    // Remove currency formatting for processing
+    const cleanValue = value.replace(/[^\d.]/g, '');
+    handleInputChange('amount', formatCurrencyInput(cleanValue));
+  };
+
+
   const loadGoals = async (page: number = 1, refresh: boolean = false) => {
     if (!token) return;
 
@@ -299,7 +392,11 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                                 {goal.status}
                               </Text>
                             </View>
-                            <TouchableOpacity style={styles.actionButton}>
+                            <TouchableOpacity
+                              style={styles.actionButton}
+                              onPress={() => handleAddFunds(goal)}
+                              disabled={goal.status === 'Completed'}
+                            >
                               <Text style={styles.actionButtonText}>
                                 {goal.status === 'Completed' ? 'View' : 'Add Funds'}
                               </Text>
@@ -320,6 +417,118 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
           color="#ffffff"
           style={[styles.fab, { bottom: -6 }]}
           onPress={() => navigation.navigate('AddGoal')}
+        />
+
+        <Modal
+          visible={addFundModalVisible}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setAddFundModalVisible(false)}
+        >
+          <SafeAreaView style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <TouchableOpacity
+              style={{ flex: 1 }}
+              activeOpacity={1}
+              onPress={() => setAddFundModalVisible(false)}
+            />
+
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              style={{ flex: 1, justifyContent: 'flex-end' }}
+            >
+              <View style={{
+                backgroundColor: 'white',
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                paddingBottom: Platform.OS === 'ios' ? 14 : 14
+              }}>
+                <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
+                  Add Funds to Goal
+                </Text>
+
+                {selectedGoal && (
+                  <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
+                    <View style={{ backgroundColor: '#f0f9ff', padding: 12, borderRadius: 8, marginBottom: 16 }}>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: '#1e40af', marginBottom: 4 }}>
+                        {selectedGoal.name}
+                      </Text>
+                      <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>
+                        {selectedGoal.description}
+                      </Text>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Text style={{ fontSize: 12, color: '#6b7280' }}>
+                          Current: {selectedGoal.formatted.amount}
+                        </Text>
+                        <Text style={{ fontSize: 12, color: '#6b7280' }}>
+                          Target: {selectedGoal.formatted.target_amount}
+                        </Text>
+                      </View>
+                      <View style={{ marginTop: 8 }}>
+                        <View style={{ backgroundColor: '#e5e7eb', height: 6, borderRadius: 3, overflow: 'hidden' }}>
+                          <View style={{
+                            backgroundColor: '#3b82f6',
+                            height: '100%',
+                            width: `${parseInt(selectedGoal.formatted.progress)}%`,
+                            borderRadius: 3
+                          }} />
+                        </View>
+                        <Text style={{ fontSize: 11, color: '#6b7280', textAlign: 'right', marginTop: 4 }}>
+                          {selectedGoal.formatted.progress}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <TextInput
+                      label="Amount"
+                      placeholder="Enter amount"
+                      value={formData.amount}
+                      onChangeText={handleAmountChange}
+                      mode="outlined"
+                      outlineColor="#e5e7eb"
+                      activeOutlineColor="#6366f1"
+                      style={styles.input}
+                      keyboardType="numeric"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      left={<TextInput.Icon icon="currency-usd" color="#6b7280" />}
+                    />
+                    {errors.amount && <HelperText type="error" style={styles.helperText}>{errors.amount}</HelperText>}
+
+                    <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+                      <FormButton
+                        title="Cancel"
+                        variant="outline"
+                        fullWidth={false}
+                        style={{ flex: 1 }}
+                        onPress={() => setAddFundModalVisible(false)}
+                        loading={submitting}
+                      />
+
+                      <FormButton
+                        title="Add Funds"
+                        fullWidth={false}
+                        style={{ flex: 1 }}
+                        onPress={handleSubmitAddFunds}
+                        icon="plus"
+                        loading={submitting}
+                      />
+                    </View>
+                  </View>
+                )}
+              </View>
+            </KeyboardAvoidingView>
+          </SafeAreaView>
+        </Modal>
+
+        <Notification
+          visible={!!notification}
+          message={notification || ''}
+          onDismiss={() => {
+            setNotification(null)
+            setSubmitting(false)
+          }}
+          type="success"
+          duration={2000}
         />
       </SafeAreaView>
     </PaperProvider>

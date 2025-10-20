@@ -204,4 +204,12 @@ export const styles = StyleSheet.create({
     color: '#9ca3af',
     textAlign: 'center',
   },
+  input: {
+    marginBottom: 8,
+  },
+  helperText: {
+    fontSize: 12,
+    marginTop: -8,
+    marginBottom: 8,
+  },
 })
