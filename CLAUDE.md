@@ -1,123 +1,114 @@
-# NovaApp - React Native Finance Management App
+# CLAUDE.md
 
-## Project Overview
-NovaApp is a modern React Native finance management application built with Expo and TypeScript. It features a complete authentication flow with Laravel Sanctum API integration, Material Design UI, and robust user management.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Tech Stack
-- **React Native** (v0.81.4) - Cross-platform mobile development
-- **Expo** (~54.0.9) - Development platform and SDK
-- **TypeScript** (~5.9.2) - Type-safe JavaScript
-- **React Navigation** (v7.x) - Routing and navigation
-- **React Native Paper** (v5.14.5) - Material Design components
-- **AsyncStorage** (v2.2.0) - Persistent data storage
-- **Vector Icons** (v10.3.0) - Icon library
+## NovaApp - React Native Finance Management Application
 
-## Key Features
-- 🔐 Authentication system with Laravel Sanctum
-- 🏠 Home screen with financial dashboard
-- 👤 User profile management
-- 📱 Bottom tab navigation
-- 🎨 Material Design 3 UI
-- 💾 Persistent session management
-- 🔄 Pull-to-refresh functionality
-- 📊 Sample financial data display
-
-## Project Structure
-```
-NovaApp/
-├── components/         # Reusable UI components
-├── contexts/           # React contexts (Auth, etc.)
-├── hooks/              # Custom hooks for API logic
-├── navigation/         # Navigation setup
-├── screens/            # App screens
-├── types/              # TypeScript type definitions
-├── constants/          # App constants and colors
-└── config/             # Environment configuration
-```
-
-## Navigation Architecture
-- **RootNavigator**: Conditional routing based on authentication state
-- **AuthNavigator**: Login, Signup, Forgot Password flows
-- **AppNavigator**: Home and Profile tabs with bottom navigation
-
-## Authentication Flow
-- Uses Laravel Sanctum for API authentication
-- Token-based authentication with AsyncStorage
-- Persistent session management
-- Auto-login functionality
-- User data fetching with authentication headers
-
-## Key Files to Understand
-- `App.tsx` - Main app component with AuthProvider
-- `contexts/AuthContext.tsx` - Global authentication state management
-- `navigation/RootNavigator.tsx` - Conditional navigation logic
-- `screens/HomeScreen.tsx` - Main dashboard with financial overview
-- `screens/LoginScreen.tsx` - Authentication interface
+NovaApp is a production-ready React Native finance management application built with Expo and TypeScript, featuring comprehensive authentication flows with Laravel Sanctum API integration and Material Design UI.
 
 ## Development Commands
+
 ```bash
-npm start          # Start Expo development server
-npm run android    # Start on Android
-npm run ios        # Start on iOS
-npm run web        # Start on web
+npm start              # Start Expo development server with tunnel
+npm run start:clean    # Start with cache clearing
+npm run android        # Start on Android
+npm run ios            # Start on iOS
+npm run web            # Start on web
+npm run build:preview  # EAS build for preview deployment
 ```
 
-## API Integration
-- Backend API integration with Laravel Sanctum
-- Environment configuration in `config/environment.ts`
-- Authentication headers management
-- Error handling for API requests
+**Important**: Never run the project (npm start, npm run android, etc.). The user will run the project manually. Focus only on code changes and static analysis.
 
-### ⚠️ Important API Base URL Note
+## Architecture Overview
+
+### Three-Layer Navigation System
+1. **RootNavigator** - Entry point that checks authentication state via `useAuth()` hook and routes to AuthNavigator or AppNavigator
+2. **AuthNavigator** - Stack navigator for authentication screens (Login, Signup, Forgot Password, OTP, Reset Password)
+3. **AppNavigator** - Bottom tab navigation with 4 main sections (Home, Budget, Reports, Profile), each with nested stack navigators
+
+### Authentication Flow
+- **AuthContext** (`contexts/AuthContext.tsx`) provides global authentication state management
+- Token-based authentication with Laravel Sanctum API
+- Persistent storage using AsyncStorage
+- Auto-login functionality with silent token validation
+- User profile management with financial data fetching
+
+### State Management
+- Single `AuthContext` for all authentication state (user, token, loading, isAuthenticated)
+- Provider pattern at App.tsx level
+- Custom `useAuth()` hook for clean usage
+- Persistent storage integration with AsyncStorage
+
+## Key Development Patterns
+
+### Code Organization
+- **Tab Size**: Always use 2 spaces for indentation (strictly enforced)
+- **Component Structure**: Functional components with TypeScript interfaces
+- **Path Aliases**: Use `@/*` imports (configured in tsconfig.json)
+- **File Naming**: PascalCase for components, camelCase for utilities
+
+### API Integration
+- Centralized config in `config/app.ts`
+- Environment-based configuration with `APP_CONFIG`
+- Consistent header structure and error handling
+- Bearer token authentication with automatic token inclusion
+
+### Critical API Base URL Rule
 **The `APP_CONFIG.API_BASE_URL` already includes `/api` prefix. Never add `/api` manually to API endpoints.**
 
-**Correct examples:**
+**Correct:**
 - `${APP_CONFIG.API_BASE_URL}/auth/login` ✓
 - `${APP_CONFIG.API_BASE_URL}/payments` ✓
-- `${APP_CONFIG.API_BASE_URL}/auth/validate-token` ✓
 
-**Incorrect examples:**
-- `${APP_CONFIG.API_BASE_URL}/api/auth/login` ❌ (creates `/api/api/auth/login`)
-- `${APP_CONFIG.API_BASE_URL}/api/payments` ❌ (creates `/api/api/payments`)
+**Incorrect:**
+- `${APP_CONFIG.API_BASE_URL}/api/auth/login` ❌
+- `${APP_CONFIG.API_BASE_URL}/api/payments` ❌
 
-Always check the base URL configuration before adding API endpoints to avoid duplicate `/api` paths!
+### UI/UX Patterns
+- Material Design 3 components via React Native Paper
+- Theme-based color system from `constants/colors.ts`
+- Safe area insets support throughout
+- Loading states with skeleton loaders
+- Form validation with real-time feedback
+- Pull-to-refresh functionality for data screens
 
-## UI/UX Features
-- Material Design 3 components
-- Responsive layouts
-- Loading states and error handling
-- Currency formatting (IDR)
-- Card-based interface design
-- Pull-to-refresh functionality
-- Skeleton loaders for loading states
+## Key Files to Understand
 
-## State Management
-- React Context API for global state
-- AsyncStorage for persistent data
-- Local state management with useState hooks
-- Authentication state management
+- `App.tsx` - Root component with AuthProvider and navigation setup
+- `contexts/AuthContext.tsx` - Global authentication state management
+- `navigation/RootNavigator.tsx` - Conditional routing based on auth state
+- `config/app.ts` - Environment configuration and API setup
+- `screens/HomeScreen.tsx` - Main financial dashboard
+- `screens/LoginScreen.tsx` - Authentication interface
 
-## Code Style & Formatting
-- **Tab Size**: Always use 2 spaces for indentation
-- **Code Formatting**: Keep code clean, consistent, and properly indented
-- **TypeScript**: Standard TypeScript formatting and conventions
-- **React Native**: Follow React Native best practices
-- **Consistency**: Maintain consistent formatting across all files
+## Project Structure Highlights
 
-## Testing & Quality
-- TypeScript for type safety
-- Component-based architecture
-- Clean separation of concerns
-- Reusable UI components
+```
+NovaApp/
+├── components/       # Reusable UI components (FormInput, AppHeader, etc.)
+├── contexts/         # React contexts (AuthContext.tsx)
+├── navigation/       # Navigation setup with multiple navigators
+├── screens/          # All application screens (22+ screens)
+├── styles/           # Modular styling system with common styles
+├── constants/        # App constants and color themes
+├── config/           # Environment configuration
+└── assets/           # Static assets (icons, images, etc.)
+```
 
-## Commit Messages
-- When requested to provide commit messages, I will always provide them in the standard format
-- User will handle the actual commit process manually
-- Format: "feat: description" or "fix: description" or other conventional commit types
+## Tech Stack
+
+- **React Native 0.81.4** - Cross-platform mobile development
+- **Expo ~54.0.10** - Development platform and SDK
+- **TypeScript ~5.9.2** - Type-safe JavaScript with strict mode
+- **React Navigation v7.x** - Navigation system
+- **React Native Paper 5.14.5** - Material Design components
+- **AsyncStorage 2.2.0** - Persistent data storage
 
 ## Development Protocol
-- **Never run the project** (npm start, npm run android, etc.)
-- User will run the project manually
-- Focus only on code changes and static analysis
-- No tool use for running development server
-- claude.md
+
+- Maintain 2-space indentation consistently
+- Use TypeScript for type safety
+- Follow React Native best practices
+- Keep code clean, consistent, and properly indented
+- Focus on code changes and static analysis only
+- Use conventional commit format when requested: "feat: description", "fix: description", etc.
