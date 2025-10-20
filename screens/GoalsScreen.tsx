@@ -9,21 +9,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
 import { Notification } from '@/components';
 import { styles } from '@/styles/GoalsScreen.styles';
-import PaymentService, { PaymentGoalsOverview } from '@/services/paymentService';
+import PaymentGoalsService, { PaymentGoalsOverview, PaymentGoal } from '@/services/paymentGoalsService';
 
 interface GoalsScreenProps {
   navigation: any;
-}
-
-interface Goal {
-  id: number;
-  name: string;
-  description: string;
-  target_amount: number;
-  current_amount: number;
-  start_date: string;
-  target_date: string;
-  status: 'active' | 'completed' | 'overdue';
 }
 
 const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
@@ -32,61 +21,19 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
-  const [goals, setGoals] = useState<Goal[]>([]);
+  const [goals, setGoals] = useState<PaymentGoal[]>([]);
   const [goalsOverview, setGoalsOverview] = useState<PaymentGoalsOverview | null>(null);
   const [overviewLoading, setOverviewLoading] = useState(false);
-
-  // Dummy data for goals
-  const dummyGoals: Goal[] = [
-    {
-      id: 1,
-      name: 'Emergency Fund',
-      description: 'Build emergency fund for unexpected expenses',
-      target_amount: 50000000,
-      current_amount: 35000000,
-      start_date: '2024-01-01',
-      target_date: '2024-12-31',
-      status: 'active',
-    },
-    {
-      id: 2,
-      name: 'New Laptop',
-      description: 'Save for new work laptop',
-      target_amount: 15000000,
-      current_amount: 15000000,
-      start_date: '2024-01-01',
-      target_date: '2024-06-30',
-      status: 'completed',
-    },
-    {
-      id: 3,
-      name: 'Vacation Fund',
-      description: 'Family vacation to Bali',
-      target_amount: 10000000,
-      current_amount: 2500000,
-      start_date: '2024-03-01',
-      target_date: '2024-08-31',
-      status: 'active',
-    },
-    {
-      id: 4,
-      name: 'Down Payment',
-      description: 'House down payment',
-      target_amount: 100000000,
-      current_amount: 15000000,
-      start_date: '2024-01-01',
-      target_date: '2024-12-31',
-      status: 'active',
-    },
-  ];
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMorePages, setHasMorePages] = useState(false);
 
   const loadGoalsOverview = async () => {
     if (!token) return;
 
     setOverviewLoading(true);
     try {
-      const response = await PaymentService.getPaymentGoalsOverview(token);
-      
+      const response = await PaymentGoalsService.getPaymentGoalsOverview(token);
+
       if (response.success) {
         setGoalsOverview(response.data);
       } else {
@@ -99,51 +46,78 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
     }
   };
 
+  const loadGoals = async (page: number = 1, refresh: boolean = false) => {
+    if (!token) return;
+
+    if (refresh) {
+      setLoading(true);
+    }
+
+    try {
+      const response = await PaymentGoalsService.getPaymentGoals(token, page);
+
+      if (response.success) {
+        if (page === 1 || refresh) {
+          setGoals(response.data.data);
+        } else {
+          setGoals(prev => [...prev, ...response.data.data]);
+        }
+        setHasMorePages(response.data.meta.has_more_pages);
+        setCurrentPage(response.data.meta.current_page);
+      } else {
+        console.error('Failed to load goals:', response.message);
+      }
+    } catch (error) {
+      console.error('Error loading goals:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleRefresh = async () => {
     setRefreshing(true);
-    setLoading(true);
 
     try {
       // Load overview data
       await loadGoalsOverview();
 
-      // Simulate API refresh for goals list
-      setTimeout(() => {
-        setGoals(dummyGoals);
-        setLoading(false);
-        setRefreshing(false);
-      }, 1000);
+      // Load goals data with refresh
+      await loadGoals(1, true);
     } catch (error) {
       console.error('Error refreshing goals:', error);
-      setLoading(false);
+    } finally {
       setRefreshing(false);
     }
   };
 
-  const calculateProgress = (goal: Goal): number => {
-    return Math.min((goal.current_amount / goal.target_amount) * 100, 100);
-  };
-
-  const getGoalStatus = (goal: Goal): { status: string; color: string; dotStyle: any } => {
-    const today = new Date();
-    const targetDate = new Date(goal.target_date);
-    const progress = calculateProgress(goal);
-
-    if (progress >= 100) {
-      return { status: 'Completed', color: '#6366f1', dotStyle: styles.statusCompleted };
-    } else if (today > targetDate) {
-      return { status: 'Overdue', color: '#ef4444', dotStyle: styles.statusOverdue };
-    } else {
-      return { status: 'Active', color: '#10b981', dotStyle: styles.statusActive };
+  const getGoalStatusColor = (badgeColor: string): string => {
+    switch (badgeColor) {
+      case 'success':
+        return '#10b981';
+      case 'danger':
+        return '#ef4444';
+      case 'warning':
+        return '#f59e0b';
+      case 'info':
+        return '#3b82f6';
+      default:
+        return '#6b7280';
     }
   };
 
-  const calculateDaysRemaining = (targetDate: string): number => {
-    const today = new Date();
-    const target = new Date(targetDate);
-    const diffTime = target.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+  const getStatusDotStyle = (badgeColor: string): any => {
+    switch (badgeColor) {
+      case 'success':
+        return styles.statusCompleted;
+      case 'danger':
+        return styles.statusOverdue;
+      case 'warning':
+        return styles.statusActive;
+      case 'info':
+        return styles.statusActive;
+      default:
+        return styles.statusActive;
+    }
   };
 
   useEffect(() => {
@@ -163,15 +137,6 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
 
     return unsubscribe;
   }, [navigation, isAuthenticated]);
-
-  const loadGoals = () => {
-    setLoading(true);
-    // Simulate initial data load
-    setTimeout(() => {
-      setGoals(dummyGoals);
-      setLoading(false);
-    }, 1000);
-  };
 
   if (!isAuthenticated) {
     return (
@@ -307,10 +272,6 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
 
                 {
                   goals.map(goal => {
-                    const progress = calculateProgress(goal);
-                    const statusInfo = getGoalStatus(goal);
-                    const daysRemaining = calculateDaysRemaining(goal.target_date);
-
                     return (
                       <Card key={goal.id} style={styles.goalCard}>
                         <Card.Content style={styles.goalContent}>
@@ -327,10 +288,10 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                             </View>
                             <View>
                               <Text style={styles.goalAmount}>
-                                {formatCurrency(goal.current_amount)}
+                                {goal.formatted.amount}
                               </Text>
                               <Text style={[styles.goalAmount, { fontSize: 12, color: '#6b7280' }]}>
-                                of {formatCurrency(goal.target_amount)}
+                                of {goal.formatted.target_amount}
                               </Text>
                             </View>
                           </View>
@@ -338,23 +299,23 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                           <View style={styles.goalProgressContainer}>
                             <View style={styles.progressInfo}>
                               <Text style={styles.progressText}>Progress</Text>
-                              <Text style={styles.progressPercentage}>{Math.round(progress)}%</Text>
+                              <Text style={styles.progressPercentage}>{goal.formatted.progress}</Text>
                             </View>
                             <View style={styles.progressBarContainer}>
-                              <View style={[styles.progressBar, { width: `${progress}%` }]} />
+                              <View style={[styles.progressBar, { width: `${goal.progress_percent}%` }]} />
                             </View>
                           </View>
 
                           <View style={styles.goalActions}>
                             <View style={styles.goalStatus}>
-                              <View style={[styles.statusDot, statusInfo.dotStyle]} />
-                              <Text style={[styles.statusText, { color: statusInfo.color }]}>
-                                {statusInfo.status}
+                              <View style={[styles.statusDot, getStatusDotStyle(goal.status.badge_color)]} />
+                              <Text style={[styles.statusText, { color: getGoalStatusColor(goal.status.badge_color) }]}>
+                                {goal.status.name}
                               </Text>
                             </View>
                             <TouchableOpacity style={styles.actionButton}>
                               <Text style={styles.actionButtonText}>
-                                {goal.status === 'completed' ? 'View' : 'Add Funds'}
+                                {goal.status.name === 'Completed' ? 'View' : 'Add Funds'}
                               </Text>
                             </TouchableOpacity>
                           </View>
