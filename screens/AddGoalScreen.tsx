@@ -5,10 +5,12 @@ import { DatePickerModal, registerTranslation } from 'react-native-paper-dates';
 import { enGB } from 'react-native-paper-dates';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
+import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatCurrency, statusBarConfig } from '@/styles';
 import { FormButton, Notification } from '@/components';
 import { styles } from '@/styles/AddGoalScreen.styles';
+import PaymentGoalsService, { CreatePaymentGoalData } from '@/services/paymentGoalsService';
 
 registerTranslation('en', enGB);
 
@@ -20,39 +22,56 @@ interface AddGoalScreenProps {
 interface FormData {
   name: string;
   description: string;
+  amount: string;
   target_amount: string;
-  current_amount: string;
   start_date: string;
   target_date: string;
 }
 
 interface FormErrors {
   name: string;
+  description: string;
+  amount: string;
   target_amount: string;
   start_date: string;
   target_date: string;
 }
 
+
 const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
+  const { token } = useAuth();
   const insets = useSafeAreaInsets();
   const [submitting, setSubmitting] = useState(false);
   const [startDatePickerVisible, setStartDatePickerVisible] = useState(false);
   const [targetDatePickerVisible, setTargetDatePickerVisible] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
-  const [refreshOnSuccess, setRefreshOnSuccess] = useState(false);
 
   const getInitialFormData = (): FormData => {
     const today = new Date();
-    const futureDate = new Date(today);
-    futureDate.setMonth(futureDate.getMonth() + 6);
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+
+    // First day of current month
+    const firstDay = new Date(currentYear, currentMonth, 1);
+
+    // Last day of current month (day 0 of next month = last day of current month)
+    const lastDay = new Date(currentYear, currentMonth + 1, 0);
+
+    // Format dates as YYYY-MM-DD
+    const formatDate = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
 
     return {
       name: '',
       description: '',
+      amount: '',
       target_amount: '',
-      current_amount: '0',
-      start_date: today.toISOString().split('T')[0],
-      target_date: futureDate.toISOString().split('T')[0],
+      start_date: formatDate(firstDay),
+      target_date: formatDate(lastDay),
     };
   };
 
@@ -60,6 +79,8 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
 
   const initialErrors: FormErrors = {
     name: '',
+    description: '',
+    amount: '',
     target_amount: '',
     start_date: '',
     target_date: '',
@@ -68,56 +89,76 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<FormErrors>(initialErrors);
 
-  useEffect(() => {
-    if (route?.params?.refresh) {
-      setRefreshOnSuccess(true);
-    }
-  }, [route?.params?.refresh]);
-
+  
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
 
+    // Clear error for this field when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = { ...initialErrors };
-    let isValid = true;
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'Goal name is required';
-      isValid = false;
+  const handleSubmit = async () => {
+    if (!token) {
+      Alert.alert('Error', 'Authentication token not found. Please login again.');
+      return;
     }
 
-    if (!formData.target_amount || parseFloat(formData.target_amount) <= 0) {
-      newErrors.target_amount = 'Please enter a valid target amount';
-      isValid = false;
+    if (submitting) {
+      return;
     }
 
-    if (!formData.start_date) {
-      newErrors.start_date = 'Start date is required';
-      isValid = false;
-    }
+    setSubmitting(true);
+    try {
+      const goalData: CreatePaymentGoalData = {
+        name: formData.name,
+        description: formData.description,
+        amount: parseFloat(formData.amount) || 0,
+        target_amount: parseFloat(formData.target_amount),
+        start_date: formData.start_date,
+        target_date: formData.target_date,
+      };
 
-    if (!formData.target_date) {
-      newErrors.target_date = 'Target date is required';
-      isValid = false;
-    }
+      const response = await PaymentGoalsService.createPaymentGoal(token, goalData);
 
-    if (formData.start_date && formData.target_date) {
-      const startDate = new Date(formData.start_date);
-      const targetDate = new Date(formData.target_date);
+      if (response.success) {
+        setNotification(response?.message || 'Success');
+      } else {
+        setSubmitting(false);
 
-      if (startDate >= targetDate) {
-        newErrors.target_date = 'Target date must be after start date';
-        isValid = false;
+        if (response.errors) {
+          const newErrors = { ...initialErrors };
+
+          Object.entries(response.errors).forEach(([field, messages]) => {
+            if (Array.isArray(messages) && messages.length > 0 && field in newErrors) {
+              newErrors[field as keyof typeof initialErrors] = messages[0] as string;
+            }
+          });
+
+          setErrors(newErrors);
+        } else {
+          Alert.alert('Error', response.message || 'Failed to create goal. Please try again.');
+        }
+      }
+
+    } catch (error: any) {
+      setSubmitting(false);
+
+      if (error.response?.data?.errors) {
+        const newErrors = { ...initialErrors };
+
+        Object.entries(error.response.data.errors).forEach(([field, messages]) => {
+          if (Array.isArray(messages) && messages.length > 0 && field in newErrors) {
+            newErrors[field as keyof typeof initialErrors] = messages[0] as string;
+          }
+        });
+
+        setErrors(newErrors);
+      } else {
+        Alert.alert('Error', 'Failed to create goal. Please try again.');
       }
     }
-
-    setErrors(newErrors);
-    return isValid;
   };
 
   const handleStartDateConfirm = (params: any) => {
@@ -128,9 +169,6 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
 
     setFormData(prev => ({ ...prev, start_date: formattedDate }));
     setStartDatePickerVisible(false);
-    if (errors.start_date) {
-      setErrors(prev => ({ ...prev, start_date: '' }));
-    }
   };
 
   const handleTargetDateConfirm = (params: any) => {
@@ -141,9 +179,6 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
 
     setFormData(prev => ({ ...prev, target_date: formattedDate }));
     setTargetDatePickerVisible(false);
-    if (errors.target_date) {
-      setErrors(prev => ({ ...prev, target_date: '' }));
-    }
   };
 
   const handleDateDismiss = () => {
@@ -151,41 +186,7 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
     setTargetDatePickerVisible(false);
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
-
-    setSubmitting(true);
-
-    try {
-      // Simulate API call - in real implementation this would save to backend
-      const newGoal = {
-        id: Date.now(), // temporary ID
-        name: formData.name,
-        description: formData.description,
-        target_amount: parseFloat(formData.target_amount),
-        current_amount: parseFloat(formData.current_amount) || 0,
-        start_date: formData.start_date,
-        target_date: formData.target_date,
-        status: 'active',
-      };
-
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      setNotification('Goal created successfully!');
-
-      // Navigate back to Goals screen with refresh flag
-      setTimeout(() => {
-        navigation.navigate('Goals', { refresh: Date.now() });
-      }, 1500);
-
-    } catch (error) {
-      Alert.alert('Error', 'Failed to create goal. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
+  
   const handleRefresh = () => {
     // Reset form
     setFormData(getInitialFormData());
@@ -236,7 +237,7 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
             {errors.name && <HelperText type="error" style={styles.helperText}>{errors.name}</HelperText>}
 
             <TextInput
-              label="Description (Optional)"
+              label="Description"
               placeholder="Enter goal description"
               value={formData.description}
               onChangeText={(value) => handleInputChange('description', value)}
@@ -248,6 +249,21 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
               numberOfLines={3}
               left={<TextInput.Icon icon="file-document-outline" color="#6b7280" />}
             />
+            {errors.description && <HelperText type="error" style={styles.helperText}>{errors.description}</HelperText>}
+
+            <TextInput
+              label="Current Amount"
+              placeholder="Enter current amount"
+              value={formData.amount}
+              onChangeText={(value) => handleInputChange('amount', value)}
+              mode="outlined"
+              outlineColor="#e5e7eb"
+              activeOutlineColor="#6366f1"
+              style={styles.input}
+              keyboardType="numeric"
+              left={<TextInput.Icon icon="wallet" color="#6b7280" />}
+            />
+            {errors.amount && <HelperText type="error" style={styles.helperText}>{errors.amount}</HelperText>}
 
             <TextInput
               label="Target Amount *"
@@ -262,19 +278,6 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
               left={<TextInput.Icon icon="cash" color="#6b7280" />}
             />
             {errors.target_amount && <HelperText type="error" style={styles.helperText}>{errors.target_amount}</HelperText>}
-
-            <TextInput
-              label="Current Amount (Optional)"
-              placeholder="Enter current amount saved"
-              value={formData.current_amount}
-              onChangeText={(value) => handleInputChange('current_amount', value)}
-              mode="outlined"
-              outlineColor="#e5e7eb"
-              activeOutlineColor="#6366f1"
-              style={styles.input}
-              keyboardType="numeric"
-              left={<TextInput.Icon icon="wallet" color="#6b7280" />}
-            />
 
             <TouchableOpacity onPress={() => setStartDatePickerVisible(true)} activeOpacity={0.7}>
               <TextInput
@@ -360,9 +363,7 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
         message={notification || ''}
         onDismiss={() => {
           setNotification(null);
-          if (refreshOnSuccess) {
-            navigation.navigate('Goals', { refresh: Date.now() });
-          }
+          navigation.navigate('Goals', { refresh: Date.now() });
         }}
         type="success"
         duration={1500}

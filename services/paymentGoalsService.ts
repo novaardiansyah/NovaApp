@@ -14,6 +14,15 @@ export interface PaymentGoalFormatted {
   target_date: string;
 }
 
+export interface CreatePaymentGoalData {
+  name: string;
+  description: string;
+  amount: number;
+  target_amount: number;
+  start_date: string;
+  target_date: string;
+}
+
 export interface PaymentGoal {
   id: number;
   code: string;
@@ -81,6 +90,22 @@ class PaymentGoalsService {
       return data;
     } catch (error) {
       console.error('Error fetching payment goals:', error);
+      throw error;
+    }
+  }
+
+  async createPaymentGoal(token: string, goalData: CreatePaymentGoalData): Promise<ApiResponse<PaymentGoal>> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payment-goals`, {
+        method: 'POST',
+        headers: this.getHeaders(token),
+        body: JSON.stringify(goalData),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error creating payment goal:', error);
       throw error;
     }
   }

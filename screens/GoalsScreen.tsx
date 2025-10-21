@@ -75,7 +75,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
       const response = await PaymentGoalsService.addFundsToGoal(token, selectedGoal.id, amount);
 
       if (response.success) {
-        setNotification(response.message);
+        setNotification(response?.message || '');
         setAddFundModalVisible(false);
         setFormData(initialFormData);
         setErrors(initialErrors);
@@ -84,7 +84,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
         // Refresh goals data
         loadGoals(1, true);
       } else {
-        setErrors(prev => ({ ...prev, amount: response.message }));
+        setErrors(prev => ({ ...prev, amount: response?.message || '' }));
       }
 
     } catch (error) {
@@ -471,7 +471,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                           <View style={{
                             backgroundColor: '#3b82f6',
                             height: '100%',
-                            width: selectedGoal.formatted.progress,
+                            width: selectedGoal?.formatted?.progress || 0,
                             borderRadius: 3
                           }} />
                         </View>
