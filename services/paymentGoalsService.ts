@@ -84,6 +84,28 @@ class PaymentGoalsService {
       throw error;
     }
   }
+
+  async addFundsToGoal(token: string, goalId: number, amount: number): Promise<ApiResponse<{
+    amount: string;
+    target_amount: string;
+    progress: string;
+  }>> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payment-goals/${goalId}/progress`, {
+        method: 'PUT',
+        headers: this.getHeaders(token),
+        body: JSON.stringify({
+          amount: amount
+        }),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error adding funds to payment goal:', error);
+      throw error;
+    }
+  }
 }
 
 export default new PaymentGoalsService();

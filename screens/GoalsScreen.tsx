@@ -62,7 +62,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
       return;
     }
 
-    const amount = parseFloat(formData.amount.replace(/[^\d.-]/g, ''));
+    const amount = parseFloat(formData.amount);
     if (isNaN(amount) || amount <= 0) {
       setErrors(prev => ({ ...prev, amount: 'Please enter a valid amount' }));
       return;
@@ -71,23 +71,26 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
     try {
       setSubmitting(true);
 
-      // TODO: Implement API call to add funds to goal
-      // For now, just simulate success
-      setTimeout(() => {
-        setNotification(`Successfully added ${formData.amount} to ${selectedGoal.name}`);
+      // Call API to add funds to goal
+      const response = await PaymentGoalsService.addFundsToGoal(token, selectedGoal.id, amount);
+
+      if (response.success) {
+        setNotification(response.message);
         setAddFundModalVisible(false);
-        setSubmitting(false);
         setFormData(initialFormData);
         setErrors(initialErrors);
         setSelectedGoal(null);
 
         // Refresh goals data
         loadGoals(1, true);
-      }, 1000);
+      } else {
+        setErrors(prev => ({ ...prev, amount: response.message }));
+      }
 
     } catch (error) {
+      setErrors(prev => ({ ...prev, amount: 'Failed to add funds. Please try again.' }));
+    } finally {
       setSubmitting(false);
-      // Error handling without console logging
     }
   };
 
@@ -110,9 +113,9 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
   };
 
   const handleAmountChange = (value: string) => {
-    // Remove currency formatting for processing
+    // Allow only numbers and decimal point
     const cleanValue = value.replace(/[^\d.]/g, '');
-    handleInputChange('amount', formatCurrencyInput(cleanValue));
+    handleInputChange('amount', cleanValue);
   };
 
 
@@ -468,7 +471,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                           <View style={{
                             backgroundColor: '#3b82f6',
                             height: '100%',
-                            width: `${parseInt(selectedGoal.formatted.progress)}%`,
+                            width: selectedGoal.formatted.progress,
                             borderRadius: 3
                           }} />
                         </View>
