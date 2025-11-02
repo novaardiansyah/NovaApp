@@ -12,8 +12,8 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 24,
-    paddingBottom: 20,
+    padding: 16,
+    paddingBottom: 32,
   },
   description: {
     fontSize: 16,
@@ -41,7 +41,6 @@ export const styles = StyleSheet.create({
   },
   cancelButton: {
     marginTop: -10,
-    borderColor: '#e5e7eb',
   },
   addButton: {
     marginTop: 20

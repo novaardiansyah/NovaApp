@@ -35,6 +35,6 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
   cancelButton: {
-    marginBottom: 24,
+    marginBottom: 18,
   },
 })
