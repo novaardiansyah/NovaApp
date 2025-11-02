@@ -40,3 +40,17 @@ export const getTransactionType = (transaction: any): string => {
 
   return transaction.type;
 };
+
+export const formatAmount = (amount: string): string => {
+  // Remove any non-digit characters
+  const cleanAmount = amount.replace(/[^\d]/g, '');
+
+  // If empty, return empty string
+  if (!cleanAmount) {
+    return '';
+  }
+
+  // Format with thousand separators
+  const formatted = Number(cleanAmount).toLocaleString('id-ID');
+  return formatted;
+};

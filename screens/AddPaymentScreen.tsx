@@ -11,6 +11,7 @@ import { Theme } from '@/constants/colors';
 import { FormButton, Select, Notification } from '@/components';
 import { styles } from '@/styles/AddPaymentScreen.styles';
 import paymentService, { PaymentData } from '@/services/paymentService';
+import { formatAmount } from '@/utils/transactionUtils';
 
 interface AddPaymentScreenProps {
   navigation: any;
@@ -306,14 +307,14 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
             </Text>
 
             <TextInput
-              label={'Amount (IDR)' + (formData.has_items ? '' : ' *')}
+              label={'Amount (Rp' + (formData.amount ? ` ${formatAmount(formData.amount)}` : '') + ')' + (formData.has_items ? '' : ' *')}
               value={formData.amount}
               onChangeText={(value) => handleInputChange('amount', value)}
               mode="outlined"
               outlineColor="#e5e7eb"
               activeOutlineColor="#6366f1"
               style={styles.input}
-              placeholder={'Amount (IDR)' + (formData.has_items ? '' : ' *')}
+              placeholder={'Amount (Rp)' + (formData.has_items ? '' : ' *')}
               keyboardType="numeric"
               editable={!formData.has_items}
             />

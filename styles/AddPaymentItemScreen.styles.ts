@@ -12,9 +12,18 @@ export const styles = StyleSheet.create({
 
   scrollView: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingBottom: 32,
-    marginTop: 8,
+  },
+
+  scrollContent: {
+    padding: 16,
+    // paddingBottom: 70,
+  },
+
+  description: {
+    fontSize: 16,
+    color: '#6b7280',
+    marginBottom: 12,
+    lineHeight: 24,
   },
 
   header: {
@@ -123,7 +132,6 @@ export const styles = StyleSheet.create({
 
   cancelButton: {
     marginTop: -10,
-    borderColor: '#e5e7eb',
   },
 
   // Search Button

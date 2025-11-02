@@ -9,6 +9,7 @@ import { commonStyles } from '@/styles';
 import { styles } from '@/styles/AddPaymentItemScreen.styles';
 import { useAuth } from '@/contexts/AuthContext';
 import paymentService, { SearchItem, AttachMultipleItemsData } from '@/services/paymentService';
+import { formatAmount } from '@/utils/transactionUtils';
 
 interface PaymentItem {
   name: string;
@@ -258,6 +259,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
           >
             <ScrollView
               style={styles.scrollView}
+              contentContainerStyle={styles.scrollContent}
               refreshControl={
                 <RefreshControl
                   refreshing={refreshing}
@@ -267,6 +269,10 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                 />
               }
             >
+              <Text style={styles.description}>
+                You can add multiple items with quantities and amounts.
+              </Text>
+
               {/* Items List */}
               <View style={styles.itemsSection}>
                 {items.map((item, index) => (
@@ -303,7 +309,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                       />
 
                       <TextInput
-                        label="Amount"
+                        label={'Amount (Rp' + (item.amount ? ` ${formatAmount(item.amount)}` : '') + ')'}
                         value={item.amount}
                         onChangeText={(value) => updateItem(index, 'amount', value)}
                         mode="outlined"
