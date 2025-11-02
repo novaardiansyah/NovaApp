@@ -151,6 +151,7 @@ export interface AttachmentsResponse {
     attachments: Attachment[];
     attachments_count: number;
   };
+  errors?: Record<string, string[]> | string[];
 }
 
 export interface UploadResponse {

@@ -9,9 +9,7 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  ActivityIndicator,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Appbar, Card, FAB } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
@@ -59,9 +57,8 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
 
       // Pick image
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
-        aspect: [4, 3],
         quality: 0.8,
       });
 
@@ -220,7 +217,7 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
                 resizeMode="cover"
               />
             ) : (
-              <View style={[styles.attachmentIcon, { backgroundColor: '#8b5cf6' }]}>
+              <View style={styles.attachmentIcon}>
                 <Ionicons name="image" size={24} color="white" />
               </View>
             )}
@@ -339,8 +336,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 24,
-    paddingBottom: 100,
+    padding: 16,
+    paddingBottom: 70,
   },
   section: {
     marginBottom: 24,
@@ -372,6 +369,9 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 8,
     marginRight: 12,
+  },
+  attachmentIcon: {
+    backgroundColor: '#8b5cf6'
   },
   attachmentInfo: {
     flex: 1,
