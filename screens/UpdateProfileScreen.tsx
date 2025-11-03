@@ -199,7 +199,7 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
             showsVerticalScrollIndicator={false}
           >
             <Text style={styles.description}>
-              Update your profile information below. Changes will be saved immediately.
+              Update your profile information below. You can also change your profile picture here.
             </Text>
 
             {/* Avatar Section */}
@@ -222,7 +222,7 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
               <Text style={styles.avatarChangeText}>
                 {selectedAvatarBase64 ? 'Avatar selected' : 'Tap to change avatar'}
               </Text>
-                          </View>
+            </View>
 
             <FormInput
               label="Name"
@@ -248,6 +248,16 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
               loading={loading}
               icon="account-check"
             />
+
+            <FormButton
+              title="Cancel"
+              onPress={() => {
+                navigation?.navigate('ProfileMain', { refresh: Date.now() })
+              }}
+              variant="outline"
+              style={styles.cancelButton}
+              loading={loading}
+            />
           </ScrollView>
         </KeyboardAvoidingView>
       </View>
@@ -267,7 +277,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 24,
+    padding: 16,
     paddingBottom: 100,
   },
   description: {
@@ -312,6 +322,9 @@ const styles = StyleSheet.create({
   },
   loadingIcon: {
     backgroundColor: 'transparent',
+  },
+  cancelButton: {
+    marginTop: -10,
   },
 });
 

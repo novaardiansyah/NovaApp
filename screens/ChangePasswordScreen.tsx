@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert, KeyboardAvoidingView, Platform, useWindowDimensions, ScrollView } from 'react-native';
+import { View, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { PaperProvider, Text, Appbar } from 'react-native-paper';
 import { useAuth } from '@/contexts/AuthContext';
 import { Theme } from '@/constants/colors';
 import { FormButton, FormInput } from '@/components';
+import APP_CONFIG from '@/config/app';
 
 interface ChangePasswordScreenProps {
   navigation: any;
@@ -105,37 +106,47 @@ const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navigation 
               Enter your current password and choose a new password. Make sure your new password is at least 6 characters long.
             </Text>
 
-          <FormInput
-            label="Current Password"
-            value={currentPassword}
-            onChangeText={setCurrentPassword}
-            secureTextEntry
-            leftIcon="lock"
-          />
+            <FormInput
+              label="Current Password"
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              secureTextEntry
+              leftIcon="lock"
+            />
 
-          <FormInput
-            label="New Password"
-            value={newPassword}
-            onChangeText={setNewPassword}
-            secureTextEntry
-            leftIcon="lock-plus"
-          />
+            <FormInput
+              label="New Password"
+              value={newPassword}
+              onChangeText={setNewPassword}
+              secureTextEntry
+              leftIcon="lock-plus"
+            />
 
-          <FormInput
-            label="Confirm New Password"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-            leftIcon="lock-check"
-          />
+            <FormInput
+              label="Confirm New Password"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+              leftIcon="lock-check"
+            />
 
-          <FormButton
-            title="Change Password"
-            onPress={handleChangePassword}
-            loading={loading}
-            icon="lock-check"
-          />
-            </ScrollView>
+            <FormButton
+              title="Change Password"
+              onPress={handleChangePassword}
+              loading={loading}
+              icon="lock-check"
+            />
+
+            <FormButton
+              title="Cancel"
+              onPress={() => {
+                navigation?.navigate('ProfileMain', { refresh: Date.now() })
+              }}
+              variant="outline"
+              style={styles.cancelButton}
+              loading={loading}
+            />
+          </ScrollView>
         </KeyboardAvoidingView>
       </View>
     </PaperProvider>
@@ -154,7 +165,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 24,
+    padding: 16,
     paddingBottom: 100,
   },
   description: {
@@ -163,6 +174,9 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     lineHeight: 24,
   },
-    });
+  cancelButton: {
+    marginTop: -10,
+  },
+});
 
 export default ChangePasswordScreen;
