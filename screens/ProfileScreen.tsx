@@ -65,45 +65,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
           {/* Settings */}
           <View style={styles.settingsSection}>
             <List.Section>
-              <List.Subheader>Preferences</List.Subheader>
-
-              <List.Item
-                title="Push Notifications"
-                description="Enable or disable notifications"
-                left={props => <List.Icon {...props} icon="bell" />}
-                right={() => (
-                  <Switch
-                    value={notificationsEnabled}
-                    onValueChange={setNotificationsEnabled}
-                    color="#6366f1"
-                  />
-                )}
-              />
-
-              <List.Item
-                title="Dark Mode"
-                description="Toggle dark theme"
-                left={props => <List.Icon {...props} icon="theme-light-dark" />}
-                right={() => (
-                  <Switch
-                    value={darkModeEnabled}
-                    onValueChange={setDarkModeEnabled}
-                    color="#6366f1"
-                  />
-                )}
-              />
-
-              <List.Item
-                title="Language"
-                description="English"
-                left={props => <List.Icon {...props} icon="translate" />}
-                onPress={() => {}}
-              />
-            </List.Section>
-
-            <View style={styles.divider} />
-
-            <List.Section>
               <List.Subheader>Informasi Akun</List.Subheader>
 
               <List.Item
@@ -119,7 +80,52 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 left={props => <List.Icon {...props} icon="lock-reset" />}
                 onPress={() => navigation.navigate('ChangePassword')}
               />
+            </List.Section>
 
+            <View style={styles.divider} />
+            
+            <List.Section>
+              <List.Subheader>Pengaturan Umum</List.Subheader>
+
+              <List.Item
+                title="Terima Notifikasi"
+                description="Notifikasi aplikasi Anda"
+                left={props => <List.Icon {...props} icon="bell" />}
+                right={() => (
+                  <Switch
+                    value={notificationsEnabled}
+                    onValueChange={setNotificationsEnabled}
+                    color="#6366f1"
+                  />
+                )}
+              />
+
+              <List.Item
+                title="Mode Gelap"
+                description="Aktifkan mode gelap"
+                left={props => <List.Icon {...props} icon="theme-light-dark" />}
+                right={() => (
+                  <Switch
+                    value={darkModeEnabled}
+                    onValueChange={setDarkModeEnabled}
+                    color="#6366f1"
+                  />
+                )}
+              />
+
+              <List.Item
+                title="Bahasa"
+                description="Indonesia"
+                left={props => <List.Icon {...props} icon="translate" />}
+                onPress={() => {}}
+              />
+            </List.Section>
+
+            <View style={styles.divider} />
+
+            <List.Section>
+              <List.Subheader>Tentang Aplikasi</List.Subheader>
+              
               <List.Item
                 title="Kebijakan Privasi"
                 description="Lihat kebijakan privasi kami"
@@ -133,24 +139,11 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 left={props => <List.Icon {...props} icon="file-document" />}
                 onPress={() => navigation.navigate('TermsOfService')}
               />
-            </List.Section>
-
-            <View style={styles.divider} />
-
-            <List.Section>
-              <List.Subheader>About</List.Subheader>
 
               <List.Item
-                title="App Version"
+                title="Versi Aplikasi"
                 description={Constants.expoConfig?.version || '-'}
                 left={props => <List.Icon {...props} icon="information" />}
-              />
-
-              <List.Item
-                title="Contact Support"
-                description="Get help with the app"
-                left={props => <List.Icon {...props} icon="help-circle" />}
-                onPress={() => Linking.openURL('mailto:support@novaapp.com')}
               />
             </List.Section>
           </View>
@@ -165,7 +158,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               buttonColor="#ef4444"
               labelStyle={styles.logoutButtonLabel}
             >
-              Logout
+              Keluar
             </Button>
           </View>
 
