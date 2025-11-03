@@ -11,6 +11,7 @@ import GoalsScreen from '@/screens/GoalsScreen';
 import AddGoalScreen from '@/screens/AddGoalScreen';
 import ChangePasswordScreen from '@/screens/ChangePasswordScreen';
 import UpdateProfileScreen from '@/screens/UpdateProfileScreen';
+import PrivacyPolicyScreen from '@/screens/PrivacyPolicyScreen';
 import AllTransactionsScreen from '@/screens/AllTransactionsScreen';
 import AddPaymentScreen from '@/screens/AddPaymentScreen';
 import AddPaymentItemScreen from '@/screens/AddPaymentItemScreen';
@@ -43,6 +44,11 @@ const ProfileStackNavigator = () => {
         name="ChangePassword"
         component={ChangePasswordScreen}
         options={{ title: 'Change Password' }}
+      />
+      <ProfileStack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicyScreen}
+        options={{ title: 'Kebijakan Privasi' }}
       />
     </ProfileStack.Navigator>
   );

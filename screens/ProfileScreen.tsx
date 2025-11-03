@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Linking, Text, Image, StatusBar, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Button, List, Avatar, Switch } from 'react-native-paper';
+import Constants from 'expo-constants';
 import { Theme } from '@/constants/colors';
 import { AppCopyright } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
@@ -132,9 +133,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               />
 
               <List.Item
-                title="Privacy Policy"
+                title="Kebijakan Privasi"
+                description="Lihat kebijakan privasi kami"
                 left={props => <List.Icon {...props} icon="shield-account" />}
-                onPress={() => Linking.openURL('https://example.com/privacy')}
+                onPress={() => navigation.navigate('PrivacyPolicy')}
               />
 
               <List.Item
@@ -151,7 +153,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
               <List.Item
                 title="App Version"
-                description="1.0.0"
+                description={Constants.expoConfig?.version || '-'}
                 left={props => <List.Icon {...props} icon="information" />}
               />
 
