@@ -44,7 +44,7 @@ const ProfileStackNavigator = () => {
       <ProfileStack.Screen
         name="ChangePassword"
         component={ChangePasswordScreen}
-        options={{ title: 'Change Password' }}
+        options={{ title: 'Ganti Password' }}
       />
       <ProfileStack.Screen
         name="PrivacyPolicy"

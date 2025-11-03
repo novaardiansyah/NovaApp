@@ -186,7 +186,7 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Update Profile" />
+          <Appbar.Content title="Edit Profil" />
         </Appbar.Header>
 
         <KeyboardAvoidingView
@@ -199,7 +199,7 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
             showsVerticalScrollIndicator={false}
           >
             <Text style={styles.description}>
-              Update your profile information below. You can also change your profile picture here.
+              Perbarui informasi profil di bawah ini, pasikan data yang Anda masukkan sudah benar.
             </Text>
 
             {/* Avatar Section */}
@@ -243,14 +243,14 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
             />
 
             <FormButton
-              title="Update Profile"
+              title="Edit Profil"
               onPress={handleSubmit}
               loading={loading}
               icon="account-check"
             />
 
             <FormButton
-              title="Cancel"
+              title="Batal"
               onPress={() => {
                 navigation?.navigate('ProfileMain', { refresh: Date.now() })
               }}

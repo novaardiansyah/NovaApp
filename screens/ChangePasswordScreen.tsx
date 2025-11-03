@@ -90,7 +90,7 @@ const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navigation 
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Change Password" />
+          <Appbar.Content title="Ganti Kata Sandi" />
         </Appbar.Header>
 
         <KeyboardAvoidingView
@@ -103,11 +103,11 @@ const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navigation 
             showsVerticalScrollIndicator={false}
           >
             <Text style={styles.description}>
-              Enter your current password and choose a new password. Make sure your new password is at least 6 characters long.
+              Silahkan masukkan kata sandi Anda saat ini dan pilih kata sandi baru. Pastikan kata sandi baru Anda minimal 6 karakter.
             </Text>
 
             <FormInput
-              label="Current Password"
+              label="Kata sandi saat ini"
               value={currentPassword}
               onChangeText={setCurrentPassword}
               secureTextEntry
@@ -115,7 +115,7 @@ const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navigation 
             />
 
             <FormInput
-              label="New Password"
+              label="Kata sandi baru"
               value={newPassword}
               onChangeText={setNewPassword}
               secureTextEntry
@@ -123,7 +123,7 @@ const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navigation 
             />
 
             <FormInput
-              label="Confirm New Password"
+              label="Konfirmasi kata sandi baru"
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry
@@ -131,14 +131,14 @@ const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navigation 
             />
 
             <FormButton
-              title="Change Password"
+              title="Ganti Kata Sandi"
               onPress={handleChangePassword}
               loading={loading}
               icon="lock-check"
             />
 
             <FormButton
-              title="Cancel"
+              title="Batal"
               onPress={() => {
                 navigation?.navigate('ProfileMain', { refresh: Date.now() })
               }}

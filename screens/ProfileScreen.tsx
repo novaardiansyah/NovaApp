@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert, Linking, Text, Image, StatusBar, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Linking, Text, Image, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Button, List, Avatar, Switch } from 'react-native-paper';
 import Constants from 'expo-constants';
@@ -15,7 +15,7 @@ interface ProfileScreenProps {
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const { user, logout, fetchUser } = useAuth();
+  const { user, logout } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
 
@@ -37,11 +37,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
         },
       ]
     );
-  };
-
-  const handleRefreshProfile = async () => {
-    await fetchUser();
-    Alert.alert('Success', 'Profile refreshed successfully');
   };
 
   return (
@@ -109,25 +104,18 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             <View style={styles.divider} />
 
             <List.Section>
-              <List.Subheader>Account</List.Subheader>
+              <List.Subheader>Informasi Akun</List.Subheader>
 
               <List.Item
-                title="Edit Profile"
-                description="Update your profile information"
+                title="Edit Profil"
+                description="Perbarui informasi profil Anda"
                 left={props => <List.Icon {...props} icon="account-edit" />}
                 onPress={() => navigation.navigate('UpdateProfile')}
               />
 
               <List.Item
-                title="Refresh Profile"
-                description="Get latest user data"
-                left={props => <List.Icon {...props} icon="refresh" />}
-                onPress={handleRefreshProfile}
-              />
-
-              <List.Item
-                title="Change Password"
-                description="Update your password"
+                title="Ganti Kata Sandi"
+                description="Perubah kata sandi akun Anda"
                 left={props => <List.Icon {...props} icon="lock-reset" />}
                 onPress={() => navigation.navigate('ChangePassword')}
               />
