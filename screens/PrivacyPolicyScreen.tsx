@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, StatusBar } from 'react-native';
+import { View, ScrollView, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Appbar, Text, useTheme } from 'react-native-paper';
+import { PaperProvider, Appbar, Text } from 'react-native-paper';
 import { Theme } from '@/constants/colors';
 import { getScrollContainerStyle, statusBarConfig } from '@/styles';
+import { legalScreenStyles as styles } from '@/styles/LegalScreenStyles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import APP_CONFIG from '@/config/app';
 
@@ -13,7 +14,6 @@ interface PrivacyPolicyScreenProps {
 
 const PrivacyPolicyScreen: React.FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const paperTheme = useTheme();
 
   return (
     <PaperProvider theme={Theme}>
@@ -103,70 +103,5 @@ const PrivacyPolicyScreen: React.FC<PrivacyPolicyScreenProps> = ({ navigation })
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9fafb',
-  },
-  header: {
-    backgroundColor: '#ffffff',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  content: {
-    padding: 10,
-  },
-  lastUpdated: {
-    fontSize: 14,
-    color: '#6b7280',
-    fontStyle: 'italic',
-    marginTop: 32,
-    textAlign: 'center',
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1f2937',
-    marginTop: 24,
-    marginBottom: 12,
-  },
-  sectionContent: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#374151',
-    marginBottom: 16,
-    textAlign: 'justify',
-  },
-  listItem: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#374151',
-    marginLeft: 16,
-    marginBottom: 4,
-  },
-  contactInfo: {
-    fontSize: 16,
-    color: '#6366f1',
-    marginBottom: 8,
-  },
-  footer: {
-    marginTop: 32,
-    padding: 20,
-    backgroundColor: '#f3f4f6',
-    borderRadius: 12,
-  },
-  footerText: {
-    fontSize: 14,
-    color: '#6b7280',
-    textAlign: 'justify',
-    fontStyle: 'italic',
-  },
-});
 
 export default PrivacyPolicyScreen;

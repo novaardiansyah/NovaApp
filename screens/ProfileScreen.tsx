@@ -140,9 +140,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               />
 
               <List.Item
-                title="Terms of Service"
+                title="Syarat dan Ketentuan"
+                description="Lihat syarat dan ketentuan kami"
                 left={props => <List.Icon {...props} icon="file-document" />}
-                onPress={() => Linking.openURL('https://example.com/terms')}
+                onPress={() => navigation.navigate('TermsOfService')}
               />
             </List.Section>
 

@@ -12,6 +12,7 @@ import AddGoalScreen from '@/screens/AddGoalScreen';
 import ChangePasswordScreen from '@/screens/ChangePasswordScreen';
 import UpdateProfileScreen from '@/screens/UpdateProfileScreen';
 import PrivacyPolicyScreen from '@/screens/PrivacyPolicyScreen';
+import TermsOfServiceScreen from '@/screens/TermsOfServiceScreen';
 import AllTransactionsScreen from '@/screens/AllTransactionsScreen';
 import AddPaymentScreen from '@/screens/AddPaymentScreen';
 import AddPaymentItemScreen from '@/screens/AddPaymentItemScreen';
@@ -49,6 +50,11 @@ const ProfileStackNavigator = () => {
         name="PrivacyPolicy"
         component={PrivacyPolicyScreen}
         options={{ title: 'Kebijakan Privasi' }}
+      />
+      <ProfileStack.Screen
+        name="TermsOfService"
+        component={TermsOfServiceScreen}
+        options={{ title: 'Syarat dan Ketentuan' }}
       />
     </ProfileStack.Navigator>
   );
