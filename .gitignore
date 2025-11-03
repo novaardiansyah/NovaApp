@@ -41,7 +41,7 @@ yarn-error.*
 /android
 .vscode/*
 .claude/*
-.private/*
+private/
 
 # environment secrets
 .env
