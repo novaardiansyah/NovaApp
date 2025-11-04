@@ -50,4 +50,3 @@ private/
 .env.production
 .env.prod
 novaapp-37c03-firebase-adminsdk-fbsvc-81d8d48d12.json
-google-services.json
