@@ -37,7 +37,7 @@ export default function App() {
     });
 
     return () => {
-      Notifications.removeNotificationSubscription(subscription);
+      subscription.remove();
     };
   }, []);
 

@@ -19,7 +19,7 @@ interface HomeScreenProps {
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
-  const { user, isAuthenticated, fetchFinancialData, validateToken, logout } = useAuth();
+  const { user, token, isAuthenticated, fetchFinancialData, validateToken, logout } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [financialData, setFinancialData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -48,6 +48,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
         );
         return false;
       }
+
       
       return true;
     } catch (error) {

@@ -62,8 +62,8 @@ class PushNotificationService {
 
       if (token) {
         this.token = token.data;
-        console.log('Expo Push Token:', this.token);
         await this.storeTokenLocally(this.token);
+        await this.setTokenSyncStatus(false); // Token generated but not synced yet
       }
     } catch (error) {
       console.error('Error registering Expo push token:', error);
@@ -118,57 +118,52 @@ class PushNotificationService {
     }
   }
 
-  async sendTokenToServer(authToken: string): Promise<boolean> {
+  async setTokenSyncStatus(synced: boolean): Promise<void> {
     try {
-      const tokenData = await this.getTokenData();
-
-      if (!tokenData) {
-        console.warn('No push token available to send to server');
-        return false;
-      }
-
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/notifications/token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
-        },
-        body: JSON.stringify(tokenData),
-      });
-
-      return response.ok;
+      await AsyncStorage.setItem('notification_token_synced', synced ? 'true' : 'false');
     } catch (error) {
-      console.error('Error sending push token to server:', error);
+      console.error('Error setting token sync status:', error);
+    }
+  }
+
+  async getTokenSyncStatus(): Promise<boolean> {
+    try {
+      const synced = await AsyncStorage.getItem('notification_token_synced');
+      return synced === 'true';
+    } catch (error) {
+      console.error('Error getting token sync status:', error);
       return false;
     }
   }
 
-  async removeTokenFromServer(authToken: string): Promise<boolean> {
+  async clearNotificationTokenForLogout(authToken: string): Promise<boolean> {
     try {
-      const tokenData = await this.getTokenData();
+      // Only clear notification_token, preserve has_allow_notification
+      const notificationSettings = {
+        notification_token: null,
+      };
 
-      if (!tokenData) {
-        return true; // No token to remove
-      }
-
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/notifications/token`, {
-        method: 'DELETE',
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/notification-settings`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
           'Authorization': `Bearer ${authToken}`,
         },
-        body: JSON.stringify({ token: tokenData.token }),
+        body: JSON.stringify(notificationSettings),
       });
 
       if (response.ok) {
+        // Clear local token (for logout)
         await this.clearLocalToken();
+        await this.setTokenSyncStatus(false); // Reset sync status on logout
+        return true;
+      } else {
+        console.error('Failed to clear notification token for logout:', response.status);
+        return false;
       }
-
-      return response.ok;
     } catch (error) {
-      console.error('Error removing push token from server:', error);
+      console.error('Error clearing notification token for logout:', error);
       return false;
     }
   }
@@ -181,6 +176,50 @@ class PushNotificationService {
     } catch (error) {
       console.error('Error clearing local push token:', error);
     }
+  }
+
+  async autoSyncTokenWhenReady(authToken: string): Promise<void> {
+    const checkAndSync = async (): Promise<void> => {
+      try {
+        const isSynced = await this.getTokenSyncStatus();
+        if (isSynced) {
+          return;
+        }
+
+        const tokenData = await this.getTokenData();
+        if (!tokenData?.token) {
+          // Token not ready yet, check again later
+          setTimeout(checkAndSync, 2000);
+          return;
+        }
+
+        // Token ready and not synced, sync now
+        const notificationSettings = {
+          notification_token: tokenData.token,
+        };
+
+        const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/notification-settings`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+          body: JSON.stringify(notificationSettings),
+        });
+
+        if (response.ok) {
+          await this.setTokenSyncStatus(true);
+        } else {
+          console.error('Failed to auto-sync notification token:', response.status);
+        }
+      } catch (error) {
+        console.error('Error in auto-sync:', error);
+      }
+    };
+
+    // Start checking
+    checkAndSync();
   }
 
   async clearToken(): Promise<void> {
@@ -243,7 +282,7 @@ class PushNotificationService {
   }
 
   removeSubscription(subscription: Notifications.Subscription): void {
-    Notifications.removeNotificationSubscription(subscription);
+    subscription.remove();
   }
 }
 

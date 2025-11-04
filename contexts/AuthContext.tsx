@@ -9,6 +9,8 @@ interface User {
   email: string;
   avatar_url?: string;
   code?: string;
+  has_allow_notification?: boolean;
+  notification_token?: string | null;
 }
 
 interface FinancialData {
@@ -42,6 +44,8 @@ interface AuthContextType {
   fetchUser: () => Promise<boolean>;
   updateToken: (newToken: string) => Promise<void>;
   updateUser: (userData: { name?: string; email?: string; avatar_base64?: string }) => Promise<boolean>;
+  syncNotificationSettings: () => Promise<boolean>;
+  toggleNotificationSettings: (enabled: boolean) => Promise<boolean>;
   fetchFinancialData: () => Promise<FinancialData | null>;
   fetchRecentTransactions: (limit?: number) => Promise<Transaction[]>;
   validateToken: () => Promise<boolean>;
@@ -70,12 +74,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loadStoredAuth();
   }, []);
 
-  useEffect(() => {
-    if (token && user) {
-      PushNotificationService.sendTokenToServer(token);
-    }
-  }, [token, user]);
-
+  
   const loadStoredAuth = async () => {
     try {
       const storedToken = await AsyncStorage.getItem('auth_token');
@@ -125,7 +124,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (userFetched) {
             // Initialize push notifications after successful login
             PushNotificationService.configureNotificationHandler();
-            PushNotificationService.initialize();
+            await PushNotificationService.initialize();
+
+            // Start auto-sync - will sync when token is ready
+            PushNotificationService.autoSyncTokenWhenReady(token);
           }
 
           return userFetched;
@@ -170,9 +172,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      // Remove push notification token from server before logout
+      // Only clear notification token, preserve user preference
       if (token) {
-        await PushNotificationService.removeTokenFromServer(token);
+        await PushNotificationService.clearNotificationTokenForLogout(token);
       }
 
       await AsyncStorage.removeItem('auth_token');
@@ -235,6 +237,123 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return false;
       }
     } catch (error) {
+      return false;
+    }
+  };
+
+  const syncNotificationSettings = async (): Promise<boolean> => {
+    if (!token) return false;
+
+    try {
+      const tokenData = await PushNotificationService.getTokenData();
+
+      // Always sync token - backend will handle the logic based on user preference
+      const notificationSettings = {
+        notification_token: tokenData?.token || null,
+      };
+
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/notification-settings`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(notificationSettings),
+      });
+
+      if (response.ok) {
+        // Get updated user data to reflect latest settings
+        await fetchUser();
+
+        return true;
+      } else {
+        console.error('Failed to sync notification token:', response.status);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error syncing notification settings:', error);
+      return false;
+    }
+  };
+
+  const syncNotificationSettingsWithToken = async (authToken: string): Promise<boolean> => {
+    if (!authToken) return false;
+
+    try {
+      const tokenData = await PushNotificationService.getTokenData();
+
+      // Always sync token on login - backend will handle the logic
+      // based on user's has_allow_notification preference stored in database
+      const notificationSettings = {
+        notification_token: tokenData?.token || null,
+      };
+
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/notification-settings`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(notificationSettings),
+      });
+
+      if (response.ok) {
+        // Get updated user data to reflect latest settings
+        await fetchUser(authToken);
+
+        return true;
+      } else {
+        console.error('Failed to sync notification token:', response.status);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error syncing notification settings:', error);
+      return false;
+    }
+  };
+
+  const toggleNotificationSettings = async (enabled: boolean): Promise<boolean> => {
+    if (!token || !user) return false;
+
+    try {
+      const tokenData = await PushNotificationService.getTokenData();
+      const notificationSettings = {
+        has_allow_notification: enabled,
+        notification_token: enabled ? (tokenData?.token || null) : null,
+      };
+
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/notification-settings`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(notificationSettings),
+      });
+
+      if (response.ok) {
+        // Update context with new settings
+        const updatedUser = {
+          ...user,
+          has_allow_notification: enabled,
+          notification_token: enabled ? (tokenData?.token || null) : null,
+        };
+        setUser(updatedUser);
+        AsyncStorage.setItem('auth_user', JSON.stringify(updatedUser));
+
+        // Update sync status
+        await PushNotificationService.setTokenSyncStatus(true);
+
+        return true;
+      } else {
+        console.error('Failed to toggle notification settings:', response.status);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error toggling notification settings:', error);
       return false;
     }
   };
@@ -337,6 +456,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     fetchUser,
     updateToken,
     updateUser,
+    syncNotificationSettings,
+    toggleNotificationSettings,
     fetchFinancialData,
     fetchRecentTransactions,
     validateToken,

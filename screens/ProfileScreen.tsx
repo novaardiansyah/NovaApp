@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Linking, Text, Image, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Button, List, Avatar, Switch } from 'react-native-paper';
@@ -15,9 +15,35 @@ interface ProfileScreenProps {
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const { user, logout } = useAuth();
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const { user, token, logout, toggleNotificationSettings } = useAuth();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+
+  // Initialize notification switch with user data
+  useEffect(() => {
+    if (user?.has_allow_notification !== undefined) {
+      setNotificationsEnabled(user.has_allow_notification);
+    }
+  }, [user]);
+
+  const handleNotificationToggle = async (enabled: boolean) => {
+    if (!token) return;
+
+    try {
+      setNotificationsEnabled(enabled); // Optimistic update
+
+      const success = await toggleNotificationSettings(enabled);
+
+      if (!success) {
+        // Revert on error
+        setNotificationsEnabled(!enabled);
+      }
+    } catch (error) {
+      // Revert on error
+      setNotificationsEnabled(!enabled);
+      console.error('Error updating notification settings:', error);
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -94,7 +120,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 right={() => (
                   <Switch
                     value={notificationsEnabled}
-                    onValueChange={setNotificationsEnabled}
+                    onValueChange={handleNotificationToggle}
                     color="#6366f1"
                   />
                 )}
