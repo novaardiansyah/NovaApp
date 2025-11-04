@@ -19,6 +19,22 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
 
+  const handleDarkModeToggle = (enabled: boolean) => {
+    Alert.alert(
+      'Fitur Segera Hadir',
+      'Mode gelap sedang dalam pengembangan dan akan segera tersedia di versi mendatang.',
+      [
+        {
+          text: 'Mengerti',
+          style: 'default',
+        },
+      ]
+    );
+
+    // Prevent toggle by reverting to original state
+    setDarkModeEnabled(false);
+  };
+
   // Initialize notification switch with user data
   useEffect(() => {
     if (user?.has_allow_notification !== undefined) {
@@ -133,7 +149,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 right={() => (
                   <Switch
                     value={darkModeEnabled}
-                    onValueChange={setDarkModeEnabled}
+                    onValueChange={handleDarkModeToggle}
                     color="#6366f1"
                   />
                 )}
