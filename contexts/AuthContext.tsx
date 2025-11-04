@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import APP_CONFIG from '@/config/app';
+import PushNotificationService from '@/services/notificationService';
 
 interface User {
   id: number;
@@ -69,6 +70,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loadStoredAuth();
   }, []);
 
+  useEffect(() => {
+    if (token && user) {
+      PushNotificationService.sendTokenToServer(token);
+    }
+  }, [token, user]);
+
   const loadStoredAuth = async () => {
     try {
       const storedToken = await AsyncStorage.getItem('auth_token');
@@ -77,6 +84,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (storedToken && storedUser) {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
+
+        // Initialize push notifications after auth is loaded
+        PushNotificationService.configureNotificationHandler();
+        PushNotificationService.initialize();
       }
     } catch (error) {
       // Silent error handling
@@ -110,6 +121,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
           // Fetch user data with the token
           const userFetched = await fetchUser(token);
+
+          if (userFetched) {
+            // Initialize push notifications after successful login
+            PushNotificationService.configureNotificationHandler();
+            PushNotificationService.initialize();
+          }
+
           return userFetched;
         }
       }
@@ -152,6 +170,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
+      // Remove push notification token from server before logout
+      if (token) {
+        await PushNotificationService.removeTokenFromServer(token);
+      }
+
       await AsyncStorage.removeItem('auth_token');
       await AsyncStorage.removeItem('auth_user');
       setToken(null);
