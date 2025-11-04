@@ -20,7 +20,7 @@ const TermsOfServiceScreen: React.FC<TermsOfServiceScreenProps> = ({ navigation 
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
         <StatusBar {...statusBarConfig} />
 
-        <Appbar.Header style={styles.header}>
+        <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
           <Appbar.Content title="Syarat dan Ketentuan" />
         </Appbar.Header>
