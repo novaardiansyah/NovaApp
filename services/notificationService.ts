@@ -143,7 +143,7 @@ class PushNotificationService {
         notification_token: null,
       };
 
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/notification-settings`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/notifications/settings`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -198,7 +198,7 @@ class PushNotificationService {
           notification_token: tokenData.token,
         };
 
-        const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/notification-settings`, {
+        const response = await fetch(`${APP_CONFIG.API_BASE_URL}/notifications/settings`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

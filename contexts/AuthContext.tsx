@@ -252,7 +252,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         notification_token: tokenData?.token || null,
       };
 
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/notification-settings`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/notifications/settings`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -289,7 +289,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         notification_token: tokenData?.token || null,
       };
 
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/notification-settings`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/notifications/settings`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -324,7 +324,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         notification_token: enabled ? (tokenData?.token || null) : null,
       };
 
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/notification-settings`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/notifications/settings`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
