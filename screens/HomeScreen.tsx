@@ -143,7 +143,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
                 <Card.Content style={homeStyles.balanceCardContent}>
                   <Text style={homeStyles.balanceLabel}>Total Balance</Text>
                   <Text style={homeStyles.balanceAmount}>
-                    {formatCurrency(financialData.total_balance)}
+                    {formatCurrency(financialData.total_after_scheduled)}
                   </Text>
                   <View style={homeStyles.balanceRow}>
                     <View style={homeStyles.balanceItem}>
