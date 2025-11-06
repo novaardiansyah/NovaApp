@@ -1,11 +1,9 @@
 import React from 'react';
 import { View, ScrollView, StatusBar } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Appbar, Text } from 'react-native-paper';
 import { Theme } from '@/constants/colors';
-import { getScrollContainerStyle, statusBarConfig } from '@/styles';
+import { statusBarConfig } from '@/styles';
 import { legalScreenStyles as styles } from '@/styles/LegalScreenStyles';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import APP_CONFIG from '@/config/app';
 
 interface TermsOfServiceScreenProps {
@@ -13,11 +11,10 @@ interface TermsOfServiceScreenProps {
 }
 
 const TermsOfServiceScreen: React.FC<TermsOfServiceScreenProps> = ({ navigation }) => {
-  const insets = useSafeAreaInsets();
 
   return (
     <PaperProvider theme={Theme}>
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <View style={styles.container}>
         <StatusBar {...statusBarConfig} />
 
         <Appbar.Header>
@@ -26,11 +23,11 @@ const TermsOfServiceScreen: React.FC<TermsOfServiceScreenProps> = ({ navigation 
         </Appbar.Header>
 
         <ScrollView
-          contentContainerStyle={getScrollContainerStyle(insets)}
+          contentContainerStyle={styles.scrollView}
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.content}>
-            <Text style={styles.sectionTitle}>1. Penerimaan Syarat</Text>
+            <Text style={styles.firstSectionTitle}>1. Penerimaan Syarat</Text>
             <Text style={styles.sectionContent}>
               Dengan mengakses dan menggunakan NovaApp, Anda menerima dan setuju untuk terikat oleh syarat dan ketentuan ini. Jika Anda tidak setuju dengan syarat dan ketentuan ini, Anda tidak boleh menggunakan aplikasi kami.
             </Text>
@@ -106,7 +103,7 @@ const TermsOfServiceScreen: React.FC<TermsOfServiceScreenProps> = ({ navigation 
             <Text style={styles.lastUpdated}>Terakhir Diperbarui: 3 November 2025</Text>
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </PaperProvider>
   );
 };

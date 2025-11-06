@@ -1,11 +1,9 @@
 import React from 'react';
 import { View, ScrollView, StatusBar } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Appbar, Text } from 'react-native-paper';
 import { Theme } from '@/constants/colors';
-import { getScrollContainerStyle, statusBarConfig } from '@/styles';
+import { statusBarConfig } from '@/styles';
 import { legalScreenStyles as styles } from '@/styles/LegalScreenStyles';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import APP_CONFIG from '@/config/app';
 
 interface PrivacyPolicyScreenProps {
@@ -13,11 +11,10 @@ interface PrivacyPolicyScreenProps {
 }
 
 const PrivacyPolicyScreen: React.FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
-  const insets = useSafeAreaInsets();
 
   return (
     <PaperProvider theme={Theme}>
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <View style={styles.container}>
         <StatusBar {...statusBarConfig} />
 
         <Appbar.Header>
@@ -26,11 +23,11 @@ const PrivacyPolicyScreen: React.FC<PrivacyPolicyScreenProps> = ({ navigation })
         </Appbar.Header>
 
         <ScrollView
-          contentContainerStyle={getScrollContainerStyle(insets)}
+          contentContainerStyle={styles.scrollView}
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.content}>
-            <Text style={styles.sectionTitle}>1. Informasi yang Kami Kumpulkan</Text>
+            <Text style={styles.firstSectionTitle}>1. Informasi yang Kami Kumpulkan</Text>
             <Text style={styles.sectionContent}>
               NovaApp mengumpulkan informasi yang Anda berikan langsung kepada kami, seperti saat membuat akun, memperbarui profil, atau menggunakan layanan kami. Ini termasuk:
             </Text>
@@ -98,7 +95,7 @@ const PrivacyPolicyScreen: React.FC<PrivacyPolicyScreenProps> = ({ navigation })
             <Text style={styles.lastUpdated}>Terakhir Diperbarui: 3 November 2025</Text>
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </PaperProvider>
   );
 };
