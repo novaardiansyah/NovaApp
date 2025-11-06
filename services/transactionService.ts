@@ -16,6 +16,8 @@ export interface Transaction {
 
 export interface FinancialData {
   total_balance: number;
+  scheduled_expense: number;
+  total_after_scheduled: number;
   income: number;
   expenses: number;
   savings: number;

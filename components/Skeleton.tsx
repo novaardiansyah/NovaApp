@@ -60,20 +60,15 @@ interface BalanceCardSkeletonProps {
 
 export const BalanceCardSkeleton: React.FC<BalanceCardSkeletonProps> = ({ style }) => {
   return (
-    <Card style={[style, { borderRadius: 16, backgroundColor: '#ffffff' }]}>
-      <Card.Content style={{ padding: 16 }}>
-        <Skeleton width={80} height={14} style={{ marginBottom: 8 }} />
-        <Skeleton width={200} height={32} style={{ marginBottom: 16 }} />
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <View style={{ flex: 1 }}>
-            <Skeleton width={60} height={16} style={{ marginBottom: 4 }} />
-            <Skeleton width={80} height={12} />
-          </View>
-          <View style={{ flex: 1, marginLeft: 16 }}>
-            <Skeleton width={60} height={16} style={{ marginBottom: 4 }} />
-            <Skeleton width={80} height={12} />
-          </View>
+    <Card style={[style, { borderRadius: 16, backgroundColor: '#4338ca' }]}>
+      <Card.Content style={{ alignItems: 'center', paddingVertical: 24 }}>
+        <Skeleton width={80} height={16} style={{ marginBottom: 8, backgroundColor: '#6366f1' }} />
+        <Skeleton width={200} height={32} style={{ marginBottom: 16, backgroundColor: '#6366f1' }} />
+        <View style={{ width: '100%', borderTopWidth: 1, borderTopColor: '#6366f1', paddingTop: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Skeleton width={120} height={14} style={{ backgroundColor: '#6366f1' }} />
+          <Skeleton width={80} height={16} style={{ backgroundColor: '#6366f1' }} />
         </View>
+        <Skeleton width={100} height={14} style={{ marginTop: 16, backgroundColor: '#6366f1' }} />
       </Card.Content>
     </Card>
   );

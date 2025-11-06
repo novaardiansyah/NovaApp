@@ -1,23 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, RefreshControl, ActivityIndicator, StatusBar, Platform, TouchableOpacity, Modal, StyleSheet } from 'react-native';
+import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card, Avatar } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
+import TransactionService from '@/services/transactionService';
+import PaymentService, { PaymentAccount } from '@/services/paymentService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
 import { AccountsListSkeleton, BalanceCardSkeleton } from '@/components';
-import APP_CONFIG from '@/config/app';
 import { Alert } from 'react-native';
-
-interface PaymentAccount {
-  id: number;
-  name: string;
-  deposit: number;
-  formatted_deposit: string;
-  logo: string;
-}
 
 interface BudgetScreenProps {
   navigation: any;
@@ -29,36 +22,28 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [paymentAccounts, setPaymentAccounts] = useState<PaymentAccount[]>([]);
   const [loading, setLoading] = useState(false);
-  const [accountsLoaded, setAccountsLoaded] = useState(false);
+  const [financialData, setFinancialData] = useState<any>(null);
   const [selectedAccount, setSelectedAccount] = useState<PaymentAccount | null>(null);
   const [actionSheetVisible, setActionSheetVisible] = useState(false);
 
+  const fetchFinancialData = async () => {
+    if (!isAuthenticated || !token) return;
+
+    try {
+      const financial = await TransactionService.fetchFinancialData(token);
+      setFinancialData(financial);
+    } catch (error) {
+      console.error('Error loading financial data:', error);
+    }
+  };
+
   const fetchPaymentAccounts = async () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !token) return;
 
     setLoading(true);
     try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      };
-
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payment-accounts`, {
-        method: 'GET',
-        headers,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch payment accounts');
-      }
-
-      const data = await response.json();
+      const data = await PaymentService.getPaymentAccounts(token);
       setPaymentAccounts(data);
-      setAccountsLoaded(true);
     } catch (error) {
       console.error('Error fetching payment accounts:', error);
     } finally {
@@ -68,13 +53,15 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
+      fetchFinancialData();
       fetchPaymentAccounts();
     }
   }, [isAuthenticated]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    setAccountsLoaded(false);
+    setFinancialData(null);
+    await fetchFinancialData();
     await fetchPaymentAccounts();
     setRefreshing(false);
   };
@@ -122,16 +109,21 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
           </View>
 
           {/* Total Balance */}
-          {accountsLoaded ? (
+          {financialData ? (
             <Card style={commonStyles.totalBalanceCard}>
               <Card.Content style={commonStyles.totalBalanceContent}>
                 <Text style={commonStyles.totalBalanceLabel}>Total Balance</Text>
                 <Text style={commonStyles.totalBalanceAmount}>
-                  {formatCurrency(paymentAccounts.reduce((sum, account) => sum + account.deposit, 0))}
+                  {formatCurrency(financialData.total_balance)}
                 </Text>
-                <Text style={commonStyles.totalBalanceSubtitle}>
-                  {paymentAccounts.length} {paymentAccounts.length === 1 ? 'Account' : 'Accounts'}
-                </Text>
+                <View style={styles.scheduledExpenseContainer}>
+                  <Text style={styles.afterScheduledLabel}>
+                    After scheduled
+                  </Text>
+                  <Text style={styles.totalAfterScheduledText}>
+                    {formatCurrency(financialData.total_after_scheduled)}
+                  </Text>
+                </View>
               </Card.Content>
             </Card>
           ) : (
@@ -240,6 +232,25 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  scheduledExpenseContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#6366f1',
+    width: '100%',
+  },
+  afterScheduledLabel: {
+    fontSize: 14,
+    color: '#e0e7ff',
+  },
+  totalAfterScheduledText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
   accountsSection: {
     marginBottom: 24,
   },
