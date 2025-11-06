@@ -35,8 +35,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
 
       if (!isValid) {
         Alert.alert(
-          'Session Expired',
-          'Your session has expired. Please login again.',
+          'Sesi Berakhir',
+          'Sesi Anda telah berakhir. Silakan login kembali.',
           [
             {
               text: 'OK',
@@ -97,13 +97,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
     return (
       <PaperProvider theme={Theme}>
         <View style={styles.container}>
-          <Text>Please login first</Text>
+          <Text>Silakan login terlebih dahulu</Text>
           <Button
             mode="contained"
             onPress={() => navigation.navigate('Login')}
             style={styles.loginButton}
           >
-            Go to Login
+            Masuk ke Halaman Login
           </Button>
         </View>
       </PaperProvider>
@@ -122,8 +122,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
         >
           <View style={commonStyles.welcomeSection}>
             <View>
-              <Text style={commonStyles.welcomeText}>Welcome back,</Text>
-              <Text style={commonStyles.userName}>{user?.name || 'User'}</Text>
+              <Text style={commonStyles.welcomeText}>Selamat datang kembali,</Text>
+              <Text style={commonStyles.userName}>{user?.name || 'Pengguna'}</Text>
             </View>
             {user?.avatar_url ? (
               <Avatar.Image size={48} source={{ uri: user.avatar_url }} style={commonStyles.avatar} />
@@ -141,7 +141,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
                 style={homeStyles.gradientBackground}
               >
                 <Card.Content style={homeStyles.balanceCardContent}>
-                  <Text style={homeStyles.balanceLabel}>Total Balance</Text>
+                  <Text style={homeStyles.balanceLabel}>Saldo Total</Text>
                   <Text style={homeStyles.balanceAmount}>
                     {formatCurrency(financialData.total_after_scheduled)}
                   </Text>
@@ -150,13 +150,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
                       <Text style={homeStyles.incomeText}>
                         {formatCurrency(financialData.income)}
                       </Text>
-                      <Text style={homeStyles.balanceItemLabel}>Income</Text>
+                      <Text style={homeStyles.balanceItemLabel}>Pemasukan</Text>
                     </View>
                     <View style={homeStyles.balanceItemRight}>
                       <Text style={homeStyles.expenseText}>
                         {formatCurrency(financialData.expenses)}
                       </Text>
-                      <Text style={homeStyles.balanceItemLabel}>Expenses</Text>
+                      <Text style={homeStyles.balanceItemLabel}>Pengeluaran</Text>
                     </View>
                   </View>
                 </Card.Content>
@@ -167,33 +167,33 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
           )}
 
           <View style={commonStyles.quickActionsSection}>
-            <Text style={commonStyles.sectionTitle}>Quick Actions</Text>
+            <Text style={commonStyles.sectionTitle}>Aksi Cepat</Text>
             <View style={commonStyles.quickActionsGrid}>
               <Card style={commonStyles.actionCard} onPress={() => navigation.navigate('AddPayment')}>
                 <Card.Content style={commonStyles.actionCardContent}>
                   <Ionicons name="add-circle" size={24} color="#6366f1" />
-                  <Text style={commonStyles.actionText}>Add</Text>
+                  <Text style={commonStyles.actionText}>Tambah</Text>
                 </Card.Content>
               </Card>
 
               <Card style={commonStyles.actionCard} onPress={() => navigation.navigate('Goals')}>
                 <Card.Content style={commonStyles.actionCardContent}>
                   <Ionicons name="diamond" size={24} color="#6366f1" />
-                  <Text style={commonStyles.actionText}>Goals</Text>
+                  <Text style={commonStyles.actionText}>Tujuan</Text>
                 </Card.Content>
               </Card>
 
               <Card style={commonStyles.actionCard} onPress={() => navigation.navigate('Reports')}>
                 <Card.Content style={commonStyles.actionCardContent}>
                   <Ionicons name="document-text" size={24} color="#6366f1" />
-                  <Text style={commonStyles.actionText}>Reports</Text>
+                  <Text style={commonStyles.actionText}>Laporan</Text>
                 </Card.Content>
               </Card>
 
               <Card style={commonStyles.actionCard} onPress={() => navigation.navigate('Budget')}>
                 <Card.Content style={commonStyles.actionCardContent}>
                   <Ionicons name="wallet" size={24} color="#6366f1" />
-                  <Text style={commonStyles.actionText}>Budget</Text>
+                  <Text style={commonStyles.actionText}>Anggaran</Text>
                 </Card.Content>
               </Card>
             </View>

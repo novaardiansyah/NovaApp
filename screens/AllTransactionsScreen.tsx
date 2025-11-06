@@ -219,7 +219,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
         >
           <View style={commonStyles.header}>
             <Ionicons name="receipt" size={24} color="#6366f1" style={commonStyles.headerIcon} />
-            <Text style={commonStyles.headerTitle}>All Transactions</Text>
+            <Text style={commonStyles.headerTitle}>Transaksi</Text>
           </View>
           <View style={styles.transactionsSection}>
             {loading || (refreshing && transactions.length === 0) ? (

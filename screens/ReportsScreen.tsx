@@ -399,7 +399,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     return (
       <PaperProvider theme={Theme}>
         <View style={commonStyles.container}>
-          <Text style={commonStyles.authText}>Please login first</Text>
+          <Text style={commonStyles.authText}>Silakan login terlebih dahulu</Text>
         </View>
       </PaperProvider>
     );
@@ -417,7 +417,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
         >
           <View style={commonStyles.header}>
             <Ionicons name="document-text" size={24} color="#6366f1" style={commonStyles.headerIcon} />
-            <Text style={commonStyles.headerTitle}>Financial Reports</Text>
+            <Text style={commonStyles.headerTitle}>Laporan Keuangan</Text>
           </View>
 
           {!isMonthlyLoading ? (
@@ -474,7 +474,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
           </View>
 
           <View style={styles.dailySection}>
-            <Text style={styles.sectionTitle}>Today's Summary</Text>
+            <Text style={styles.sectionTitle}>Ringkasan Hari Ini</Text>
             {!isDataLoading && !refreshing ? (
               <Card style={styles.dailyCard}>
                 <Card.Content style={styles.dailyContent}>
@@ -560,7 +560,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
           </View>
 
           <View style={styles.weeklySection}>
-            <Text style={styles.sectionTitle}>Last 7 Days Summary</Text>
+            <Text style={styles.sectionTitle}>Ringkasan 7 Hari Terakhir</Text>
             {!isDataLoading && !refreshing ? (
               <Card style={styles.weeklyCard}>
                 <Card.Content style={styles.weeklyContent}>
@@ -673,11 +673,11 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
           <View style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 }}>
             <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
-              Select Month
+              Pilih Bulan
             </Text>
 
             <View style={{ paddingHorizontal: 20 }}>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: '#6b7280', marginBottom: 12, marginLeft: 4 }}>Select Month</Text>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#6b7280', marginBottom: 12, marginLeft: 4 }}>Pilih Bulan</Text>
               {getMonthOptions().map((monthYear) => (
                 <TouchableOpacity
                   key={monthYear}
@@ -692,7 +692,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
             <View style={{ paddingHorizontal: 20, marginTop: 14 }}>
               <FormButton
-                title="Cancel"
+                title="Batal"
                 variant="outline"
                 fullWidth
                 onPress={() => setPeriodModalVisible(false)}
@@ -726,13 +726,13 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
               paddingBottom: Platform.OS === 'ios' ? 14 : 24
             }}>
               <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
-                Send Report via Email
+                Kirim Laporan via Email
               </Text>
 
               <View style={{ paddingHorizontal: 20 }}>
                 <TextInput
-                  label="Report periode"
-                  placeholder="Report periode"
+                  label="Periode Laporan"
+                  placeholder="Periode Laporan"
                   value={formData.periodeStr}
                   onChangeText={(value) => handleInputChange('periodeStr', value)}
                   mode="outlined"
@@ -748,8 +748,8 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
                 {errors.periodeStr && <HelperText type="error" style={styles.helperText}>{errors.periodeStr}</HelperText>}
 
                 <TextInput
-                  label="Email address"
-                  placeholder="Email address"
+                  label="Alamat email"
+                  placeholder="Alamat email"
                   value={formData.email}
                   onChangeText={(value) => handleInputChange('email', value)}
                   mode="outlined"
@@ -765,7 +765,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
                 <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
                   <FormButton
-                    title="Cancel"
+                    title="Batal"
                     variant="outline"
                     fullWidth={false}
                     style={{ flex: 1 }}
@@ -774,7 +774,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
                   />
 
                   <FormButton
-                    title="Send"
+                    title="Kirim"
                     fullWidth={false}
                     style={{ flex: 1 }}
                     onPress={handleSendEmail}

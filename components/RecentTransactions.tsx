@@ -82,9 +82,9 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   return (
     <View style={[styles.transactionsSection, style]}>
       <View style={styles.transactionsHeader}>
-        <Text style={styles.sectionTitle}>Recent Transactions</Text>
+        <Text style={styles.sectionTitle}>Transaksi Terbaru</Text>
         {onSeeAll && (
-          <Text style={styles.seeAllText} onPress={onSeeAll}>See all</Text>
+          <Text style={styles.seeAllText} onPress={onSeeAll}>Lihat semua</Text>
         )}
       </View>
       {parentLoading || loading ? (
@@ -94,7 +94,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
           <Card.Content style={styles.transactionsCardContent}>
             {transactions.length === 0 ? (
               <View style={styles.emptyCard}>
-                <Text style={styles.emptyText}>No transactions yet</Text>
+                <Text style={styles.emptyText}>Belum ada transaksi</Text>
               </View>
             ) : (
               transactions.map((transaction, index) => (

@@ -95,7 +95,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
           {/* Header */}
           <View style={commonStyles.header}>
             <Ionicons name="diamond" size={24} color="#6366f1" style={commonStyles.headerIcon} />
-            <Text style={commonStyles.headerTitle}>Financial Goals</Text>
+            <Text style={commonStyles.headerTitle}>Tujuan Keuangan</Text>
           </View>
 
           {/* Goals List */}
@@ -108,26 +108,26 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                 {goalsOverview && (
                   <Card style={styles.goalsOverview}>
                     <Card.Content style={styles.overviewContent}>
-                      <Text style={styles.overviewTitle}>Goals Overview</Text>
+                      <Text style={styles.overviewTitle}>Ringkasan Tujuan</Text>
                       <View style={styles.overviewStats}>
                         <View style={styles.statItem}>
                           <Text style={styles.statValue}>{goalsOverview.total_goals}</Text>
-                          <Text style={styles.statLabel}>Total Goals</Text>
+                          <Text style={styles.statLabel}>Total Tujuan</Text>
                         </View>
                         <View style={styles.statItem}>
                           <Text style={styles.statValue}>{goalsOverview.completed}</Text>
-                          <Text style={styles.statLabel}>Completed</Text>
+                          <Text style={styles.statLabel}>Selesai</Text>
                         </View>
                         <View style={styles.statItem}>
                           <Text style={styles.statValue}>{goalsOverview.success_rate}</Text>
-                          <Text style={styles.statLabel}>Success Rate</Text>
+                          <Text style={styles.statLabel}>Keberhasilan</Text>
                         </View>
                       </View>
                     </Card.Content>
                   </Card>
                 )}
 
-                <Text style={styles.sectionTitle}>Your Goals</Text>
+                <Text style={styles.sectionTitle}>Tujuan Anda</Text>
 
                 {goals.length > 0 ? (
               goals.map((goal) => (
@@ -182,7 +182,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                           style={styles.actionButton}
                           onPress={() => handleAddFunds(goal)}
                         >
-                          <Text style={styles.actionButtonText}>Add Funds</Text>
+                          <Text style={styles.actionButtonText}>Tambah Dana</Text>
                         </TouchableOpacity>
                       )}
                     </View>
@@ -194,9 +194,9 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                 <View style={styles.emptyIcon}>
                   <Ionicons name="diamond-outline" size={32} color="#6b7280" />
                 </View>
-                <Text style={styles.emptyText}>No Goals Yet</Text>
+                <Text style={styles.emptyText}>Belum Ada Tujuan</Text>
                 <Text style={styles.emptySubtext}>
-                  Start by creating your first financial goal
+                  Mulai dengan membuat tujuan keuangan pertama Anda
                 </Text>
               </View>
             )}

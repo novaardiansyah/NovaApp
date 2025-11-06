@@ -179,7 +179,7 @@ const TabNavigator = () => {
         name="Home"
         component={HomeStackNavigator}
         options={{
-          tabBarLabel: 'Home',
+          tabBarLabel: 'Beranda',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "home" : "home-outline"}
@@ -193,7 +193,7 @@ const TabNavigator = () => {
         name="AllTransactions"
         component={AllTransactionsScreen}
         options={{
-          tabBarLabel: 'Transaction',
+          tabBarLabel: 'Transaksi',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "receipt" : "receipt-outline"}
@@ -207,7 +207,7 @@ const TabNavigator = () => {
         name="Goals"
         component={GoalsStackNavigator}
         options={{
-          tabBarLabel: 'Goals',
+          tabBarLabel: 'Tujuan',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "diamond" : "diamond-outline"}
@@ -221,7 +221,7 @@ const TabNavigator = () => {
         name="Profile"
         component={ProfileStackNavigator}
         options={{
-          tabBarLabel: 'Profile',
+          tabBarLabel: 'Profil',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "person" : "person-outline"}

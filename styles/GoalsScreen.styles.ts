@@ -204,6 +204,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: '#9ca3af',
     textAlign: 'center',
+    paddingHorizontal: 12
   },
   loadingText: {
     textAlign: 'center',
