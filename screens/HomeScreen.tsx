@@ -5,7 +5,7 @@ import { PaperProvider, Button, Avatar, Card } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Theme } from '@/constants/colors';
-import { BalanceCardSkeleton } from '@/components';
+import { HomeBalanceCardSkeleton } from '@/components';
 import RecentTransactions from '@/components/RecentTransactions';
 import { useAuth } from '@/contexts/AuthContext';
 import TransactionService from '@/services/transactionService';
@@ -163,7 +163,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
               </LinearGradient>
             </Card>
           ) : (
-            <BalanceCardSkeleton style={homeStyles.balanceCard} />
+            <HomeBalanceCardSkeleton style={homeStyles.balanceCard} />
           )}
 
           <View style={commonStyles.quickActionsSection}>

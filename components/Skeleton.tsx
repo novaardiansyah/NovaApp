@@ -74,6 +74,46 @@ export const BalanceCardSkeleton: React.FC<BalanceCardSkeletonProps> = ({ style 
   );
 };
 
+interface HomeBalanceCardSkeletonProps {
+  style?: object;
+}
+
+export const HomeBalanceCardSkeleton: React.FC<HomeBalanceCardSkeletonProps> = ({ style }) => {
+  return (
+    <Card style={[style, {
+      borderRadius: 16,
+      backgroundColor: 'transparent',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    }]}>
+      <View style={{ borderRadius: 16, overflow: 'hidden' }}>
+        <View style={{
+          backgroundColor: '#4338ca',
+          padding: 16,
+        }}>
+          <View style={{ marginBottom: 16 }}>
+            <Skeleton width={80} height={14} style={{ marginBottom: 8, backgroundColor: '#6366f1', alignSelf: 'flex-start' }} />
+            <Skeleton width={200} height={32} style={{ backgroundColor: '#6366f1', alignSelf: 'flex-start' }} />
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <View style={{ flex: 1, alignItems: 'flex-start' }}>
+              <Skeleton width={80} height={16} style={{ marginBottom: 4, backgroundColor: '#6366f1' }} />
+              <Skeleton width={50} height={12} style={{ backgroundColor: '#6366f1' }} />
+            </View>
+            <View style={{ flex: 1, alignItems: 'flex-end' }}>
+              <Skeleton width={80} height={16} style={{ marginBottom: 4, backgroundColor: '#6366f1' }} />
+              <Skeleton width={60} height={12} style={{ backgroundColor: '#6366f1' }} />
+            </View>
+          </View>
+        </View>
+      </View>
+    </Card>
+  );
+};
+
 interface TransactionItemSkeletonProps {
   style?: object;
 }
