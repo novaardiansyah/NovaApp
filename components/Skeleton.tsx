@@ -721,4 +721,118 @@ export const AuditFormSkeleton: React.FC<AuditFormSkeletonProps> = ({ style }) =
   );
 };
 
+// Goals Screen Skeleton Components
+interface GoalsOverviewSkeletonProps {
+  style?: object;
+}
+
+export const GoalsOverviewSkeleton: React.FC<GoalsOverviewSkeletonProps> = ({ style }) => {
+  return (
+    <Card style={[style, {
+      backgroundColor: '#ffffff',
+      borderRadius: 12,
+      elevation: 2,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      marginBottom: 16
+    }]}>
+      <Card.Content style={{ paddingVertical: 20, paddingHorizontal: 16 }}>
+        <Skeleton width={120} height={18} style={{ marginBottom: 16 }} />
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <View style={{ alignItems: 'center', flex: 1 }}>
+            <Skeleton width={40} height={24} style={{ marginBottom: 4 }} />
+            <Skeleton width={60} height={12} />
+          </View>
+          <View style={{ alignItems: 'center', flex: 1 }}>
+            <Skeleton width={30} height={24} style={{ marginBottom: 4 }} />
+            <Skeleton width={50} height={12} />
+          </View>
+          <View style={{ alignItems: 'center', flex: 1 }}>
+            <Skeleton width={40} height={24} style={{ marginBottom: 4 }} />
+            <Skeleton width={50} height={12} />
+          </View>
+        </View>
+      </Card.Content>
+    </Card>
+  );
+};
+
+interface GoalCardSkeletonProps {
+  style?: object;
+}
+
+export const GoalCardSkeleton: React.FC<GoalCardSkeletonProps> = ({ style }) => {
+  return (
+    <Card style={[style, {
+      backgroundColor: '#ffffff',
+      borderRadius: 12,
+      elevation: 2,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      marginBottom: 12
+    }]}>
+      <Card.Content style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
+        {/* Goal Header */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+          <View style={{ flex: 1, marginRight: 16 }}>
+            <Skeleton width={150} height={18} style={{ marginBottom: 4 }} />
+            <Skeleton width={180} height={14} />
+          </View>
+          <View style={{ alignItems: 'flex-end' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Skeleton width={12} height={12} style={{ borderRadius: 6, marginRight: 4 }} />
+              <Skeleton width={60} height={12} />
+            </View>
+          </View>
+        </View>
+
+        {/* Progress Section */}
+        <View style={{ marginBottom: 16 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <Skeleton width={100} height={14} />
+            <Skeleton width={40} height={14} />
+          </View>
+          <View style={{ height: 8, backgroundColor: '#e5e7eb', borderRadius: 4 }}>
+            <Skeleton width={60} height={8} style={{ borderRadius: 4 }} />
+          </View>
+        </View>
+
+        {/* Actions Section */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Skeleton width={14} height={14} style={{ marginRight: 4 }} />
+            <Skeleton width={80} height={12} />
+          </View>
+          <Skeleton width={80} height={16} style={{ borderRadius: 8 }} />
+        </View>
+      </Card.Content>
+    </Card>
+  );
+};
+
+interface GoalsScreenSkeletonProps {
+  style?: object;
+}
+
+export const GoalsScreenSkeleton: React.FC<GoalsScreenSkeletonProps> = ({ style }) => {
+  return (
+    <View style={style}>
+      {/* Goals Overview */}
+      <GoalsOverviewSkeleton />
+
+      {/* Section Title */}
+      <Skeleton width={100} height={18} style={{ marginBottom: 16 }} />
+
+      {/* Goal Cards */}
+      <GoalCardSkeleton />
+      <GoalCardSkeleton />
+      <GoalCardSkeleton />
+    </View>
+  );
+};
+
 export default Skeleton;

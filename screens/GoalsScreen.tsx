@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
 import { styles } from '@/styles/GoalsScreen.styles';
 import PaymentGoalsService, { PaymentGoalsOverview, PaymentGoal } from '@/services/paymentGoalsService';
+import { GoalsScreenSkeleton } from '@/components/skeleton';
 
 interface GoalsScreenProps {
   navigation: any;
@@ -97,36 +98,38 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
             <Text style={commonStyles.headerTitle}>Financial Goals</Text>
           </View>
 
-          {/* Overview */}
-          {goalsOverview && (
-            <Card style={styles.goalsOverview}>
-              <Card.Content style={styles.overviewContent}>
-                <Text style={styles.overviewTitle}>Goals Overview</Text>
-                <View style={styles.overviewStats}>
-                  <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{goalsOverview.total_goals}</Text>
-                    <Text style={styles.statLabel}>Total Goals</Text>
-                  </View>
-                  <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{goalsOverview.completed}</Text>
-                    <Text style={styles.statLabel}>Completed</Text>
-                  </View>
-                  <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{goalsOverview.success_rate}</Text>
-                    <Text style={styles.statLabel}>Success Rate</Text>
-                  </View>
-                </View>
-              </Card.Content>
-            </Card>
-          )}
-
           {/* Goals List */}
           <View style={styles.goalsList}>
-            <Text style={styles.sectionTitle}>Your Goals</Text>
-
             {loading ? (
-              <Text style={styles.loadingText}>Loading goals...</Text>
-            ) : goals.length > 0 ? (
+              <GoalsScreenSkeleton />
+            ) : (
+              <>
+                {/* Overview - only show when not loading */}
+                {goalsOverview && (
+                  <Card style={styles.goalsOverview}>
+                    <Card.Content style={styles.overviewContent}>
+                      <Text style={styles.overviewTitle}>Goals Overview</Text>
+                      <View style={styles.overviewStats}>
+                        <View style={styles.statItem}>
+                          <Text style={styles.statValue}>{goalsOverview.total_goals}</Text>
+                          <Text style={styles.statLabel}>Total Goals</Text>
+                        </View>
+                        <View style={styles.statItem}>
+                          <Text style={styles.statValue}>{goalsOverview.completed}</Text>
+                          <Text style={styles.statLabel}>Completed</Text>
+                        </View>
+                        <View style={styles.statItem}>
+                          <Text style={styles.statValue}>{goalsOverview.success_rate}</Text>
+                          <Text style={styles.statLabel}>Success Rate</Text>
+                        </View>
+                      </View>
+                    </Card.Content>
+                  </Card>
+                )}
+
+                <Text style={styles.sectionTitle}>Your Goals</Text>
+
+                {goals.length > 0 ? (
               goals.map((goal) => (
                 <TouchableOpacity
                   key={goal.id}
@@ -197,7 +200,9 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                 </Text>
               </View>
             )}
-          </View>
+            </>
+          )}
+        </View>
         </ScrollView>
 
         <FAB
