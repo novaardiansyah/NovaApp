@@ -6,7 +6,6 @@ import { AppHeader, FormInput, FormButton, AppCopyright } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
 import APP_CONFIG from '@/config/app';
 
-// Props type for navigation
 interface LoginScreenProps {
   navigation: any;
 }
@@ -19,7 +18,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const { login } = useAuth();
 
   const handleLogin = async () => {
-    if (loading) return; // Prevent multiple clicks
+    if (loading) return;
+    
     if (!email || !password) {
       Alert.alert('Error', 'Email dan password harus diisi');
       return;
@@ -30,12 +30,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     try {
       const success = await login(email, password);
 
-      if (success) {
-        Alert.alert('Success', 'Login berhasil!');
-        // Navigation will be handled automatically by RootNavigator
-      } else {
+      if (!success) {
         Alert.alert('Error', 'Login gagal. Periksa email dan password Anda.');
       }
+
+      // ! Jika berhasil login navigator otomatis memindahkan ke HomeScreen
     } catch (error) {
       Alert.alert('Error', 'Terjadi kesalahan. Silakan coba lagi.');
     } finally {
@@ -154,8 +153,8 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 24,
-    paddingTop: 60,
+    padding: 16,
+    paddingVertical: 60,
     minHeight: '100%',
   },
   card: {

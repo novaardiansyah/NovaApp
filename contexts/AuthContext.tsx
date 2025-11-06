@@ -13,7 +13,6 @@ interface User {
   notification_token?: string | null;
 }
 
-
 interface AuthContextType {
   user: User | null;
   token: string | null;
