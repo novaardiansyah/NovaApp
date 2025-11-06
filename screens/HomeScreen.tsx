@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, Alert, RefreshControl, StatusBar, Platform, StyleSheet } from 'react-native';
+import { View, ScrollView, Text, Alert, RefreshControl, StatusBar, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Button, Avatar, Card, Divider } from 'react-native-paper';
+import { PaperProvider, Button, Avatar, Card } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Theme } from '@/constants/colors';
 import { BalanceCardSkeleton } from '@/components';
 import RecentTransactions from '@/components/RecentTransactions';
 import { useAuth } from '@/contexts/AuthContext';
+import TransactionService from '@/services/transactionService';
 import { styles as homeStyles } from '@/styles/HomeScreen.styles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
@@ -19,7 +20,7 @@ interface HomeScreenProps {
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
-  const { user, token, isAuthenticated, fetchFinancialData, validateToken, logout } = useAuth();
+  const { user, isAuthenticated, token, validateToken, logout } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [financialData, setFinancialData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -30,7 +31,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
 
     try {
       const isValid = await validateToken();
-      setHasValidated(true); // Mark as validated to prevent repeats
+      setHasValidated(true);
 
       if (!isValid) {
         Alert.alert(
@@ -41,7 +42,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
               text: 'OK',
               onPress: async () => {
                 await logout();
-                // Navigation will be handled automatically by RootNavigator
               },
             },
           ]
@@ -49,22 +49,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
         return false;
       }
 
-      
       return true;
     } catch (error) {
       console.error('Error validating token:', error);
-      setHasValidated(true); // Still mark as validated to prevent repeats
-      // Silently fail on network errors, don't block the user
+      setHasValidated(true);
       return true;
     }
   };
 
   const loadFinancialData = async () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !token) return;
 
     setLoading(true);
     try {
-      const financial = await fetchFinancialData();
+      const financial = await TransactionService.fetchFinancialData(token);
       setFinancialData(financial);
     } catch (error) {
       console.error('Error loading financial data:', error);
@@ -75,24 +73,21 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      // Reset validation state when auth status changes
       setHasValidated(false);
-      // Validate token silently in background first
       validateUserToken();
     }
   }, [isAuthenticated]);
 
   useEffect(() => {
     if (isAuthenticated && hasValidated) {
-      // Load financial data only after token validation is complete
       loadFinancialData();
     }
   }, [isAuthenticated, hasValidated, route?.params?.refresh]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    setFinancialData(null); // Reset financial data to show skeleton
-    setLoading(true); // Set loading state
+    setFinancialData(null);
+    setLoading(true);
 
     await loadFinancialData();
     setRefreshing(false);
@@ -115,8 +110,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
     );
   }
 
-  // formatCurrency is imported from shared styles
-
   return (
     <PaperProvider theme={Theme}>
       <SafeAreaView style={commonStyles.container} edges={['top', 'left', 'right']}>
@@ -127,7 +120,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
         >
-          {/* Welcome Header */}
           <View style={commonStyles.welcomeSection}>
             <View>
               <Text style={commonStyles.welcomeText}>Welcome back,</Text>
@@ -140,7 +132,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
             )}
           </View>
 
-          {/* Balance Card */}
           {financialData ? (
             <Card style={homeStyles.balanceCard}>
               <LinearGradient
@@ -175,7 +166,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
             <BalanceCardSkeleton style={homeStyles.balanceCard} />
           )}
 
-          {/* Quick Actions */}
           <View style={commonStyles.quickActionsSection}>
             <Text style={commonStyles.sectionTitle}>Quick Actions</Text>
             <View style={commonStyles.quickActionsGrid}>
@@ -209,7 +199,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
             </View>
           </View>
 
-          {/* Recent Transactions */}
           <RecentTransactions
             loading={loading || refreshing}
             onSeeAll={() => navigation.navigate('AllTransactions')}

@@ -14,6 +14,18 @@ export interface Transaction {
   has_items?: boolean;
 }
 
+export interface FinancialData {
+  total_balance: number;
+  income: number;
+  expenses: number;
+  savings: number;
+  period: {
+    start_date: string;
+    end_date: string;
+    month: string;
+  };
+}
+
 export interface Pagination {
   current_page: number;
   from: number;
@@ -44,7 +56,6 @@ class TransactionService {
       'Authorization': `Bearer ${token}`,
     };
 
-    // Build query parameters
     const queryParams = new URLSearchParams();
     queryParams.append('page', page.toString());
 
@@ -83,6 +94,32 @@ class TransactionService {
 
   async getAllTransactions(token: string, page: number = 1): Promise<TransactionsResponse> {
     return await this.getTransactions(token, { page });
+  }
+
+  async fetchFinancialData(token: string): Promise<FinancialData | null> {
+    if (!token) return null;
+
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      };
+
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/summary`, {
+        method: 'GET',
+        headers,
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        return data.data;
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
   }
 }
 

@@ -13,25 +13,6 @@ interface User {
   notification_token?: string | null;
 }
 
-interface FinancialData {
-  total_balance: number;
-  income: number;
-  expenses: number;
-  savings: number;
-  period: {
-    start_date: string;
-    end_date: string;
-    month: string;
-  };
-}
-
-interface Transaction {
-  id: number;
-  title: string;
-  amount: number;
-  type: string; // lowercase type name from database
-  date: string;
-}
 
 interface AuthContextType {
   user: User | null;
@@ -46,8 +27,6 @@ interface AuthContextType {
   updateUser: (userData: { name?: string; email?: string; avatar_base64?: string }) => Promise<boolean>;
   syncNotificationSettings: () => Promise<boolean>;
   toggleNotificationSettings: (enabled: boolean) => Promise<boolean>;
-  fetchFinancialData: () => Promise<FinancialData | null>;
-  fetchRecentTransactions: (limit?: number) => Promise<Transaction[]>;
   validateToken: () => Promise<boolean>;
 }
 
@@ -84,12 +63,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
 
-        // Initialize push notifications after auth is loaded
         PushNotificationService.configureNotificationHandler();
         PushNotificationService.initialize();
       }
     } catch (error) {
-      // Silent error handling
     } finally {
       setLoading(false);
     }
@@ -118,15 +95,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           await AsyncStorage.setItem('auth_token', token);
           setToken(token);
 
-          // Fetch user data with the token
           const userFetched = await fetchUser(token);
 
           if (userFetched) {
-            // Initialize push notifications after successful login
             PushNotificationService.configureNotificationHandler();
             await PushNotificationService.initialize();
 
-            // Start auto-sync - will sync when token is ready
             PushNotificationService.autoSyncTokenWhenReady(token);
           }
 
@@ -172,7 +146,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      // Only clear notification token, preserve user preference
       if (token) {
         await PushNotificationService.clearNotificationTokenForLogout(token);
       }
@@ -182,7 +155,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setToken(null);
       setUser(null);
     } catch (error) {
-      // Silent error handling
     }
   };
 
@@ -191,7 +163,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await AsyncStorage.setItem('auth_token', newToken);
       setToken(newToken);
     } catch (error) {
-      // Silent error handling
     }
   };
 
@@ -207,7 +178,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         'Authorization': `Bearer ${token}`,
       };
 
-      // Build request body with Base64 support
       const requestBody: any = {};
 
       if (userData.name) requestBody.name = userData.name;
@@ -220,7 +190,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         body: JSON.stringify(requestBody),
       });
 
-      // Check if response is OK before parsing JSON
       if (!response.ok) {
         return false;
       }
@@ -228,7 +197,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const data = await response.json();
 
       if (data.success) {
-        // Update local user data with the response data
         const updatedUser = data.data.user;
         await AsyncStorage.setItem('auth_user', JSON.stringify(updatedUser));
         setUser(updatedUser);
@@ -247,7 +215,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const tokenData = await PushNotificationService.getTokenData();
 
-      // Always sync token - backend will handle the logic based on user preference
       const notificationSettings = {
         notification_token: tokenData?.token || null,
       };
@@ -263,7 +230,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       if (response.ok) {
-        // Get updated user data to reflect latest settings
         await fetchUser();
 
         return true;
@@ -283,8 +249,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const tokenData = await PushNotificationService.getTokenData();
 
-      // Always sync token on login - backend will handle the logic
-      // based on user's has_allow_notification preference stored in database
       const notificationSettings = {
         notification_token: tokenData?.token || null,
       };
@@ -300,7 +264,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       if (response.ok) {
-        // Get updated user data to reflect latest settings
         await fetchUser(authToken);
 
         return true;
@@ -335,7 +298,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       if (response.ok) {
-        // Update context with new settings
         const updatedUser = {
           ...user,
           has_allow_notification: enabled,
@@ -344,7 +306,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(updatedUser);
         AsyncStorage.setItem('auth_user', JSON.stringify(updatedUser));
 
-        // Update sync status
         await PushNotificationService.setTokenSyncStatus(true);
 
         return true;
@@ -358,58 +319,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const fetchFinancialData = async (): Promise<FinancialData | null> => {
-    if (!token) return null;
-
-    try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      };
-
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/summary`, {
-        method: 'GET',
-        headers,
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        return data.data;
-      }
-      return null;
-    } catch (error) {
-      return null;
-    }
-  };
-
-  const fetchRecentTransactions = async (limit: number = 5): Promise<Transaction[]> => {
-    if (!token) return [];
-
-    try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      };
-
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments?page=1&limit=${limit}`, {
-        method: 'GET',
-        headers,
-      });
-
-      const data = await response.json();
-      
-      if (response.ok && data.success) {
-        return data.data;
-      }
-      return [];
-    } catch (error) {
-      return [];
-    }
-  };
-
+  
   const validateToken = async (): Promise<boolean> => {
     if (!token) return false;
 
@@ -458,8 +368,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updateUser,
     syncNotificationSettings,
     toggleNotificationSettings,
-    fetchFinancialData,
-    fetchRecentTransactions,
     validateToken,
   };
 
