@@ -96,6 +96,7 @@ export const styles = StyleSheet.create({
   goalDateText: {
     fontSize: 12,
     color: '#9ca3af',
+    marginLeft: 4,
   },
   goalAmount: {
     fontSize: 14,
@@ -204,12 +205,10 @@ export const styles = StyleSheet.create({
     color: '#9ca3af',
     textAlign: 'center',
   },
-  input: {
-    marginBottom: 8,
-  },
-  helperText: {
-    fontSize: 12,
-    marginTop: -8,
-    marginBottom: 8,
+  loadingText: {
+    textAlign: 'center',
+    color: '#6b7280',
+    fontSize: 14,
+    paddingVertical: 20,
   },
 })

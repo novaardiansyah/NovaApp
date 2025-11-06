@@ -9,6 +9,7 @@ import BudgetScreen from '@/screens/BudgetScreen';
 import ReportsScreen from '@/screens/ReportsScreen';
 import GoalsScreen from '@/screens/GoalsScreen';
 import AddGoalScreen from '@/screens/AddGoalScreen';
+import AddFundsScreen from '@/screens/AddFundsScreen';
 import ChangePasswordScreen from '@/screens/ChangePasswordScreen';
 import UpdateProfileScreen from '@/screens/UpdateProfileScreen';
 import PrivacyPolicyScreen from '@/screens/PrivacyPolicyScreen';
@@ -114,6 +115,11 @@ const HomeStackNavigator = () => {
         name="AddGoal"
         component={AddGoalScreen}
         options={{ title: 'Create Financial Goal' }}
+      />
+      <MainStack.Screen
+        name="AddFunds"
+        component={AddFundsScreen}
+        options={{ title: 'Add Funds' }}
       />
       <MainStack.Screen
         name="AddAttachment"

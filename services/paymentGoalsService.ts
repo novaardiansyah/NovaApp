@@ -23,6 +23,11 @@ export interface CreatePaymentGoalData {
   target_date: string;
 }
 
+export interface AddFundsData {
+  amount: number;
+  payment_account_id: number;
+}
+
 export interface PaymentGoal {
   id: number;
   code: string;
@@ -110,7 +115,7 @@ class PaymentGoalsService {
     }
   }
 
-  async addFundsToGoal(token: string, goalId: number, amount: number): Promise<ApiResponse<{
+  async addFundsToGoal(token: string, goalId: number, fundsData: AddFundsData): Promise<ApiResponse<{
     amount: string;
     target_amount: string;
     progress: string;
@@ -120,7 +125,8 @@ class PaymentGoalsService {
         method: 'PUT',
         headers: this.getHeaders(token),
         body: JSON.stringify({
-          amount: amount
+          amount: fundsData.amount,
+          payment_account_id: fundsData.payment_account_id
         }),
       });
 
