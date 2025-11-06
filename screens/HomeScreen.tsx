@@ -178,7 +178,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
 
               <Card style={commonStyles.actionCard} onPress={() => navigation.navigate('Goals')}>
                 <Card.Content style={commonStyles.actionCardContent}>
-                  <Ionicons name="trophy" size={24} color="#6366f1" />
+                  <Ionicons name="diamond" size={24} color="#6366f1" />
                   <Text style={commonStyles.actionText}>Goals</Text>
                 </Card.Content>
               </Card>

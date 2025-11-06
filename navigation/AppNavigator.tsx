@@ -27,7 +27,7 @@ import ViewPaymentDetailsScreen from '@/screens/ViewPaymentDetailsScreen';
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const MainStack = createStackNavigator();
-const BudgetStack = createStackNavigator();
+const GoalsStack = createStackNavigator();
 
 const ProfileStackNavigator = () => {
   return (
@@ -61,20 +61,26 @@ const ProfileStackNavigator = () => {
   );
 };
 
-const BudgetStackNavigator = () => {
+
+const GoalsStackNavigator = () => {
   return (
-    <BudgetStack.Navigator screenOptions={{ headerShown: false }}>
-      <BudgetStack.Screen
-        name="BudgetMain"
-        component={BudgetScreen}
-        options={{ title: 'Budget & Accounts' }}
+    <GoalsStack.Navigator screenOptions={{ headerShown: false }}>
+      <GoalsStack.Screen
+        name="GoalsMain"
+        component={GoalsScreen}
+        options={{ title: 'Financial Goals' }}
       />
-      <BudgetStack.Screen
-        name="AuditPaymentAccount"
-        component={AuditScreen}
-        options={{ headerShown: false }}
+      <GoalsStack.Screen
+        name="AddGoal"
+        component={AddGoalScreen}
+        options={{ title: 'Create Financial Goal' }}
       />
-    </BudgetStack.Navigator>
+      <GoalsStack.Screen
+        name="AddFunds"
+        component={AddFundsScreen}
+        options={{ title: 'Add Funds' }}
+      />
+    </GoalsStack.Navigator>
   );
 };
 
@@ -107,19 +113,19 @@ const HomeStackNavigator = () => {
         options={{ title: 'Payment Items' }}
       />
       <MainStack.Screen
-        name="Goals"
-        component={GoalsScreen}
-        options={{ title: 'Financial Goals' }}
+        name="Budget"
+        component={BudgetScreen}
+        options={{ title: 'Budget & Accounts' }}
       />
       <MainStack.Screen
-        name="AddGoal"
-        component={AddGoalScreen}
-        options={{ title: 'Create Financial Goal' }}
+        name="AuditPaymentAccount"
+        component={AuditScreen}
+        options={{ headerShown: false }}
       />
       <MainStack.Screen
-        name="AddFunds"
-        component={AddFundsScreen}
-        options={{ title: 'Add Funds' }}
+        name="Reports"
+        component={ReportsScreen}
+        options={{ title: 'Reports' }}
       />
       <MainStack.Screen
         name="AddAttachment"
@@ -160,41 +166,54 @@ const TabNavigator = () => {
           borderTopWidth: 1,
           borderTopColor: '#e5e7eb',
           paddingBottom: 4 + insets.bottom,
-          height: 60 + insets.bottom,
+          paddingTop: 4,
+          height: 65 + insets.bottom,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '500',
         },
-      }}
+        }}
     >
       <Tab.Screen
         name="Home"
         component={HomeStackNavigator}
         options={{
           tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "home" : "home-outline"}
+              size={24}
+              color={color}
+            />
           ),
         }}
       />
       <Tab.Screen
-        name="Budget"
-        component={BudgetStackNavigator}
+        name="AllTransactions"
+        component={AllTransactionsScreen}
         options={{
-          tabBarLabel: 'Budget',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="wallet" size={size} color={color} />
+          tabBarLabel: 'Transaction',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "receipt" : "receipt-outline"}
+              size={24}
+              color={color}
+            />
           ),
         }}
       />
       <Tab.Screen
-        name="Reports"
-        component={ReportsScreen}
+        name="Goals"
+        component={GoalsStackNavigator}
         options={{
-          tabBarLabel: 'Reports',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="document-text" size={size} color={color} />
+          tabBarLabel: 'Goals',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "diamond" : "diamond-outline"}
+              size={24}
+              color={color}
+            />
           ),
         }}
       />
@@ -203,8 +222,12 @@ const TabNavigator = () => {
         component={ProfileStackNavigator}
         options={{
           tabBarLabel: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "person" : "person-outline"}
+              size={24}
+              color={color}
+            />
           ),
           headerShown: false,
         }}

@@ -416,7 +416,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
           }
         >
           <View style={commonStyles.header}>
-            <Ionicons name="document-text-outline" size={24} color="#6366f1" style={commonStyles.headerIcon} />
+            <Ionicons name="document-text" size={24} color="#6366f1" style={commonStyles.headerIcon} />
             <Text style={commonStyles.headerTitle}>Financial Reports</Text>
           </View>
 

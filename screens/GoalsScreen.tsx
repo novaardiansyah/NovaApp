@@ -94,7 +94,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
         >
           {/* Header */}
           <View style={commonStyles.header}>
-            <Ionicons name="trophy" size={24} color="#6366f1" style={commonStyles.headerIcon} />
+            <Ionicons name="diamond" size={24} color="#6366f1" style={commonStyles.headerIcon} />
             <Text style={commonStyles.headerTitle}>Financial Goals</Text>
           </View>
 
@@ -192,7 +192,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
             ) : (
               <View style={styles.emptyState}>
                 <View style={styles.emptyIcon}>
-                  <Ionicons name="trophy-outline" size={32} color="#6b7280" />
+                  <Ionicons name="diamond-outline" size={32} color="#6b7280" />
                 </View>
                 <Text style={styles.emptyText}>No Goals Yet</Text>
                 <Text style={styles.emptySubtext}>
