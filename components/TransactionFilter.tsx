@@ -1,37 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Modal, ScrollView, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { Theme } from '@/constants/colors';
-import { styles } from '@/styles/TransactionFilter.styles';
+import React, { useState, useEffect } from 'react'
+import { View, Text, TouchableOpacity, Modal, ScrollView } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { Ionicons } from '@expo/vector-icons'
+import { TextInput } from 'react-native-paper'
+import { DatePickerModal } from 'react-native-paper-dates'
+import { useAuth } from '@/contexts/AuthContext'
+import { Select } from '@/components'
+import { styles } from '@/styles/TransactionFilter.styles'
+import paymentService from '@/services/paymentService'
 
 export interface FilterOptions {
-  dateFrom: string | null;
-  dateTo: string | null;
-  transactionType: string | null;
-  accountId: string | null;
+  dateFrom: string | null
+  dateTo: string | null
+  transactionType: string | null
+  accountId: string | null
 }
 
 interface TransactionFilterProps {
-  visible: boolean;
-  onClose: () => void;
-  onApplyFilter: (filters: FilterOptions) => void;
-  onResetFilter: () => void;
-  currentFilters: FilterOptions;
+  visible: boolean
+  onClose: () => void
+  onApplyFilter: (filters: FilterOptions) => void
+  onResetFilter: () => void
+  currentFilters: FilterOptions
 }
-
-const TRANSACTION_TYPES = [
-  { id: 'income', label: 'Income', icon: 'arrow-up-outline' },
-  { id: 'expense', label: 'Expense', icon: 'arrow-down-outline' },
-  { id: 'transfer', label: 'Transfer', icon: 'swap-horizontal-outline' },
-];
-
-const ACCOUNTS = [
-  { id: '1', label: 'Cash', icon: 'wallet-outline' },
-  { id: '2', label: 'Bank Account', icon: 'card-outline' },
-  { id: '3', label: 'E-Wallet', icon: 'phone-portrait-outline' },
-  { id: '4', label: 'Credit Card', icon: 'card' },
-];
 
 const TransactionFilter: React.FC<TransactionFilterProps> = ({
   visible,
@@ -40,56 +31,122 @@ const TransactionFilter: React.FC<TransactionFilterProps> = ({
   onResetFilter,
   currentFilters,
 }) => {
-  const [filters, setFilters] = useState<FilterOptions>(currentFilters);
-  const [showDatePicker, setShowDatePicker] = useState<'from' | 'to' | null>(null);
+  const { token } = useAuth()
+  const [filters, setFilters] = useState<FilterOptions>(currentFilters)
+  const [showDatePickerFrom, setShowDatePickerFrom] = useState(false)
+  const [showDatePickerTo, setShowDatePickerTo] = useState(false)
+  const [paymentTypes, setPaymentTypes] = useState<any[]>([])
+  const [paymentAccounts, setPaymentAccounts] = useState<any[]>([])
+  const [loadingPaymentTypes, setLoadingPaymentTypes] = useState(false)
+  const [loadingPaymentAccounts, setLoadingPaymentAccounts] = useState(false)
 
   useEffect(() => {
-    setFilters(currentFilters);
-  }, [currentFilters, visible]);
+    setFilters(currentFilters)
+  }, [currentFilters, visible])
 
-  const handleDateSelect = (type: 'from' | 'to') => {
-    setShowDatePicker(type);
-    Alert.alert(
-      `Select ${type === 'from' ? 'Start' : 'End'} Date`,
-      'Date picker functionality would be implemented here',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Set Today',
-          onPress: () => {
-            const today = new Date().toISOString().split('T')[0];
-            setFilters(prev => ({
-              ...prev,
-              [type === 'from' ? 'dateFrom' : 'dateTo']: today,
-            }));
-            setShowDatePicker(null);
-          },
-        },
-      ]
-    );
-  };
+  useEffect(() => {
+    if (visible && token) {
+      loadPaymentTypes()
+      loadPaymentAccounts()
+    }
+  }, [visible, token])
 
-  const handleTransactionTypeSelect = (typeId: string) => {
+  const loadPaymentTypes = async () => {
+    setLoadingPaymentTypes(true)
+
+    if (!token) {
+      setLoadingPaymentTypes(false)
+      return
+    }
+
+    try {
+      const types = await paymentService.getPaymentTypes(token)
+      setPaymentTypes(types)
+
+      if (types.length > 0) {
+        const defaultType = types.find((type) => type.is_default) || types[0]
+        const selected = defaultType.id.toString()
+
+        setFilters(prev => ({ ...prev, transactionType: selected }))
+      }
+    } catch (error) {
+      console.error('Error loading payment types:', error)
+    } finally {
+      setLoadingPaymentTypes(false)
+    }
+  }
+
+  const loadPaymentAccounts = async () => {
+    setLoadingPaymentAccounts(true)
+
+    if (!token) {
+      setLoadingPaymentAccounts(false)
+      return
+    }
+
+    try {
+      const accounts = await paymentService.getPaymentAccounts(token)
+      setPaymentAccounts(accounts)
+
+      if (accounts.length > 0) {
+        const defaultAccount = accounts.find((account) => account.is_default) || accounts[0]
+        const selected = defaultAccount.id.toString()
+
+        setFilters(prev => ({ ...prev, accountId: selected }))
+      }
+    } catch (error) {
+      console.error('Error loading payment accounts:', error)
+    } finally {
+      setLoadingPaymentAccounts(false)
+    }
+  }
+
+  const handleDateFromConfirm = (params: any) => {
+    const year = params.date.getFullYear()
+    const month = String(params.date.getMonth() + 1).padStart(2, '0')
+    const day = String(params.date.getDate()).padStart(2, '0')
+    const formattedDate = `${year}-${month}-${day}`
+
+    setFilters(prev => ({ ...prev, dateFrom: formattedDate }))
+    setShowDatePickerFrom(false)
+  }
+
+  const handleDateFromDismiss = () => {
+    setShowDatePickerFrom(false)
+  }
+
+  const handleDateToConfirm = (params: any) => {
+    const year = params.date.getFullYear()
+    const month = String(params.date.getMonth() + 1).padStart(2, '0')
+    const day = String(params.date.getDate()).padStart(2, '0')
+    const formattedDate = `${year}-${month}-${day}`
+
+    setFilters(prev => ({ ...prev, dateTo: formattedDate }))
+    setShowDatePickerTo(false)
+  }
+
+  const handleDateToDismiss = () => {
+    setShowDatePickerTo(false)
+  }
+
+  const handleTransactionTypeChange = (typeId: string) => {
     setFilters(prev => ({
       ...prev,
-      transactionType: prev.transactionType === typeId ? null : typeId,
-    }));
-  };
+      transactionType: typeId === '' ? null : typeId,
+    }))
+  }
 
-  const handleAccountSelect = (accountId: string) => {
+  const handleAccountChange = (accountId: string) => {
     setFilters(prev => ({
       ...prev,
-      accountId: prev.accountId === accountId ? null : accountId,
-    }));
-  };
+      accountId: accountId === '' ? null : accountId,
+    }))
+  }
 
   const handleApply = () => {
-    onApplyFilter(filters);
-    onClose();
-  };
+    onApplyFilter(filters)
+    onClose()
+  }
 
   const handleReset = () => {
     const emptyFilters: FilterOptions = {
@@ -97,162 +154,145 @@ const TransactionFilter: React.FC<TransactionFilterProps> = ({
       dateTo: null,
       transactionType: null,
       accountId: null,
-    };
-    setFilters(emptyFilters);
-    onResetFilter();
-    onClose();
-  };
+    }
+    setFilters(emptyFilters)
+    onResetFilter()
+    onClose()
+  }
 
-  const hasActiveFilters = !!(filters.dateFrom || filters.dateTo || filters.transactionType || filters.accountId);
-
-  const formatDateDisplay = (dateString: string | null) => {
-    if (!dateString) return 'Select date';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
+  const hasActiveFilters = !!(filters.dateFrom || filters.dateTo || filters.transactionType || filters.accountId)
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      presentationStyle="pageSheet"
-      onRequestClose={onClose}
-    >
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Ionicons name="close" size={24} color="#6b7280" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Filter Transactions</Text>
-          <TouchableOpacity
-            onPress={handleReset}
-            style={styles.resetButton}
-            disabled={!hasActiveFilters}
-          >
-            <Text style={[styles.resetText, !hasActiveFilters && styles.resetTextDisabled]}>
-              Reset
-            </Text>
-          </TouchableOpacity>
-        </View>
+    <>
+      <Modal
+        visible={visible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={onClose}
+      >
+        <SafeAreaView style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Ionicons name="close" size={24} color="#6b7280" />
+            </TouchableOpacity>
+            <Text style={styles.title}>Filter Transaksi</Text>
+            <TouchableOpacity
+              onPress={handleReset}
+              style={styles.resetButton}
+              disabled={!hasActiveFilters}
+            >
+              <Text style={[styles.resetText, !hasActiveFilters && styles.resetTextDisabled]}>
+                Reset
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Date Range Filter */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Date Range</Text>
+          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            {/* Date Range Filter */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Rentang Tanggal</Text>
 
-            <View style={styles.dateContainer}>
-              <TouchableOpacity
-                style={styles.dateButton}
-                onPress={() => handleDateSelect('from')}
-              >
-                <Ionicons name="calendar-outline" size={20} color="#6366f1" />
-                <View style={styles.dateContent}>
-                  <Text style={styles.dateLabel}>From</Text>
-                  <Text style={styles.dateText}>
-                    {formatDateDisplay(filters.dateFrom)}
-                  </Text>
-                </View>
+              <TouchableOpacity onPress={() => setShowDatePickerFrom(true)} activeOpacity={0.7}>
+                <TextInput
+                  label="Tanggal Mulai"
+                  value={filters.dateFrom || ''}
+                  onChangeText={() => {}}
+                  mode="outlined"
+                  outlineColor="#e5e7eb"
+                  activeOutlineColor="#6366f1"
+                  style={styles.input}
+                  placeholder="Pilih tanggal"
+                  editable={false}
+                  right={<TextInput.Icon icon="calendar" onPress={() => setShowDatePickerFrom(true)} />}
+                />
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.dateButton}
-                onPress={() => handleDateSelect('to')}
-              >
-                <Ionicons name="calendar-outline" size={20} color="#6366f1" />
-                <View style={styles.dateContent}>
-                  <Text style={styles.dateLabel}>To</Text>
-                  <Text style={styles.dateText}>
-                    {formatDateDisplay(filters.dateTo)}
-                  </Text>
-                </View>
+              <TouchableOpacity onPress={() => setShowDatePickerTo(true)} activeOpacity={0.7}>
+                <TextInput
+                  label="Tanggal Selesai"
+                  value={filters.dateTo || ''}
+                  onChangeText={() => {}}
+                  mode="outlined"
+                  outlineColor="#e5e7eb"
+                  activeOutlineColor="#6366f1"
+                  style={styles.input}
+                  placeholder="Pilih tanggal"
+                  editable={false}
+                  right={<TextInput.Icon icon="calendar" onPress={() => setShowDatePickerTo(true)} />}
+                />
               </TouchableOpacity>
             </View>
-          </View>
 
-          {/* Transaction Type Filter */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Transaction Type</Text>
-            <View style={styles.optionContainer}>
-              {TRANSACTION_TYPES.map((type) => (
-                <TouchableOpacity
-                  key={type.id}
-                  style={[
-                    styles.optionButton,
-                    filters.transactionType === type.id && styles.optionButtonSelected,
-                  ]}
-                  onPress={() => handleTransactionTypeSelect(type.id)}
-                >
-                  <Ionicons
-                    name={type.icon as any}
-                    size={20}
-                    color={filters.transactionType === type.id ? '#ffffff' : '#6b7280'}
-                  />
-                  <Text style={[
-                    styles.optionText,
-                    filters.transactionType === type.id && styles.optionTextSelected,
-                  ]}>
-                    {type.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+            {/* Transaction Type Filter */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Jenis Transaksi</Text>
+              <Select
+                label="Jenis Transaksi"
+                value={filters.transactionType || ''}
+                onValueChange={handleTransactionTypeChange}
+                options={paymentTypes}
+                loading={loadingPaymentTypes}
+                style={styles.input}
+                placeholder="Pilih jenis transaksi"
+              />
             </View>
-          </View>
 
-          {/* Account Filter */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Account</Text>
-            <View style={styles.optionContainer}>
-              {ACCOUNTS.map((account) => (
-                <TouchableOpacity
-                  key={account.id}
-                  style={[
-                    styles.optionButton,
-                    filters.accountId === account.id && styles.optionButtonSelected,
-                  ]}
-                  onPress={() => handleAccountSelect(account.id)}
-                >
-                  <Ionicons
-                    name={account.icon as any}
-                    size={20}
-                    color={filters.accountId === account.id ? '#ffffff' : '#6b7280'}
-                  />
-                  <Text style={[
-                    styles.optionText,
-                    filters.accountId === account.id && styles.optionTextSelected,
-                  ]}>
-                    {account.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+            {/* Account Filter */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Akun</Text>
+              <Select
+                label="Akun"
+                value={filters.accountId || ''}
+                onValueChange={handleAccountChange}
+                options={paymentAccounts}
+                loading={loadingPaymentAccounts}
+                style={styles.input}
+              />
             </View>
+
+            <View style={{ height: 30 }}></View>
+          </ScrollView>
+
+          {/* Apply Button */}
+          <View style={styles.footer}>
+            <TouchableOpacity
+              style={[styles.applyButton, !hasActiveFilters && styles.applyButtonDisabled]}
+              onPress={handleApply}
+              disabled={!hasActiveFilters}
+            >
+              <Text style={styles.applyButtonText}>
+                Terapkan Filter {hasActiveFilters && `(${getActiveFilterCount(filters)})`}
+              </Text>
+            </TouchableOpacity>
           </View>
+        </SafeAreaView>
+      </Modal>
 
-          <View style={{ height: 30 }}></View>
-        </ScrollView>
+      {/* Date From Picker Modal */}
+      <DatePickerModal
+        mode="single"
+        visible={showDatePickerFrom}
+        onDismiss={handleDateFromDismiss}
+        onConfirm={handleDateFromConfirm}
+        date={filters.dateFrom ? new Date(filters.dateFrom) : new Date()}
+        locale="id"
+      />
 
-        {/* Apply Button */}
-        <View style={styles.footer}>
-          <TouchableOpacity
-            style={[styles.applyButton, !hasActiveFilters && styles.applyButtonDisabled]}
-            onPress={handleApply}
-            disabled={!hasActiveFilters}
-          >
-            <Text style={styles.applyButtonText}>
-              Apply Filters {hasActiveFilters && `(${getActiveFilterCount(filters)})`}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    </Modal>
-  );
-};
+      {/* Date To Picker Modal */}
+      <DatePickerModal
+        mode="single"
+        visible={showDatePickerTo}
+        onDismiss={handleDateToDismiss}
+        onConfirm={handleDateToConfirm}
+        date={filters.dateTo ? new Date(filters.dateTo) : new Date()}
+        locale="id"
+      />
+    </>
+  )
+}
 
 const getActiveFilterCount = (filters: FilterOptions): number => {
-  return Object.values(filters).filter(value => value !== null).length;
-};
+  return Object.values(filters).filter(value => value !== null).length
+}
 
-export default TransactionFilter;
+export default TransactionFilter

@@ -143,15 +143,15 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
     if (!token) return;
 
     Alert.alert(
-      'Delete Payment',
-      `Are you sure you want to delete "${transaction.name}"? This action cannot be undone.`,
+      'Hapus Pembayaran',
+      `Apakah Anda yakin ingin menghapus "${transaction.name}"? Tindakan ini tidak dapat dibatalkan.`,
       [
         {
-          text: 'Cancel',
+          text: 'Batal',
           style: 'cancel',
         },
         {
-          text: 'Delete',
+          text: 'Hapus',
           style: 'destructive',
           onPress: () => confirmDeletePayment(transaction.id),
         },
@@ -175,19 +175,19 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           to: Math.max(0, prev.to - 1)
         } : null);
 
-        setNotification('Payment deleted successfully!');
+        setNotification('Pembayaran berhasil dihapus!');
       } else {
         Alert.alert(
-          'Error',
-          response.message || 'Failed to delete payment. Please try again.',
+          'Kesalahan',
+          response.message || 'Gagal menghapus pembayaran. Silakan coba lagi.',
           [{ text: 'OK' }]
         );
       }
     } catch (error) {
       console.error('Error deleting payment:', error);
       Alert.alert(
-        'Error',
-        'Failed to delete payment. Please check your connection and try again.',
+        'Kesalahan',
+        'Gagal menghapus pembayaran. Silakan periksa koneksi Anda dan coba lagi.',
         [{ text: 'OK' }]
       );
     } finally {
@@ -353,8 +353,8 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                   <Card style={styles.emptyCard}>
                     <Card.Content style={styles.emptyCardContent}>
                       <Ionicons name="wallet-outline" size={48} color="#9ca3af" />
-                      <Text style={styles.emptyText}>No transactions yet</Text>
-                      <Text style={styles.emptySubtext}>Your transactions will appear here</Text>
+                      <Text style={styles.emptyText}>Belum ada transaksi</Text>
+                      <Text style={styles.emptySubtext}>Transaksi Anda akan muncul di sini</Text>
                     </Card.Content>
                   </Card>
                 ) : (
@@ -432,7 +432,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
               { pagination && currentPage >= pagination.last_page && transactions.length > 0 ? (
                 <View style={styles.endOfList}>
                   <Text style={styles.endOfListText}>
-                    Showing {transactions.length} of {pagination.total} transactions
+                    Menampilkan {transactions.length} dari {pagination.total} transaksi
                   </Text>
                 </View>
               ) : loadingMore ? (
@@ -467,7 +467,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
 
           <View style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 }}>
             <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
-              Payment Actions
+              Aksi Pembayaran
             </Text>
 
             <View style={{ paddingHorizontal: 20 }}>
@@ -476,7 +476,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                 onPress={() => handleActionSelect('view_details')}
               >
                 <Ionicons name="eye-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>View Details</Text>
+                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Lihat Detail</Text>
               </TouchableOpacity>
 
               {/* Edit payment button removed - feature not implemented yet */}
@@ -487,7 +487,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                   onPress={() => handleActionSelect('view_items')}
                 >
                   <Ionicons name="list-outline" size={24} color="#f59e0b" style={{ marginRight: 16 }} />
-                  <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>View Items</Text>
+                  <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Lihat Item</Text>
                 </TouchableOpacity>
               )}
 
@@ -496,7 +496,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                 onPress={() => handleActionSelect('view_attachment')}
               >
                 <Ionicons name="attach-outline" size={24} color="#3b82f6" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>View Attachment</Text>
+                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Lihat Lampiran</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -504,7 +504,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                 onPress={() => handleActionSelect('delete_payment')}
               >
                 <Ionicons name="trash-outline" size={24} color="#ef4444" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 16, fontWeight: '500', color: '#ef4444' }}>Delete Payment</Text>
+                <Text style={{ fontSize: 16, fontWeight: '500', color: '#ef4444' }}>Hapus Pembayaran</Text>
               </TouchableOpacity>
             </View>
 
@@ -512,7 +512,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
               style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 12, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
               onPress={closeActionSheet}
             >
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#6366f1' }}>Cancel</Text>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#6366f1' }}>Batal</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>

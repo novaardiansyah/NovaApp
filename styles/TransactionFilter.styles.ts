@@ -43,17 +43,53 @@ export const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
+  input: {
+    backgroundColor: '#ffffff',
+    marginBottom: 8,
+  },
   section: {
-    paddingBottom: 16,
+    paddingBottom: 12,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#111827',
-    marginBottom: 16,
+    marginBottom: 8,
   },
   dateContainer: {
     gap: 12,
+  },
+  dateInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    marginBottom: 12,
+  },
+  inputLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  inputIcon: {
+    marginRight: 12,
+  },
+  inputContent: {
+    flex: 1,
+  },
+  inputLabel: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginBottom: 4,
+  },
+  inputValue: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#111827',
   },
   dateButton: {
     flexDirection: 'row',

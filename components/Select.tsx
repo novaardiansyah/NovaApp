@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { View, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
-import { TextInput, HelperText, Card } from 'react-native-paper';
+import { View, Text, TouchableOpacity, ScrollView, Dimensions, Modal } from 'react-native';
+import { TextInput, HelperText, Card, List } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 import { DropdownSkeleton } from './skeleton';
 
 interface SelectOption {
@@ -37,13 +38,11 @@ const Select: React.FC<SelectProps> = ({
   errorStyle,
 }) => {
   const [menuVisible, setMenuVisible] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
-  const inputRef = useRef<View>(null);
 
   const getSelectedOptionName = () => {
-    if (!value) return placeholder || `Select ${label.toLowerCase()}`;
+    if (!value) return placeholder || `Pilih ${label.toLowerCase()}`;
     const selectedOption = options.find(option => option.id.toString() === value);
-    return selectedOption ? selectedOption.name : placeholder || `Select ${label.toLowerCase()}`;
+    return selectedOption ? selectedOption.name : placeholder || `Pilih ${label.toLowerCase()}`;
   };
 
   const handleOptionPress = (optionValue: string) => {
@@ -51,30 +50,8 @@ const Select: React.FC<SelectProps> = ({
     setMenuVisible(false);
   };
 
-  const updateDropdownPosition = () => {
-    if (inputRef.current) {
-      inputRef.current.measure((fx, fy, width, height, px, py) => {
-        const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-        const dropdownHeight = Math.min(300, options.length * 48 + 16);
-
-        // Position dropdown centered vertically on screen
-        const top = (screenHeight - dropdownHeight) / 2;
-        const left = (screenWidth - Math.min(width, screenWidth - 32)) / 2; // Center with max width and padding
-
-        setDropdownPosition({
-          top: top,
-          left: left,
-          width: Math.min(width, screenWidth - 32), // Don't exceed screen width with padding
-        });
-      });
-    }
-  };
-
   const handleToggleDropdown = () => {
     if (!disabled) {
-      if (!menuVisible) {
-        updateDropdownPosition();
-      }
       setMenuVisible(!menuVisible);
     }
   };
@@ -89,7 +66,7 @@ const Select: React.FC<SelectProps> = ({
 
   return (
     <>
-      <View ref={inputRef} collapsable={false}>
+      <View>
         <TouchableOpacity
           onPress={handleToggleDropdown}
           activeOpacity={disabled ? 1 : 0.7}
@@ -109,71 +86,112 @@ const Select: React.FC<SelectProps> = ({
         {error && <HelperText type="error" style={errorStyle ? errorStyle : { marginTop: -14, marginLeft: -6, marginBottom: 14 }}>{error}</HelperText>}
       </View>
 
-      {menuVisible && (
-        <>
-          {/* Overlay backdrop */}
-          <TouchableOpacity
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.1)',
-              zIndex: 1000,
-            }}
-            onPress={() => setMenuVisible(false)}
-            activeOpacity={1}
-          />
-
-          {/* Floating dropdown */}
-          <Card style={{
-            position: 'absolute',
-            top: dropdownPosition.top,
-            left: dropdownPosition.left,
-            width: dropdownPosition.width,
+      {/* Modal for dropdown options */}
+      <Modal
+        visible={menuVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setMenuVisible(false)}
+      >
+        <View style={{
+          flex: 1,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingHorizontal: 20,
+        }}>
+          <View style={{
+            width: '100%',
+            maxWidth: 400,
             backgroundColor: '#ffffff',
-            borderRadius: 8,
-            borderWidth: 1,
-            borderColor: '#e5e7eb',
+            borderRadius: 12,
             elevation: 8,
             shadowColor: '#000',
             shadowOffset: {
               width: 0,
               height: 4,
             },
-            shadowOpacity: 0.15,
+            shadowOpacity: 0.25,
             shadowRadius: 8,
-            zIndex: 1001,
-            maxHeight: 300,
+            overflow: 'hidden',
           }}>
-            <ScrollView nestedScrollEnabled={true}>
-              {options.map((option) => (
-                <TouchableOpacity
-                  key={option.id}
-                  style={{
-                    paddingVertical: 6,
-                    paddingHorizontal: 4,
-                    borderBottomWidth: 1,
-                    borderBottomColor: '#f3f4f6',
-                  }}
-                  onPress={() => handleOptionPress(option.id.toString())}
-                >
-                  <TextInput
-                    value={option.name}
-                    onChangeText={() => {}}
-                    mode="flat"
-                    dense
-                    disabled
-                    style={{ backgroundColor: 'transparent', margin: 0, padding: 0 }}
-                    textAlign="left"
-                  />
-                </TouchableOpacity>
-              ))}
+            {/* Header */}
+            <View style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              borderBottomWidth: 1,
+              borderBottomColor: '#f3f4f6',
+              backgroundColor: '#ffffff',
+            }}>
+              <Text style={{
+                fontSize: 16,
+                fontWeight: '600',
+                color: '#111827',
+              }}>
+                {label}
+              </Text>
+              <TouchableOpacity onPress={() => setMenuVisible(false)}>
+                <Ionicons name="close" size={24} color="#6b7280" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Scrollable Options */}
+            <ScrollView
+              style={{ maxHeight: 300 }}
+              contentContainerStyle={{
+                paddingBottom: 0,
+              }}
+              showsVerticalScrollIndicator={true}
+            >
+              <View style={{
+                backgroundColor: '#ffffff',
+              }}>
+                {options.map((option, index) => {
+                  const isLast = index === options.length - 1;
+                  const isSelected = value === option.id.toString();
+
+                  return (
+                    <TouchableOpacity
+                      key={option.id}
+                      onPress={() => handleOptionPress(option.id.toString())}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        paddingHorizontal: 16,
+                        paddingVertical: 12,
+                        backgroundColor: isSelected ? '#f0f9ff' : '#ffffff',
+                        borderBottomWidth: isLast ? 0 : 1,
+                        borderBottomColor: '#f3f4f6',
+                      }}
+                    >
+                      <View style={{
+                        flex: 1,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}>
+                        {isSelected && (
+                          <Ionicons name="checkmark" size={20} color="#1e40af" style={{ marginRight: 12 }} />
+                        )}
+                        <Text style={{
+                          fontSize: 16,
+                          color: isSelected ? '#1e40af' : '#111827',
+                          fontWeight: isSelected ? '600' : '400',
+                          flex: 1,
+                        }}>
+                          {option.name}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </ScrollView>
-          </Card>
-        </>
-      )}
+          </View>
+        </View>
+      </Modal>
     </>
   );
 };
