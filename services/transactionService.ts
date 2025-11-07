@@ -46,11 +46,15 @@ export interface TransactionsResponse {
 export interface TransactionParams {
   page?: number;
   limit?: number;
+  date_from?: string;
+  date_to?: string;
+  type?: string;
+  account_id?: string;
 }
 
 class TransactionService {
   async getTransactions(token: string, params: TransactionParams = {}): Promise<TransactionsResponse> {
-    const { page = 1, limit } = params;
+    const { page = 1, limit, date_from, date_to, type, account_id } = params;
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -63,6 +67,22 @@ class TransactionService {
 
     if (limit) {
       queryParams.append('limit', limit.toString());
+    }
+
+    if (date_from) {
+      queryParams.append('date_from', date_from);
+    }
+
+    if (date_to) {
+      queryParams.append('date_to', date_to);
+    }
+
+    if (type) {
+      queryParams.append('type', type);
+    }
+
+    if (account_id) {
+      queryParams.append('account_id', account_id);
     }
 
     const url = `${APP_CONFIG.API_BASE_URL}/payments?${queryParams.toString()}`;
@@ -94,8 +114,8 @@ class TransactionService {
     }
   }
 
-  async getAllTransactions(token: string, page: number = 1): Promise<TransactionsResponse> {
-    return await this.getTransactions(token, { page });
+  async getAllTransactions(token: string, page: number = 1, additionalParams: Omit<TransactionParams, 'page'> = {}): Promise<TransactionsResponse> {
+    return await this.getTransactions(token, { page, ...additionalParams });
   }
 
   async fetchFinancialData(token: string): Promise<FinancialData | null> {

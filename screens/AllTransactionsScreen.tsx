@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { Notification } from '@/components';
 import { TransactionsSkeleton } from '@/components';
+import TransactionFilter, { FilterOptions } from '@/components/TransactionFilter';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
@@ -38,6 +39,13 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
   const [pressedCardId, setPressedCardId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<FilterOptions>({
+    dateFrom: null,
+    dateTo: null,
+    transactionType: null,
+    accountId: null,
+  });
 
   const fetchTransactions = async (page: number = 1) => {
     if (!isAuthenticated || loading || loadingMore || !token) return;
@@ -87,7 +95,12 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
 
   const handleLoadMore = () => {
     if (pagination && currentPage < pagination.last_page && !loading && !loadingMore) {
-      fetchTransactions(currentPage + 1);
+      const hasActiveFilters = !!(activeFilters.dateFrom || activeFilters.dateTo || activeFilters.transactionType || activeFilters.accountId);
+      if (hasActiveFilters) {
+        fetchTransactionsWithFilters(currentPage + 1, activeFilters);
+      } else {
+        fetchTransactions(currentPage + 1);
+      }
     }
   };
 
@@ -191,6 +204,65 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
     return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
   };
 
+  const handleApplyFilter = (filters: FilterOptions) => {
+    setActiveFilters(filters);
+    setTransactions([]);
+    setCurrentPage(1);
+    fetchTransactionsWithFilters(1, filters);
+  };
+
+  const handleResetFilter = () => {
+    const emptyFilters: FilterOptions = {
+      dateFrom: null,
+      dateTo: null,
+      transactionType: null,
+      accountId: null,
+    };
+    setActiveFilters(emptyFilters);
+    setTransactions([]);
+    setCurrentPage(1);
+    fetchTransactionsWithFilters(1, emptyFilters);
+  };
+
+  const fetchTransactionsWithFilters = async (page: number = 1, filters: FilterOptions) => {
+    if (!isAuthenticated || loading || loadingMore || !token) return;
+
+    if (page === 1) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+
+    try {
+      const queryParams: any = { page };
+
+      if (filters.dateFrom) queryParams.date_from = filters.dateFrom;
+      if (filters.dateTo) queryParams.date_to = filters.dateTo;
+      if (filters.transactionType) queryParams.type = filters.transactionType;
+      if (filters.accountId) queryParams.account_id = filters.accountId;
+
+      const data: ApiResponse = await transactionService.getAllTransactions(token, page, queryParams);
+
+      if (data.success) {
+        if (page === 1) {
+          setTransactions(data.data);
+        } else {
+          setTransactions(prev => [...prev, ...data.data]);
+        }
+        setPagination(data.pagination);
+        setCurrentPage(page);
+      }
+    } catch (error) {
+      console.error('Error fetching transactions with filters:', error);
+    } finally {
+      if (page === 1) {
+        setLoading(false);
+      } else {
+        setLoadingMore(false);
+      }
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <PaperProvider theme={Theme}>
@@ -227,32 +299,50 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
               <Ionicons name="receipt" size={24} color="#6366f1" style={{ marginRight: 12 }} />
               <Text style={commonStyles.headerTitle}>Transaksi</Text>
             </View>
-            <TouchableOpacity
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: '#6366f1',
-                paddingHorizontal: 14,
-                paddingVertical: 8,
-                borderRadius: 20,
-                shadowColor: '#6366f1',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.2,
-                shadowRadius: 4,
-                elevation: 3
-              }}
-              onPress={() => navigation.navigate('Reports')}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="document-text" size={14} color="#ffffff" />
-              <Text style={{
-                marginLeft: 6,
-                fontSize: 13,
-                color: '#ffffff',
-                fontWeight: '600',
-                letterSpacing: 0.3
-              }}>Laporan</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  backgroundColor: (activeFilters.dateFrom || activeFilters.dateTo || activeFilters.transactionType || activeFilters.accountId) ? '#f59e0b' : '#f3f4f6',
+                  shadowColor: (activeFilters.dateFrom || activeFilters.dateTo || activeFilters.transactionType || activeFilters.accountId) ? '#f59e0b' : 'transparent',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: (activeFilters.dateFrom || activeFilters.dateTo || activeFilters.transactionType || activeFilters.accountId) ? 0.2 : 0,
+                  shadowRadius: 4,
+                  elevation: (activeFilters.dateFrom || activeFilters.dateTo || activeFilters.transactionType || activeFilters.accountId) ? 3 : 0
+                }}
+                onPress={() => setFilterVisible(true)}
+                activeOpacity={0.8}
+              >
+                <Ionicons
+                  name="filter"
+                  size={18}
+                  color={(activeFilters.dateFrom || activeFilters.dateTo || activeFilters.transactionType || activeFilters.accountId) ? '#ffffff' : '#6b7280'}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  backgroundColor: '#f3f4f6',
+                  shadowColor: 'transparent',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0,
+                  shadowRadius: 4,
+                  elevation: 0
+                }}
+                onPress={() => navigation.navigate('Reports')}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="document-text" size={18} color="#6b7280" />
+              </TouchableOpacity>
+            </View>
           </View>
           <View style={styles.transactionsSection}>
             {loading || (refreshing && transactions.length === 0) ? (
@@ -445,6 +535,14 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
         }}
         type="success"
         duration={2000}
+      />
+
+      <TransactionFilter
+        visible={filterVisible}
+        onClose={() => setFilterVisible(false)}
+        onApplyFilter={handleApplyFilter}
+        onResetFilter={handleResetFilter}
+        currentFilters={activeFilters}
       />
     </PaperProvider>
   );
