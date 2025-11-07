@@ -8,6 +8,7 @@ import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatCurrency, statusBarConfig } from '@/styles';
+import { formatAmount } from '@/utils/transactionUtils';
 import { FormButton, Notification } from '@/components';
 import { styles } from '@/styles/AddGoalScreen.styles';
 import PaymentGoalsService, { CreatePaymentGoalData } from '@/services/paymentGoalsService';
@@ -68,7 +69,7 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
     return {
       name: '',
       description: '',
-      amount: '',
+      amount: '0',
       target_amount: '',
       start_date: formatDate(firstDay),
       target_date: formatDate(lastDay),
@@ -114,7 +115,7 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
       const goalData: CreatePaymentGoalData = {
         name: formData.name,
         description: formData.description,
-        amount: parseFloat(formData.amount) || 0,
+        amount: 0,
         target_amount: parseFloat(formData.target_amount),
         start_date: formData.start_date,
         target_date: formData.target_date,
@@ -251,22 +252,9 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
             />
             {errors.description && <HelperText type="error" style={styles.helperText}>{errors.description}</HelperText>}
 
+  
             <TextInput
-              label="Current Amount"
-              placeholder="Enter current amount"
-              value={formData.amount}
-              onChangeText={(value) => handleInputChange('amount', value)}
-              mode="outlined"
-              outlineColor="#e5e7eb"
-              activeOutlineColor="#6366f1"
-              style={styles.input}
-              keyboardType="numeric"
-              left={<TextInput.Icon icon="wallet" color="#6b7280" />}
-            />
-            {errors.amount && <HelperText type="error" style={styles.helperText}>{errors.amount}</HelperText>}
-
-            <TextInput
-              label="Target Amount *"
+              label={'Target Amount (Rp' + (formData.target_amount ? ` ${formatAmount(formData.target_amount)}` : '') + ') *'}
               placeholder="Enter target amount"
               value={formData.target_amount}
               onChangeText={(value) => handleInputChange('target_amount', value)}
