@@ -26,6 +26,7 @@ import ViewPaymentDetailsScreen from '@/screens/ViewPaymentDetailsScreen';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
+const TransactionsStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
 const BudgetStack = createStackNavigator();
 const ReportsStack = createStackNavigator();
@@ -43,46 +44,6 @@ const HomeStackNavigator = () => {
         name="AllTransactions"
         component={AllTransactionsScreen}
         options={{ title: 'All Transactions' }}
-      />
-      <HomeStack.Screen
-        name="AddPayment"
-        component={AddPaymentScreen}
-        options={{ title: 'Add Payment' }}
-      />
-      <HomeStack.Screen
-        name="AddPaymentItem"
-        component={AddPaymentItemScreen}
-        options={{ title: 'Add Payment Items' }}
-      />
-      <HomeStack.Screen
-        name="ViewPaymentItems"
-        component={ViewPaymentItemsScreen}
-        options={{ title: 'Payment Items' }}
-      />
-      <HomeStack.Screen
-        name="AuditPaymentAccount"
-        component={AuditScreen}
-        options={{ headerShown: false }}
-      />
-      <HomeStack.Screen
-        name="AddAttachment"
-        component={AddAttachmentScreen}
-        options={{ title: 'Add Attachments' }}
-      />
-      <HomeStack.Screen
-        name="CurrentAttachments"
-        component={CurrentAttachmentsScreen}
-        options={{ title: 'Current Attachments' }}
-      />
-      <HomeStack.Screen
-        name="ViewAttachment"
-        component={ViewAttachmentScreen}
-        options={{ title: 'Attachment Details' }}
-      />
-      <HomeStack.Screen
-        name="ViewPaymentDetails"
-        component={ViewPaymentDetailsScreen}
-        options={{ title: 'Payment Details' }}
       />
     </HomeStack.Navigator>
   );
@@ -141,6 +102,63 @@ const ProfileStackNavigator = () => {
         options={{ title: 'Syarat dan Ketentuan' }}
       />
     </ProfileStack.Navigator>
+  );
+};
+
+const TransactionsStackNavigator = () => {
+  return (
+    <TransactionsStack.Navigator screenOptions={{ headerShown: false }}>
+      <TransactionsStack.Screen
+        name="TransactionsMain"
+        component={AllTransactionsScreen}
+        options={{ title: 'Transactions' }}
+      />
+      <TransactionsStack.Screen
+        name="AddPayment"
+        component={AddPaymentScreen}
+        options={{ title: 'Add Payment' }}
+      />
+      <TransactionsStack.Screen
+        name="AddPaymentItem"
+        component={AddPaymentItemScreen}
+        options={{ title: 'Add Payment Items' }}
+      />
+      <TransactionsStack.Screen
+        name="ViewPaymentItems"
+        component={ViewPaymentItemsScreen}
+        options={{ title: 'Payment Items' }}
+      />
+      <TransactionsStack.Screen
+        name="AuditPaymentAccount"
+        component={AuditScreen}
+        options={{ headerShown: false }}
+      />
+      <TransactionsStack.Screen
+        name="AddAttachment"
+        component={AddAttachmentScreen}
+        options={{ title: 'Add Attachments' }}
+      />
+      <TransactionsStack.Screen
+        name="CurrentAttachments"
+        component={CurrentAttachmentsScreen}
+        options={{ title: 'Current Attachments' }}
+      />
+      <TransactionsStack.Screen
+        name="ViewAttachment"
+        component={ViewAttachmentScreen}
+        options={{ title: 'Attachment Details' }}
+      />
+      <TransactionsStack.Screen
+        name="ViewPaymentDetails"
+        component={ViewPaymentDetailsScreen}
+        options={{ title: 'Payment Details' }}
+      />
+      <TransactionsStack.Screen
+        name="Reports"
+        component={ReportsScreen}
+        options={{ title: 'Reports' }}
+      />
+    </TransactionsStack.Navigator>
   );
 };
 
@@ -219,13 +237,13 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Reports"
-        component={ReportsStackNavigator}
+        name="AllTransactions"
+        component={TransactionsStackNavigator}
         options={{
-          tabBarLabel: 'Laporan',
+          tabBarLabel: 'Transaksi',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? "document-text" : "document-text-outline"}
+              name={focused ? "receipt" : "receipt-outline"}
               size={24}
               color={color}
             />

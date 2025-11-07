@@ -168,7 +168,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
           )}
 
           <RecentTransactions
-            onSeeAll={() => navigation.navigate('AllTransactions')}
+            onSeeAll={() => navigation.getParent()?.navigate('AllTransactions')}
             refreshTrigger={refreshing}
           />
         </ScrollView>

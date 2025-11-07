@@ -217,9 +217,42 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           }}
           scrollEventThrottle={400}
         >
-          <View style={commonStyles.header}>
-            <Ionicons name="receipt" size={24} color="#6366f1" style={commonStyles.headerIcon} />
-            <Text style={commonStyles.headerTitle}>Transaksi</Text>
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 24
+          }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="receipt" size={24} color="#6366f1" style={{ marginRight: 12 }} />
+              <Text style={commonStyles.headerTitle}>Transaksi</Text>
+            </View>
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: '#6366f1',
+                paddingHorizontal: 14,
+                paddingVertical: 8,
+                borderRadius: 20,
+                shadowColor: '#6366f1',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+                elevation: 3
+              }}
+              onPress={() => navigation.navigate('Reports')}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="document-text" size={14} color="#ffffff" />
+              <Text style={{
+                marginLeft: 6,
+                fontSize: 13,
+                color: '#ffffff',
+                fontWeight: '600',
+                letterSpacing: 0.3
+              }}>Laporan</Text>
+            </TouchableOpacity>
           </View>
           <View style={styles.transactionsSection}>
             {loading || (refreshing && transactions.length === 0) ? (
@@ -327,18 +360,9 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
             }
           </View>
         </ScrollView>
-
-          <FAB
-          icon="plus"
-          color="#ffffff"
-          style={[styles.fab, {
-            bottom: -6
-          }]}
-          onPress={() => navigation.navigate('AddPayment')}
-        />
       </SafeAreaView>
 
-        <Modal
+      <Modal
         visible={actionSheetVisible}
         transparent
         animationType="slide"
@@ -403,6 +427,15 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           </View>
         </SafeAreaView>
       </Modal>
+
+      <FAB
+          icon="plus"
+          color="#ffffff"
+          style={[styles.fab, {
+            bottom: -6
+          }]}
+          onPress={() => navigation.navigate('AddPayment')}
+        />
 
       <Notification
         visible={!!notification}
