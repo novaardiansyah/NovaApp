@@ -485,7 +485,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               paymentId
             });
           } else {
-            navigation.navigate('AllTransactions', { refresh: Date.now() })
+            navigation.navigate('TransactionsMain', { refresh: Date.now() })
           }
         }}
         type="success"
