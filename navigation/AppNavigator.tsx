@@ -25,9 +25,92 @@ import CurrentAttachmentsScreen from '@/screens/CurrentAttachmentsScreen';
 import ViewPaymentDetailsScreen from '@/screens/ViewPaymentDetailsScreen';
 
 const Tab = createBottomTabNavigator();
+const HomeStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
-const MainStack = createStackNavigator();
+const BudgetStack = createStackNavigator();
+const ReportsStack = createStackNavigator();
 const GoalsStack = createStackNavigator();
+
+const HomeStackNavigator = () => {
+  return (
+    <HomeStack.Navigator screenOptions={{ headerShown: false }}>
+      <HomeStack.Screen
+        name="HomeMain"
+        component={HomeScreen}
+        options={{ title: 'Home' }}
+      />
+      <HomeStack.Screen
+        name="AllTransactions"
+        component={AllTransactionsScreen}
+        options={{ title: 'All Transactions' }}
+      />
+      <HomeStack.Screen
+        name="AddPayment"
+        component={AddPaymentScreen}
+        options={{ title: 'Add Payment' }}
+      />
+      <HomeStack.Screen
+        name="AddPaymentItem"
+        component={AddPaymentItemScreen}
+        options={{ title: 'Add Payment Items' }}
+      />
+      <HomeStack.Screen
+        name="ViewPaymentItems"
+        component={ViewPaymentItemsScreen}
+        options={{ title: 'Payment Items' }}
+      />
+      <HomeStack.Screen
+        name="AuditPaymentAccount"
+        component={AuditScreen}
+        options={{ headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="AddAttachment"
+        component={AddAttachmentScreen}
+        options={{ title: 'Add Attachments' }}
+      />
+      <HomeStack.Screen
+        name="CurrentAttachments"
+        component={CurrentAttachmentsScreen}
+        options={{ title: 'Current Attachments' }}
+      />
+      <HomeStack.Screen
+        name="ViewAttachment"
+        component={ViewAttachmentScreen}
+        options={{ title: 'Attachment Details' }}
+      />
+      <HomeStack.Screen
+        name="ViewPaymentDetails"
+        component={ViewPaymentDetailsScreen}
+        options={{ title: 'Payment Details' }}
+      />
+    </HomeStack.Navigator>
+  );
+};
+
+const BudgetStackNavigator = () => {
+  return (
+    <BudgetStack.Navigator screenOptions={{ headerShown: false }}>
+      <BudgetStack.Screen
+        name="BudgetMain"
+        component={BudgetScreen}
+        options={{ title: 'Budget & Accounts' }}
+      />
+    </BudgetStack.Navigator>
+  );
+};
+
+const ReportsStackNavigator = () => {
+  return (
+    <ReportsStack.Navigator screenOptions={{ headerShown: false }}>
+      <ReportsStack.Screen
+        name="ReportsMain"
+        component={ReportsScreen}
+        options={{ title: 'Reports' }}
+      />
+    </ReportsStack.Navigator>
+  );
+};
 
 const ProfileStackNavigator = () => {
   return (
@@ -61,7 +144,6 @@ const ProfileStackNavigator = () => {
   );
 };
 
-
 const GoalsStackNavigator = () => {
   return (
     <GoalsStack.Navigator screenOptions={{ headerShown: false }}>
@@ -81,73 +163,6 @@ const GoalsStackNavigator = () => {
         options={{ title: 'Add Funds' }}
       />
     </GoalsStack.Navigator>
-  );
-};
-
-const HomeStackNavigator = () => {
-  return (
-    <MainStack.Navigator screenOptions={{ headerShown: false }}>
-      <MainStack.Screen
-        name="HomeMain"
-        component={HomeScreen}
-        options={{ title: 'Home' }}
-      />
-      <MainStack.Screen
-        name="AllTransactions"
-        component={AllTransactionsScreen}
-        options={{ title: 'All Transactions' }}
-      />
-      <MainStack.Screen
-        name="AddPayment"
-        component={AddPaymentScreen}
-        options={{ title: 'Add Payment' }}
-      />
-      <MainStack.Screen
-        name="AddPaymentItem"
-        component={AddPaymentItemScreen}
-        options={{ title: 'Add Payment Items' }}
-      />
-      <MainStack.Screen
-        name="ViewPaymentItems"
-        component={ViewPaymentItemsScreen}
-        options={{ title: 'Payment Items' }}
-      />
-      <MainStack.Screen
-        name="Budget"
-        component={BudgetScreen}
-        options={{ title: 'Budget & Accounts' }}
-      />
-      <MainStack.Screen
-        name="AuditPaymentAccount"
-        component={AuditScreen}
-        options={{ headerShown: false }}
-      />
-      <MainStack.Screen
-        name="Reports"
-        component={ReportsScreen}
-        options={{ title: 'Reports' }}
-      />
-      <MainStack.Screen
-        name="AddAttachment"
-        component={AddAttachmentScreen}
-        options={{ title: 'Add Attachments' }}
-      />
-      <MainStack.Screen
-        name="CurrentAttachments"
-        component={CurrentAttachmentsScreen}
-        options={{ title: 'Current Attachments' }}
-      />
-      <MainStack.Screen
-        name="ViewAttachment"
-        component={ViewAttachmentScreen}
-        options={{ title: 'Attachment Details' }}
-      />
-      <MainStack.Screen
-        name="ViewPaymentDetails"
-        component={ViewPaymentDetailsScreen}
-        options={{ title: 'Payment Details' }}
-      />
-    </MainStack.Navigator>
   );
 };
 
@@ -190,13 +205,27 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="AllTransactions"
-        component={AllTransactionsScreen}
+        name="Budget"
+        component={BudgetStackNavigator}
         options={{
-          tabBarLabel: 'Transaksi',
+          tabBarLabel: 'Anggaran',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? "receipt" : "receipt-outline"}
+              name={focused ? "wallet" : "wallet-outline"}
+              size={24}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Reports"
+        component={ReportsStackNavigator}
+        options={{
+          tabBarLabel: 'Laporan',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "document-text" : "document-text-outline"}
               size={24}
               color={color}
             />
@@ -236,56 +265,9 @@ const TabNavigator = () => {
   );
 };
 
-const MainNavigator = () => {
-  return (
-    <MainStack.Navigator screenOptions={{ headerShown: false }}>
-      <MainStack.Screen
-        name="MainTabs"
-        component={TabNavigator}
-        options={{ headerShown: false }}
-      />
-      <MainStack.Screen
-        name="AllTransactions"
-        component={AllTransactionsScreen}
-        options={{ title: 'All Transactions' }}
-      />
-      <MainStack.Screen
-        name="AddPayment"
-        component={AddPaymentScreen}
-        options={{ title: 'Add Payment' }}
-      />
-      <MainStack.Screen
-        name="AddPaymentItem"
-        component={AddPaymentItemScreen}
-        options={{ title: 'Add Payment Items' }}
-      />
-      <MainStack.Screen
-        name="AddAttachment"
-        component={AddAttachmentScreen}
-        options={{ title: 'Add Attachments' }}
-      />
-      <MainStack.Screen
-        name="CurrentAttachments"
-        component={CurrentAttachmentsScreen}
-        options={{ title: 'Current Attachments' }}
-      />
-      <MainStack.Screen
-        name="ViewAttachment"
-        component={ViewAttachmentScreen}
-        options={{ title: 'Attachment Details' }}
-      />
-      <MainStack.Screen
-        name="ViewPaymentDetails"
-        component={ViewPaymentDetailsScreen}
-        options={{ title: 'Payment Details' }}
-      />
-    </MainStack.Navigator>
-  );
-};
-
 const AppNavigator = () => {
   return (
-    <MainNavigator />
+    <TabNavigator />
   );
 };
 

@@ -166,39 +166,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
             <HomeBalanceCardSkeleton style={homeStyles.balanceCard} />
           )}
 
-          <View style={commonStyles.quickActionsSection}>
-            <Text style={commonStyles.sectionTitle}>Aksi Cepat</Text>
-            <View style={commonStyles.quickActionsGrid}>
-              <Card style={commonStyles.actionCard} onPress={() => navigation.navigate('AddPayment')}>
-                <Card.Content style={commonStyles.actionCardContent}>
-                  <Ionicons name="add-circle" size={24} color="#6366f1" />
-                  <Text style={commonStyles.actionText}>Tambah</Text>
-                </Card.Content>
-              </Card>
-
-              <Card style={commonStyles.actionCard} onPress={() => navigation.navigate('Goals')}>
-                <Card.Content style={commonStyles.actionCardContent}>
-                  <Ionicons name="diamond" size={24} color="#6366f1" />
-                  <Text style={commonStyles.actionText}>Tujuan</Text>
-                </Card.Content>
-              </Card>
-
-              <Card style={commonStyles.actionCard} onPress={() => navigation.navigate('Reports')}>
-                <Card.Content style={commonStyles.actionCardContent}>
-                  <Ionicons name="document-text" size={24} color="#6366f1" />
-                  <Text style={commonStyles.actionText}>Laporan</Text>
-                </Card.Content>
-              </Card>
-
-              <Card style={commonStyles.actionCard} onPress={() => navigation.navigate('Budget')}>
-                <Card.Content style={commonStyles.actionCardContent}>
-                  <Ionicons name="wallet" size={24} color="#6366f1" />
-                  <Text style={commonStyles.actionText}>Anggaran</Text>
-                </Card.Content>
-              </Card>
-            </View>
-          </View>
-
+  
           <RecentTransactions
             loading={loading || refreshing}
             onSeeAll={() => navigation.navigate('AllTransactions')}
