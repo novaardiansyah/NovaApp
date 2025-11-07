@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, Alert, RefreshControl, StatusBar, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Button, Avatar, Card } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Theme } from '@/constants/colors';
 import { HomeBalanceCardSkeleton } from '@/components';
@@ -23,7 +22,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
   const { user, isAuthenticated, token, validateToken, logout } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [financialData, setFinancialData] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
+  const [loadingFinancial, setLoadingFinancial] = useState(false);
   const [hasValidated, setHasValidated] = useState(false);
 
   const validateUserToken = async (): Promise<boolean> => {
@@ -60,14 +59,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
   const loadFinancialData = async () => {
     if (!isAuthenticated || !token) return;
 
-    setLoading(true);
+    setLoadingFinancial(true);
     try {
       const financial = await TransactionService.fetchFinancialData(token);
       setFinancialData(financial);
     } catch (error) {
       console.error('Error loading financial data:', error);
     } finally {
-      setLoading(false);
+      setLoadingFinancial(false);
     }
   };
 
@@ -87,10 +86,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
   const handleRefresh = async () => {
     setRefreshing(true);
     setFinancialData(null);
-    setLoading(true);
 
     await loadFinancialData();
-    setRefreshing(false);
+
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 500);
   };
 
   if (!isAuthenticated) {
@@ -132,7 +133,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
             )}
           </View>
 
-          {financialData ? (
+          {!loadingFinancial && financialData ? (
             <Card style={homeStyles.balanceCard}>
               <LinearGradient
                 colors={['#4338ca', '#6366f1']}
@@ -141,7 +142,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
                 style={homeStyles.gradientBackground}
               >
                 <Card.Content style={homeStyles.balanceCardContent}>
-                  <Text style={homeStyles.balanceLabel}>Saldo Total</Text>
+                  <Text style={homeStyles.balanceLabel}>Total Saldo Tersisa</Text>
                   <Text style={homeStyles.balanceAmount}>
                     {formatCurrency(financialData.total_after_scheduled)}
                   </Text>
@@ -166,10 +167,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
             <HomeBalanceCardSkeleton style={homeStyles.balanceCard} />
           )}
 
-  
           <RecentTransactions
-            loading={loading || refreshing}
             onSeeAll={() => navigation.navigate('AllTransactions')}
+            refreshTrigger={refreshing}
           />
         </ScrollView>
       </SafeAreaView>

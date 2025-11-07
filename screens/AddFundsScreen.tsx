@@ -10,17 +10,21 @@ import PaymentGoalsService, { PaymentGoal, AddFundsData } from '@/services/payme
 import { formatAmount } from '@/utils/transactionUtils';
 
 interface AddFundsScreenProps {
-  navigation: any;
-  route: {
-    params: {
-      goal: PaymentGoal;
+  navigation?: any;
+  route?: {
+    params?: {
+      goal?: PaymentGoal;
     };
   };
 }
 
 const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) => {
   const { token } = useAuth();
-  const { goal } = route.params;
+  const { goal } = route?.params || {};
+
+  if (!token || !goal) {
+    return null;
+  }
   const [loading, setLoading] = useState(false);
   const [paymentAccounts, setPaymentAccounts] = useState<PaymentAccount[]>([]);
   const [loadingPaymentAccounts, setLoadingPaymentAccounts] = useState(false);
@@ -122,7 +126,7 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
     <PaperProvider theme={Theme}>
       <View style={styles.container}>
         <Appbar.Header>
-          <Appbar.BackAction onPress={() => navigation.goBack()} />
+          <Appbar.BackAction onPress={() => navigation?.goBack()} />
           <Appbar.Content title="Add Funds" />
         </Appbar.Header>
 
@@ -207,7 +211,7 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
               title="Cancel"
               onPress={() => {
                 if (!loading) {
-                  navigation.goBack();
+                  navigation?.goBack();
                 }
               }}
               variant="outline"
@@ -223,7 +227,7 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
         message={notification || ''}
         onDismiss={() => {
           setNotification(null);
-          navigation.navigate('Goals', { refresh: Date.now() });
+          navigation?.navigate('Goals', { refresh: Date.now() });
         }}
         type="success"
         duration={2000}

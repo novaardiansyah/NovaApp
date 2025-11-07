@@ -105,20 +105,20 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
           {/* Header */}
           <View style={commonStyles.header}>
             <Ionicons name="wallet" size={24} color="#6366f1" style={commonStyles.headerIcon} />
-            <Text style={commonStyles.headerTitle}>Budget & Accounts</Text>
+            <Text style={commonStyles.headerTitle}>Anggaran Keuangan</Text>
           </View>
 
           {/* Total Balance */}
           {financialData ? (
             <Card style={commonStyles.totalBalanceCard}>
               <Card.Content style={commonStyles.totalBalanceContent}>
-                <Text style={commonStyles.totalBalanceLabel}>Total Balance</Text>
+                <Text style={commonStyles.totalBalanceLabel}>Total Saldo</Text>
                 <Text style={commonStyles.totalBalanceAmount}>
                   {formatCurrency(financialData.total_balance)}
                 </Text>
                 <View style={styles.scheduledExpenseContainer}>
                   <Text style={styles.afterScheduledLabel}>
-                    After scheduled
+                    Total saldo tersisa
                   </Text>
                   <Text style={styles.totalAfterScheduledText}>
                     {formatCurrency(financialData.total_after_scheduled)}
@@ -132,7 +132,7 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
 
           {/* Accounts List */}
           <View style={styles.accountsSection}>
-            <Text style={commonStyles.sectionTitle}>Payment Accounts</Text>
+            <Text style={commonStyles.sectionTitle}>Akun Keuangan</Text>
 
             {loading ? (
               <AccountsListSkeleton count={5} />

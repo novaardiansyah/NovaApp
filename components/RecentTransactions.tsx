@@ -11,19 +11,19 @@ interface RecentTransactionsProps {
   limit?: number;
   onSeeAll?: () => void;
   style?: any;
-  loading?: boolean;
+  refreshTrigger?: boolean;
 }
 
 const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   limit = 5,
   onSeeAll,
   style,
-  loading: parentLoading
+  refreshTrigger
 }) => {
   const { token, validateToken, logout } = useAuth();
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [hasValidated, setHasValidated] = useState(false);
 
   const validateSession = async (): Promise<boolean> => {
@@ -34,7 +34,6 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
       setHasValidated(true);
 
       if (!isValid) {
-        console.log('Session invalid, logging out...');
         await logout();
         return false;
       }
@@ -50,34 +49,49 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
     if (!token) return;
 
     try {
-      // Validate session first
       const isValid = await validateSession();
       if (!isValid) {
         setLoading(false);
         return;
       }
 
-      setLoading(true);
+      if (!isRefreshing) {
+        setLoading(true);
+      }
       const data = await transactionService.getRecentTransactions(token, limit);
       setTransactions(data);
+
     } catch (error) {
       console.error('Error fetching recent transactions:', error);
       setTransactions([]);
     } finally {
-      setLoading(false);
+      if (!isRefreshing) {
+        setLoading(false);
+      }
     }
   };
 
   const handleRefresh = async () => {
-    setRefreshing(true);
-    setHasValidated(false); // Reset validation on refresh
+    setIsRefreshing(true);
+    setLoading(true);
+    setHasValidated(false);
     await loadTransactions();
-    setRefreshing(false);
+
+    setTimeout(() => {
+      setIsRefreshing(false);
+      setLoading(false);
+    }, 800);
   };
 
   useEffect(() => {
     loadTransactions();
   }, [limit, token]);
+
+  useEffect(() => {
+    if (refreshTrigger) {
+      handleRefresh();
+    }
+  }, [refreshTrigger]);
 
   return (
     <View style={[styles.transactionsSection, style]}>
@@ -87,7 +101,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
           <Text style={styles.seeAllText} onPress={onSeeAll}>Lihat semua</Text>
         )}
       </View>
-      {parentLoading || loading ? (
+      {loading || isRefreshing ? (
         <RecentTransactionsSkeleton count={limit} />
       ) : (
         <Card style={styles.transactionsCard}>
