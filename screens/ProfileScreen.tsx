@@ -142,7 +142,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 )}
               />
 
-              <List.Item
+              {/* <List.Item
                 title="Mode Gelap"
                 description="Aktifkan mode gelap"
                 left={props => <List.Icon {...props} icon="theme-light-dark" />}
@@ -153,7 +153,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                     color="#6366f1"
                   />
                 )}
-              />
+              /> */}
 
               <List.Item
                 title="Bahasa"

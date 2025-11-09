@@ -10,6 +10,7 @@ import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles
 import { styles } from '@/styles/GoalsScreen.styles';
 import PaymentGoalsService, { PaymentGoalsOverview, PaymentGoal } from '@/services/paymentGoalsService';
 import { GoalsScreenSkeleton } from '@/components/skeleton';
+import EmptyGoalsCard from '@/components/EmptyGoalsCard';
 
 interface GoalsScreenProps {
   navigation: any;
@@ -190,15 +191,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                 </TouchableOpacity>
               ))
             ) : (
-              <View style={styles.emptyState}>
-                <View style={styles.emptyIcon}>
-                  <Ionicons name="diamond-outline" size={32} color="#6b7280" />
-                </View>
-                <Text style={styles.emptyText}>Belum Ada Tujuan</Text>
-                <Text style={styles.emptySubtext}>
-                  Mulai dengan membuat tujuan keuangan pertama Anda
-                </Text>
-              </View>
+              <EmptyGoalsCard />
             )}
             </>
           )}

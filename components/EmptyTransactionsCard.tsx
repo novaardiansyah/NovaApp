@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   },
   emptyCardContent: {
     alignItems: 'center',
-    paddingVertical: 32,
+    paddingVertical: 16,
   },
   emptyText: {
     fontSize: 14,
