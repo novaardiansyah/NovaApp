@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { TextInput } from 'react-native-paper'
 import { DatePickerModal } from 'react-native-paper-dates'
 import { useAuth } from '@/contexts/AuthContext'
-import { Select } from '@/components'
+import Select from '@/components/Select'
 import { styles } from '@/styles/TransactionFilter.styles'
 import paymentService from '@/services/paymentService'
 

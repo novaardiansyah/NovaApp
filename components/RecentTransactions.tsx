@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Card, Divider } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import RecentTransactionsSkeleton from './RecentTransactionsSkeleton';
+import EmptyTransactionsCard from './EmptyTransactionsCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { getTransactionColor, getTransactionIcon } from '@/utils/transactionUtils';
 import transactionService from '@/services/transactionService';
@@ -107,9 +108,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
         <Card style={styles.transactionsCard}>
           <Card.Content style={styles.transactionsCardContent}>
             {transactions.length === 0 ? (
-              <View style={styles.emptyCard}>
-                <Text style={styles.emptyText}>Belum ada transaksi</Text>
-              </View>
+              <EmptyTransactionsCard withoutCard={true} style={styles.emptyCardContent} />
             ) : (
               transactions.map((transaction, index) => (
                 <View key={transaction.id}>
@@ -194,15 +193,9 @@ const styles = StyleSheet.create({
   transactionsCardContent: {
     paddingVertical: 8,
   },
-  emptyCard: {
-    padding: 16,
+  emptyCardContent: {
     alignItems: 'center',
-  },
-  emptyText: {
-    textAlign: 'center',
-    padding: 20,
-    color: '#6b7280',
-    fontSize: 14,
+    paddingVertical: 32,
   },
   transactionItem: {
     flexDirection: 'row',

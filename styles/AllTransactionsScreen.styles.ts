@@ -77,24 +77,7 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  emptyCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    marginVertical: 16,
-  },
-
-  emptyCardContent: {
-    alignItems: 'center',
-    paddingVertical: 32,
-  },
-
-  emptyText: {
-    fontSize: 14,
-    color: '#6b7280',
-    textAlign: 'center',
-    paddingVertical: 16,
-  },
-
+  
   emptySubtext: {
     fontSize: 14,
     color: '#9ca3af',

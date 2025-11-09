@@ -249,7 +249,7 @@ export const AccountsListSkeleton: React.FC<AccountsListSkeletonProps> = ({ coun
   return (
     <View style={style}>
       <Card style={{ backgroundColor: '#ffffff', borderRadius: 12, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 }}>
-        <Card.Content style={{ paddingVertical: 8 }}>
+        <Card.Content style={{ paddingVertical: 2 }}>
           {Array.from({ length: count }).map((_, index) => (
             <View key={index}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12, paddingHorizontal: 8 }}>

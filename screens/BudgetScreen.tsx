@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   accountsCardContent: {
-    paddingVertical: 8,
+    paddingVertical: 2,
   },
   accountContainer: {
     flexDirection: 'row',

@@ -7,6 +7,7 @@ import { Theme } from '@/constants/colors';
 import { Notification } from '@/components';
 import { TransactionsSkeleton } from '@/components';
 import TransactionFilter, { FilterOptions } from '@/components/TransactionFilter';
+import EmptyTransactionsCard from '@/components/EmptyTransactionsCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
@@ -350,13 +351,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
             ) : (
               <View style={styles.transactionsList}>
                 {transactions.length === 0 ? (
-                  <Card style={styles.emptyCard}>
-                    <Card.Content style={styles.emptyCardContent}>
-                      <Ionicons name="wallet-outline" size={48} color="#9ca3af" />
-                      <Text style={styles.emptyText}>Belum ada transaksi</Text>
-                      <Text style={styles.emptySubtext}>Transaksi Anda akan muncul di sini</Text>
-                    </Card.Content>
-                  </Card>
+                  <EmptyTransactionsCard />
                 ) : (
                   <Card style={styles.transactionsCard}>
                     <Card.Content style={styles.transactionsCardContent}>
