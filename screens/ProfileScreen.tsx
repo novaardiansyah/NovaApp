@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView, Alert, Linking, Text, Image, StatusBar } 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Button, List, Avatar, Switch } from 'react-native-paper';
 import Constants from 'expo-constants';
+import * as WebBrowser from 'expo-web-browser';
 import { Theme } from '@/constants/colors';
 import { AppCopyright } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
@@ -79,6 +80,20 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
         },
       ]
     );
+  };
+
+  const handlePrivacyPolicy = async () => {
+    const urlPrivacyPolicy = 'https://novaardiansyah.my.id/live/nova-app/privacy-policy';
+
+    try {
+      await WebBrowser.openBrowserAsync(urlPrivacyPolicy, {
+        presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
+        enableBarCollapsing: true,
+      });
+    } catch (error) {
+      console.error('Error opening privacy policy:', error);
+      Linking.openURL(urlPrivacyPolicy);
+    }
   };
 
   return (
@@ -172,7 +187,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 title="Kebijakan Privasi"
                 description="Lihat kebijakan privasi kami"
                 left={props => <List.Icon {...props} icon="shield-account" />}
-                onPress={() => navigation.navigate('PrivacyPolicy')}
+                onPress={handlePrivacyPolicy}
               />
 
               <List.Item
