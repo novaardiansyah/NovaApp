@@ -830,7 +830,6 @@ export const GoalsScreenSkeleton: React.FC<GoalsScreenSkeletonProps> = ({ style 
       {/* Goal Cards */}
       <GoalCardSkeleton />
       <GoalCardSkeleton />
-      <GoalCardSkeleton />
     </View>
   );
 };

@@ -347,7 +347,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           </View>
           <View style={styles.transactionsSection}>
             {loading || (refreshing && transactions.length === 0) ? (
-              <TransactionsSkeleton count={10} />
+              <TransactionsSkeleton count={5} />
             ) : (
               <View style={styles.transactionsList}>
                 {transactions.length === 0 ? (

@@ -131,71 +131,71 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                 <Text style={styles.sectionTitle}>Tujuan Anda</Text>
 
                 {goals.length > 0 ? (
-              goals.map((goal) => (
-                <TouchableOpacity
-                  key={goal.id}
-                  style={styles.goalCard}
-                  onPress={() => navigation.navigate('GoalDetails', { goalId: goal.id })}
-                  activeOpacity={0.7}
-                >
-                  <Card.Content style={styles.goalContent}>
-                    <View style={styles.goalHeader}>
-                      <View style={styles.goalInfo}>
-                        <Text style={styles.goalName}>{goal.name}</Text>
-                        <Text style={styles.goalDescription} numberOfLines={2}>
-                          {goal.description}
-                        </Text>
-                      </View>
-                      <View style={styles.goalStatus}>
-                        <View style={[
-                          styles.statusDot,
-                          goal.status === 'Completed' ? styles.statusCompleted :
-                          goal.status === 'Active' ? styles.statusActive : styles.statusOverdue
-                        ]} />
-                        <Text style={styles.statusText}>{goal.status}</Text>
-                      </View>
-                    </View>
+                  goals.map((goal) => (
+                    <TouchableOpacity
+                      key={goal.id}
+                      style={styles.goalCard}
+                      onPress={() => navigation.navigate('GoalDetails', { goalId: goal.id })}
+                      activeOpacity={0.7}
+                    >
+                      <Card.Content style={styles.goalContent}>
+                        <View style={styles.goalHeader}>
+                          <View style={styles.goalInfo}>
+                            <Text style={styles.goalName}>{goal.name}</Text>
+                            <Text style={styles.goalDescription} numberOfLines={2}>
+                              {goal.description}
+                            </Text>
+                          </View>
+                          <View style={styles.goalStatus}>
+                            <View style={[
+                              styles.statusDot,
+                              goal.status === 'Completed' ? styles.statusCompleted :
+                                goal.status === 'Active' ? styles.statusActive : styles.statusOverdue
+                            ]} />
+                            <Text style={styles.statusText}>{goal.status}</Text>
+                          </View>
+                        </View>
 
-                    <View style={styles.goalProgressContainer}>
-                      <View style={styles.progressInfo}>
-                        <Text style={styles.progressText}>
-                          {goal.formatted.amount} / {goal.formatted.target_amount}
-                        </Text>
-                        <Text style={styles.progressPercentage}>{goal.formatted.progress}</Text>
-                      </View>
-                      <View style={styles.progressBarContainer}>
-                        <View style={[
-                          styles.progressBar,
-                          { width: `${parseInt(goal.formatted.progress.replace('%', ''))}%` }
-                        ]} />
-                      </View>
-                    </View>
+                        <View style={styles.goalProgressContainer}>
+                          <View style={styles.progressInfo}>
+                            <Text style={styles.progressText}>
+                              {goal.formatted.amount} / {goal.formatted.target_amount}
+                            </Text>
+                            <Text style={styles.progressPercentage}>{goal.formatted.progress}</Text>
+                          </View>
+                          <View style={styles.progressBarContainer}>
+                            <View style={[
+                              styles.progressBar,
+                              { width: `${parseInt(goal.formatted.progress.replace('%', ''))}%` }
+                            ]} />
+                          </View>
+                        </View>
 
-                    <View style={styles.goalActions}>
-                      <View style={styles.goalDates}>
-                        <Ionicons name="calendar" size={14} color="#6b7280" />
-                        <Text style={styles.goalDateText}>
-                          {goal.formatted.start_date} - {goal.formatted.target_date}
-                        </Text>
-                      </View>
-                      {goal.status !== 'Completed' && (
-                        <TouchableOpacity
-                          style={styles.actionButton}
-                          onPress={() => handleAddFunds(goal)}
-                        >
-                          <Text style={styles.actionButtonText}>Tambah Dana</Text>
-                        </TouchableOpacity>
-                      )}
-                    </View>
-                  </Card.Content>
-                </TouchableOpacity>
-              ))
-            ) : (
-              <EmptyGoalsCard />
+                        <View style={styles.goalActions}>
+                          <View style={styles.goalDates}>
+                            <Ionicons name="calendar" size={14} color="#6b7280" />
+                            <Text style={styles.goalDateText}>
+                              {goal.formatted.start_date} - {goal.formatted.target_date}
+                            </Text>
+                          </View>
+                          {goal.status !== 'Completed' && (
+                            <TouchableOpacity
+                              style={styles.actionButton}
+                              onPress={() => handleAddFunds(goal)}
+                            >
+                              <Text style={styles.actionButtonText}>Tambah Dana</Text>
+                            </TouchableOpacity>
+                          )}
+                        </View>
+                      </Card.Content>
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <EmptyGoalsCard />
+                )}
+              </>
             )}
-            </>
-          )}
-        </View>
+          </View>
         </ScrollView>
 
         <FAB

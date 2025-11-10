@@ -3,7 +3,10 @@ import { View, Text, TouchableOpacity, Modal, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { TextInput } from 'react-native-paper'
-import { DatePickerModal } from 'react-native-paper-dates'
+import { DatePickerModal, registerTranslation } from 'react-native-paper-dates'
+import { enGB } from 'react-native-paper-dates'
+
+registerTranslation('en', enGB)
 import { useAuth } from '@/contexts/AuthContext'
 import Select from '@/components/Select'
 import { styles } from '@/styles/TransactionFilter.styles'
@@ -275,7 +278,7 @@ const TransactionFilter: React.FC<TransactionFilterProps> = ({
         onDismiss={handleDateFromDismiss}
         onConfirm={handleDateFromConfirm}
         date={filters.dateFrom ? new Date(filters.dateFrom) : new Date()}
-        locale="id"
+        locale="en"
       />
 
       {/* Date To Picker Modal */}
@@ -285,7 +288,7 @@ const TransactionFilter: React.FC<TransactionFilterProps> = ({
         onDismiss={handleDateToDismiss}
         onConfirm={handleDateToConfirm}
         date={filters.dateTo ? new Date(filters.dateTo) : new Date()}
-        locale="id"
+        locale="en"
       />
     </>
   )

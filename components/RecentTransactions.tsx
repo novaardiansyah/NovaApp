@@ -103,7 +103,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
         )}
       </View>
       {loading || isRefreshing ? (
-        <RecentTransactionsSkeleton count={limit} />
+        <RecentTransactionsSkeleton count={4} />
       ) : (
         <Card style={styles.transactionsCard}>
           <Card.Content style={styles.transactionsCardContent}>
