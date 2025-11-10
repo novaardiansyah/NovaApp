@@ -2,7 +2,6 @@
   "expo": {
     "name": "Nova App",
     "slug": "NovaApp",
-    "version": "2.6.6",
     "orientation": "portrait",
     "icon": "./assets/app-logo.png",
     "userInterfaceStyle": "light",
@@ -16,8 +15,9 @@
       "supportsTablet": true,
       "buildNumber": "2.1.0"
     },
+    "version": "2.6.7",
     "android": {
-      "versionCode": 11,
+      "versionCode": 12,
       "adaptiveIcon": {
         "foregroundImage": "./assets/app-logo.png",
         "backgroundColor": "#ffffff"

@@ -147,13 +147,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       if (token) {
         await PushNotificationService.clearNotificationTokenForLogout(token);
+
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        };
+
+        await fetch(`${APP_CONFIG.API_BASE_URL}/auth/logout`, {
+          method: 'POST',
+          headers,
+        });
       }
 
       await AsyncStorage.removeItem('auth_token');
       await AsyncStorage.removeItem('auth_user');
+
       setToken(null);
       setUser(null);
     } catch (error) {
+      console.error('Error logging out:', error);
     }
   };
 
@@ -162,6 +175,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await AsyncStorage.setItem('auth_token', newToken);
       setToken(newToken);
     } catch (error) {
+      console.error('Error updating token:', error);
     }
   };
 
