@@ -59,9 +59,9 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
       if (!isRefreshing) {
         setLoading(true);
       }
+
       const data = await transactionService.getRecentTransactions(token, limit);
       setTransactions(data);
-
     } catch (error) {
       console.error('Error fetching recent transactions:', error);
       setTransactions([]);
@@ -116,10 +116,10 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                     <View style={styles.transactionLeft}>
                       <View style={[
                         styles.transactionIcon,
-                        { backgroundColor: getTransactionColor(transaction.type) }
+                        { backgroundColor: getTransactionColor(transaction.type_id) }
                       ]}>
                         <Ionicons
-                          name={getTransactionIcon(transaction.type) as any}
+                          name={getTransactionIcon(transaction.type_id) as any}
                           size={16}
                           color="white"
                         />
@@ -133,7 +133,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                       <View style={styles.transactionAmountContainer}>
                         <Text style={[
                           styles.transactionAmount,
-                          { color: getTransactionColor(transaction.type) }
+                          { color: getTransactionColor(transaction.type_id) }
                         ]}>
                           {transaction.formatted_amount}
                         </Text>

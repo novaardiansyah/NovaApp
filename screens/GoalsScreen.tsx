@@ -135,7 +135,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                     <TouchableOpacity
                       key={goal.id}
                       style={styles.goalCard}
-                      onPress={() => navigation.navigate('GoalDetails', { goalId: goal.id })}
+                      onPress={() => alert('Fitur detail tujuan keuangan akan segera hadir!')}
                       activeOpacity={0.7}
                     >
                       <Card.Content style={styles.goalContent}>

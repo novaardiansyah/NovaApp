@@ -366,7 +366,6 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                   <Card style={styles.transactionsCard}>
                     <Card.Content style={styles.transactionsCardContent}>
                       {transactions.map((transaction, index) => {
-                        const transactionType = getTransactionType(transaction);
                         return (
                           <View key={transaction.id}>
                             <Pressable
@@ -379,10 +378,10 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                                 <View style={styles.transactionLeft}>
                                   <View style={[
                                     styles.transactionIcon,
-                                    { backgroundColor: getTransactionColor(transactionType) }
+                                    { backgroundColor: getTransactionColor(transaction.type_id.toString()) }
                                   ]}>
                                     <Ionicons
-                                      name={getTransactionIcon(transactionType) as any}
+                                      name={getTransactionIcon(transaction.type_id.toString()) as any}
                                       size={16}
                                       color="white"
                                     />
@@ -400,7 +399,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                                   <View style={styles.transactionAmountContainer}>
                                     <Text style={[
                                       styles.transactionAmount,
-                                      { color: getTransactionColor(transactionType) }
+                                      { color: getTransactionColor(transaction.type_id.toString()) }
                                     ]}>
                                       {transaction.formatted_amount}
                                     </Text>
