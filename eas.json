@@ -22,6 +22,11 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./service_account_playstore.json",
+        "track": "internal"
+      }
+    }
   }
 }
