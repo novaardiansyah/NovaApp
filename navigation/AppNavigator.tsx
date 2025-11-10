@@ -57,6 +57,11 @@ const BudgetStackNavigator = () => {
         component={BudgetScreen}
         options={{ title: 'Budget & Accounts' }}
       />
+      <BudgetStack.Screen
+        name="AuditPaymentAccount"
+        component={AuditScreen}
+        options={{ headerShown: false }}
+      />
     </BudgetStack.Navigator>
   );
 };
