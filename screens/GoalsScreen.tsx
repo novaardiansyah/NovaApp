@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card, FAB } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,6 +11,8 @@ import { styles } from '@/styles/GoalsScreen.styles';
 import PaymentGoalsService, { PaymentGoalsOverview, PaymentGoal } from '@/services/paymentGoalsService';
 import { GoalsScreenSkeleton } from '@/components/skeleton';
 import EmptyGoalsCard from '@/components/EmptyGoalsCard';
+import { Notification } from '@/components';
+import { Alert } from 'react-native';
 
 interface GoalsScreenProps {
   navigation: any;
@@ -23,6 +25,9 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [goals, setGoals] = useState<PaymentGoal[]>([]);
   const [goalsOverview, setGoalsOverview] = useState<PaymentGoalsOverview | null>(null);
+  const [selectedGoal, setSelectedGoal] = useState<PaymentGoal | null>(null);
+  const [actionSheetVisible, setActionSheetVisible] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -60,8 +65,10 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
     }
   };
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
+  const handleRefresh = async (withRefrehLoader = true) => {
+    if (withRefrehLoader) setRefreshing(true);
+    setNotification(null);
+
     try {
       await Promise.all([
         loadGoals(),
@@ -76,6 +83,77 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
 
   const handleAddFunds = (goal: PaymentGoal) => {
     navigation.navigate('AddFunds', { goal });
+  };
+
+  const handleGoalPress = (goal: PaymentGoal) => {
+    setSelectedGoal(goal);
+    setActionSheetVisible(true);
+  };
+
+  const handleActionSelect = async (action: string) => {
+    if (!selectedGoal) return;
+
+    setActionSheetVisible(false);
+
+    switch (action) {
+      case 'delete':
+        Alert.alert(
+          'Hapus Tujuan Keuangan',
+          `Apakah Anda yakin ingin menghapus tujuan "${selectedGoal.name}"?`,
+          [
+            {
+              text: 'Batal',
+              style: 'cancel',
+            },
+            {
+              text: 'Hapus',
+              style: 'destructive',
+              onPress: async () => {
+                if (!token) return;
+
+                try {
+                  const response = await PaymentGoalsService.deletePaymentGoal(token, selectedGoal.id);
+
+                  if (response.success) {
+                    setNotification(response.message || 'Tujuan keuangan berhasil dihapus!');
+                  } else {
+                    // Handle specific error messages
+                    if (response.message && response.message.includes('Cannot delete payment goal with existing funds')) {
+                      Alert.alert(
+                        'Tidak Dapat Dihapus',
+                        response.message || 'Tujuan keuangan tidak dapat dihapus karena sudah memiliki dana.',
+                        [{ text: 'OK', style: 'default' }]
+                      );
+                    } else {
+                      Alert.alert('Gagal', response.message || 'Gagal menghapus tujuan keuangan');
+                    }
+                  }
+                } catch (error: any) {
+                  console.error('Error deleting payment goal:', error);
+
+                  // Handle HTTP 422 Unprocessable Entity errors
+                  if (error.status === 422 && error.message) {
+                    Alert.alert(
+                      'Tidak Dapat Dihapus',
+                      error.message.includes('Cannot delete payment goal with existing funds')
+                        ? error.message
+                        : 'Tujuan keuangan tidak dapat dihapus karena sudah memiliki dana.',
+                      [{ text: 'OK', style: 'default' }]
+                    );
+                  } else {
+                    Alert.alert('Error', 'Terjadi kesalahan saat menghapus tujuan keuangan');
+                  }
+                }
+              },
+            },
+          ]
+        );
+        break;
+    }
+  };
+
+  const closeActionSheet = () => {
+    setActionSheetVisible(false);
   };
 
   return (
@@ -135,7 +213,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                     <TouchableOpacity
                       key={goal.id}
                       style={styles.goalCard}
-                      onPress={() => alert('Fitur detail tujuan keuangan akan segera hadir!')}
+                      onPress={() => handleGoalPress(goal)}
                       activeOpacity={0.7}
                     >
                       <Card.Content style={styles.goalContent}>
@@ -198,15 +276,127 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
           </View>
         </ScrollView>
 
+        {/* Action Sheet Modal */}
+        <Modal
+          visible={actionSheetVisible}
+          transparent
+          animationType="slide"
+          onRequestClose={closeActionSheet}
+        >
+          <SafeAreaView style={actionStyles.modalContainer}>
+            <TouchableOpacity
+              style={actionStyles.modalOverlay}
+              activeOpacity={1}
+              onPress={closeActionSheet}
+            />
+
+            <View style={actionStyles.actionSheet}>
+              <Text style={actionStyles.actionSheetTitle}>Tujuan Actions</Text>
+
+              <View style={actionStyles.actionSheetContent}>
+                <TouchableOpacity
+                  style={actionStyles.actionButton}
+                  onPress={() => handleActionSelect('delete')}
+                >
+                  <Ionicons name="trash-outline" size={24} color="#ef4444" style={actionStyles.actionIcon} />
+                  <Text style={actionStyles.actionText}>Hapus Tujuan</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                style={actionStyles.cancelButton}
+                onPress={closeActionSheet}
+              >
+                <Text style={actionStyles.cancelButtonText}>Batal</Text>
+              </TouchableOpacity>
+            </View>
+          </SafeAreaView>
+        </Modal>
+
         <FAB
           icon="plus"
           color="#ffffff"
           style={styles.fab}
           onPress={() => navigation.navigate('AddGoal')}
         />
+
+        <Notification
+          visible={!!notification}
+          message={notification || ''}
+          onDismiss={() => handleRefresh(false)}
+          type="success"
+          duration={2000}
+        />
       </SafeAreaView>
     </PaperProvider>
   );
 };
+
+const actionStyles = StyleSheet.create({
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+
+  modalOverlay: {
+    flex: 1,
+  },
+
+  actionSheet: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 20,
+  },
+
+  actionSheetTitle: {
+    textAlign: 'center',
+    padding: 16,
+    color: '#6b7280',
+    fontSize: 13,
+  },
+
+  actionSheetContent: {
+    paddingHorizontal: 20,
+  },
+
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: '#f9fafb',
+    marginBottom: 8,
+  },
+
+  actionIcon: {
+    marginRight: 16,
+  },
+
+  actionText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#111827',
+  },
+
+  cancelButton: {
+    marginHorizontal: 20,
+    marginTop: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#6366f1',
+    alignItems: 'center',
+  },
+
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#6366f1',
+  },
+});
 
 export default GoalsScreen;

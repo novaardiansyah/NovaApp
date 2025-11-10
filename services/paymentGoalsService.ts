@@ -137,6 +137,21 @@ class PaymentGoalsService {
       throw error;
     }
   }
+
+  async deletePaymentGoal(token: string, goalId: number): Promise<ApiResponse<null>> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payment-goals/${goalId}`, {
+        method: 'DELETE',
+        headers: this.getHeaders(token),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error deleting payment goal:', error);
+      throw error;
+    }
+  }
 }
 
 export default new PaymentGoalsService();

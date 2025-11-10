@@ -15,9 +15,9 @@
       "supportsTablet": true,
       "buildNumber": "2.1.0"
     },
-    "version": "2.6.7",
+    "version": "2.6.8",
     "android": {
-      "versionCode": 12,
+      "versionCode": 13,
       "adaptiveIcon": {
         "foregroundImage": "./assets/app-logo.png",
         "backgroundColor": "#ffffff"

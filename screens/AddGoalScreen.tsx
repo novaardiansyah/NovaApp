@@ -351,7 +351,7 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
         message={notification || ''}
         onDismiss={() => {
           setNotification(null);
-          navigation.navigate('Goals', { refresh: Date.now() });
+          navigation.navigate('GoalsMain', { refresh: Date.now() });
         }}
         type="success"
         duration={1500}
