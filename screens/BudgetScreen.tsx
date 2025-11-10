@@ -82,9 +82,6 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
           accountId: selectedAccount.id
         });
         break;
-      case 'view_transactions':
-        Alert.alert('Transactions', `View transactions for ${selectedAccount.name} feature coming soon!`);
-        break;
     }
   };
 
@@ -206,14 +203,6 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
                 >
                   <Ionicons name="resize-outline" size={24} color="#ef4444" style={styles.actionIcon} />
                   <Text style={styles.actionText}>Audit Deposit</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.actionButton}
-                  onPress={() => handleActionSelect('view_transactions')}
-                >
-                  <Ionicons name="list-outline" size={24} color="#f59e0b" style={styles.actionIcon} />
-                  <Text style={styles.actionText}>View Transactions</Text>
                 </TouchableOpacity>
               </View>
 

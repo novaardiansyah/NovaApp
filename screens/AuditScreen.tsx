@@ -244,7 +244,7 @@ const AuditScreen: React.FC<AuditScreenProps> = ({ navigation, route }) => {
 
                 {/* Action Buttons */}
                 <FormButton
-                  title="Save Audit"
+                  title="Simpan"
                   onPress={handleSaveAudit}
                   loading={submitting}
                   icon="content-save"
@@ -252,7 +252,7 @@ const AuditScreen: React.FC<AuditScreenProps> = ({ navigation, route }) => {
                 />
 
                 <FormButton
-                  title="Cancel"
+                  title="Batal"
                   onPress={() => navigation?.goBack()}
                   variant="outline"
                   loading={submitting}
@@ -393,7 +393,6 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     marginTop: -10,
-    borderColor: '#e5e7eb',
   },
   refreshOverlay: {
     ...StyleSheet.absoluteFillObject,
