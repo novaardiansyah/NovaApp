@@ -12,7 +12,7 @@ interface RecentTransactionsProps {
   limit?: number;
   onSeeAll?: () => void;
   style?: any;
-  refreshTrigger?: boolean;
+  refreshTrigger?: boolean | number;
 }
 
 const RecentTransactions: React.FC<RecentTransactionsProps> = ({
@@ -26,6 +26,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hasValidated, setHasValidated] = useState(false);
+  const [lastRefreshTrigger, setLastRefreshTrigger] = useState<boolean | number | undefined>(undefined);
 
   const validateSession = async (): Promise<boolean> => {
     if (!token || hasValidated) return false;
@@ -73,26 +74,37 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   };
 
   const handleRefresh = async () => {
+    if (!token) return;
+
     setIsRefreshing(true);
     setLoading(true);
-    setHasValidated(false);
-    await loadTransactions();
 
-    setTimeout(() => {
+    try {
+      const data = await transactionService.getRecentTransactions(token, limit);
+      setTransactions(data);
+    } catch (error) {
+      console.error('Error refreshing transactions:', error);
+      setTransactions([]);
+    } finally {
       setIsRefreshing(false);
       setLoading(false);
-    }, 800);
+    }
   };
 
   useEffect(() => {
-    loadTransactions();
+    if (token) {
+      loadTransactions();
+    }
   }, [limit, token]);
 
   useEffect(() => {
-    if (refreshTrigger) {
-      handleRefresh();
+    if (refreshTrigger !== undefined && refreshTrigger !== false) {
+      if (refreshTrigger !== lastRefreshTrigger) {
+        setLastRefreshTrigger(refreshTrigger);
+        handleRefresh();
+      }
     }
-  }, [refreshTrigger]);
+  }, [refreshTrigger, lastRefreshTrigger]);
 
   return (
     <View style={[styles.transactionsSection, style]}>

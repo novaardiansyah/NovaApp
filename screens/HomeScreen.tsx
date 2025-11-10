@@ -24,6 +24,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
   const [financialData, setFinancialData] = useState<any>(null);
   const [loadingFinancial, setLoadingFinancial] = useState(false);
   const [hasValidated, setHasValidated] = useState(false);
+  const [transactionRefreshKey, setTransactionRefreshKey] = useState(0);
 
   const validateUserToken = async (): Promise<boolean> => {
     if (!isAuthenticated || hasValidated) return false;
@@ -91,7 +92,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
 
     setTimeout(() => {
       setRefreshing(false);
-    }, 500);
+      setTransactionRefreshKey(Date.now());
+    }, 300);
   };
 
   if (!isAuthenticated) {
@@ -169,7 +171,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
 
           <RecentTransactions
             onSeeAll={() => navigation.getParent()?.navigate('AllTransactions')}
-            refreshTrigger={refreshing}
+            refreshTrigger={transactionRefreshKey}
           />
         </ScrollView>
       </SafeAreaView>
