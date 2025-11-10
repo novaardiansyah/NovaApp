@@ -44,7 +44,13 @@ const TransactionFilter: React.FC<TransactionFilterProps> = ({
   const [loadingPaymentAccounts, setLoadingPaymentAccounts] = useState(false)
 
   useEffect(() => {
-    setFilters(currentFilters)
+    // Set filters with defaults to "Semua" (empty string) when filter modal opens
+    const defaultFilters = {
+      ...currentFilters,
+      transactionType: currentFilters.transactionType || '',
+      accountId: currentFilters.accountId || ''
+    }
+    setFilters(defaultFilters)
   }, [currentFilters, visible])
 
   useEffect(() => {
@@ -64,14 +70,12 @@ const TransactionFilter: React.FC<TransactionFilterProps> = ({
 
     try {
       const types = await paymentService.getPaymentTypes(token)
-      setPaymentTypes(types)
-
-      if (types.length > 0) {
-        const defaultType = types.find((type) => type.is_default) || types[0]
-        const selected = defaultType.id.toString()
-
-        setFilters(prev => ({ ...prev, transactionType: selected }))
-      }
+      // Add "Semua" option as the first item
+      const typesWithAll = [
+        { id: '', name: 'Semua' },
+        ...types
+      ]
+      setPaymentTypes(typesWithAll)
     } catch (error) {
       console.error('Error loading payment types:', error)
     } finally {
@@ -89,14 +93,12 @@ const TransactionFilter: React.FC<TransactionFilterProps> = ({
 
     try {
       const accounts = await paymentService.getPaymentAccounts(token)
-      setPaymentAccounts(accounts)
-
-      if (accounts.length > 0) {
-        const defaultAccount = accounts.find((account) => account.is_default) || accounts[0]
-        const selected = defaultAccount.id.toString()
-
-        setFilters(prev => ({ ...prev, accountId: selected }))
-      }
+      // Add "Semua" option as the first item
+      const accountsWithAll = [
+        { id: '', name: 'Semua' },
+        ...accounts
+      ]
+      setPaymentAccounts(accountsWithAll)
     } catch (error) {
       console.error('Error loading payment accounts:', error)
     } finally {
@@ -135,14 +137,14 @@ const TransactionFilter: React.FC<TransactionFilterProps> = ({
   const handleTransactionTypeChange = (typeId: string) => {
     setFilters(prev => ({
       ...prev,
-      transactionType: typeId === '' ? null : typeId,
+      transactionType: typeId,
     }))
   }
 
   const handleAccountChange = (accountId: string) => {
     setFilters(prev => ({
       ...prev,
-      accountId: accountId === '' ? null : accountId,
+      accountId: accountId,
     }))
   }
 
@@ -155,15 +157,17 @@ const TransactionFilter: React.FC<TransactionFilterProps> = ({
     const emptyFilters: FilterOptions = {
       dateFrom: null,
       dateTo: null,
-      transactionType: null,
-      accountId: null,
+      transactionType: '',
+      accountId: '',
     }
     setFilters(emptyFilters)
     onResetFilter()
     onClose()
   }
 
-  const hasActiveFilters = !!(filters.dateFrom || filters.dateTo || filters.transactionType || filters.accountId)
+  const hasActiveFilters = !!(filters.dateFrom || filters.dateTo ||
+    (filters.transactionType && filters.transactionType !== '') ||
+    (filters.accountId && filters.accountId !== ''))
 
   return (
     <>
@@ -295,7 +299,7 @@ const TransactionFilter: React.FC<TransactionFilterProps> = ({
 }
 
 const getActiveFilterCount = (filters: FilterOptions): number => {
-  return Object.values(filters).filter(value => value !== null).length
+  return Object.values(filters).filter(value => value !== null && value !== '').length
 }
 
 export default TransactionFilter

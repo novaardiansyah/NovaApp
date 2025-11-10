@@ -44,8 +44,8 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
   const [activeFilters, setActiveFilters] = useState<FilterOptions>({
     dateFrom: null,
     dateTo: null,
-    transactionType: null,
-    accountId: null,
+    transactionType: '',
+    accountId: '',
   });
 
   const fetchTransactions = async (page: number = 1) => {
@@ -96,7 +96,9 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
 
   const handleLoadMore = () => {
     if (pagination && currentPage < pagination.last_page && !loading && !loadingMore) {
-      const hasActiveFilters = !!(activeFilters.dateFrom || activeFilters.dateTo || activeFilters.transactionType || activeFilters.accountId);
+      const hasActiveFilters = !!(activeFilters.dateFrom || activeFilters.dateTo ||
+        (activeFilters.transactionType && activeFilters.transactionType !== '') ||
+        (activeFilters.accountId && activeFilters.accountId !== ''));
       if (hasActiveFilters) {
         fetchTransactionsWithFilters(currentPage + 1, activeFilters);
       } else {
@@ -216,8 +218,8 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
     const emptyFilters: FilterOptions = {
       dateFrom: null,
       dateTo: null,
-      transactionType: null,
-      accountId: null,
+      transactionType: '',
+      accountId: '',
     };
     setActiveFilters(emptyFilters);
     setTransactions([]);
@@ -239,8 +241,8 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
 
       if (filters.dateFrom) queryParams.date_from = filters.dateFrom;
       if (filters.dateTo) queryParams.date_to = filters.dateTo;
-      if (filters.transactionType) queryParams.type = filters.transactionType;
-      if (filters.accountId) queryParams.account_id = filters.accountId;
+      if (filters.transactionType && filters.transactionType !== '') queryParams.type = filters.transactionType;
+      if (filters.accountId && filters.accountId !== '') queryParams.account_id = filters.accountId;
 
       const data: ApiResponse = await transactionService.getAllTransactions(token, page, queryParams);
 
@@ -301,29 +303,37 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
               <Text style={commonStyles.headerTitle}>Transaksi</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <TouchableOpacity
-                style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 40,
-                  height: 40,
-                  borderRadius: 20,
-                  backgroundColor: (activeFilters.dateFrom || activeFilters.dateTo || activeFilters.transactionType || activeFilters.accountId) ? '#f59e0b' : '#f3f4f6',
-                  shadowColor: (activeFilters.dateFrom || activeFilters.dateTo || activeFilters.transactionType || activeFilters.accountId) ? '#f59e0b' : 'transparent',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: (activeFilters.dateFrom || activeFilters.dateTo || activeFilters.transactionType || activeFilters.accountId) ? 0.2 : 0,
-                  shadowRadius: 4,
-                  elevation: (activeFilters.dateFrom || activeFilters.dateTo || activeFilters.transactionType || activeFilters.accountId) ? 3 : 0
-                }}
-                onPress={() => setFilterVisible(true)}
-                activeOpacity={0.8}
-              >
-                <Ionicons
-                  name="filter"
-                  size={18}
-                  color={(activeFilters.dateFrom || activeFilters.dateTo || activeFilters.transactionType || activeFilters.accountId) ? '#ffffff' : '#6b7280'}
-                />
-              </TouchableOpacity>
+              {(() => {
+                const hasActiveFilters = !!(activeFilters.dateFrom || activeFilters.dateTo ||
+                  (activeFilters.transactionType && activeFilters.transactionType !== '') ||
+                  (activeFilters.accountId && activeFilters.accountId !== ''));
+
+                return (
+                  <TouchableOpacity
+                    style={{
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 40,
+                      height: 40,
+                      borderRadius: 20,
+                      backgroundColor: hasActiveFilters ? '#f59e0b' : '#f3f4f6',
+                      shadowColor: hasActiveFilters ? '#f59e0b' : 'transparent',
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: hasActiveFilters ? 0.2 : 0,
+                      shadowRadius: 4,
+                      elevation: hasActiveFilters ? 3 : 0
+                    }}
+                    onPress={() => setFilterVisible(true)}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons
+                      name="filter"
+                      size={18}
+                      color={hasActiveFilters ? '#ffffff' : '#6b7280'}
+                    />
+                  </TouchableOpacity>
+                );
+              })()}
               <TouchableOpacity
                 style={{
                   alignItems: 'center',
