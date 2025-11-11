@@ -1,30 +1,25 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Avatar, Text } from 'react-native-paper';
+import { View, StyleSheet, Image } from 'react-native';
+import { Text } from 'react-native-paper';
 import { Colors } from '@/constants/colors';
 
 interface AppHeaderProps {
   title?: string;
   subtitle?: string;
-  iconName?: string;
 }
 
 const AppHeader: React.FC<AppHeaderProps> = ({
   title = 'NovaApp',
-  subtitle,
-  iconName = 'account-circle'
+  subtitle
 }) => {
   return (
     <View style={styles.header}>
       <View style={styles.brandContainer}>
-        <View style={styles.brandCircle}>
-          <Avatar.Icon
-            size={32}
-            icon={iconName}
-            color="white"
-            style={styles.brandIcon}
-          />
-        </View>
+        <Image
+          source={require('@/assets/app-logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
         <Text style={styles.brandName}>{title}</Text>
       </View>
       {subtitle && <Text style={styles.brandTagline}>{subtitle}</Text>}
@@ -43,22 +38,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
-  brandCircle: {
+  logo: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    backgroundColor: Colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  brandIcon: {
-    backgroundColor: 'transparent',
+    marginRight: 12,
   },
   brandName: {
     fontSize: 24,
     fontWeight: '700',
     color: Colors.text.primary,
-    marginLeft: 12,
   },
   brandTagline: {
     fontSize: 14,

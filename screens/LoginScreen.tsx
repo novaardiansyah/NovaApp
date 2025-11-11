@@ -5,6 +5,7 @@ import { Theme } from '@/constants/colors';
 import { AppHeader, FormInput, FormButton, AppCopyright } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
 import APP_CONFIG from '@/config/app';
+import Constants from 'expo-constants';
 
 interface LoginScreenProps {
   navigation: any;
@@ -62,28 +63,27 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         >
           <Surface style={styles.card} elevation={2}>
             <AppHeader
-              subtitle="Finance Management"
-              iconName="account-circle"
+              subtitle="Manajemen Keuangan"
             />
 
             <Divider style={styles.divider} />
 
             <View style={styles.formContainer}>
-              <Text style={styles.title}>Welcome Back</Text>
-              <Text style={styles.subtitle}>Sign in to your account</Text>
+              <Text style={styles.title}>Selamat Datang</Text>
+              <Text style={styles.subtitle}>Masuk ke akun Anda</Text>
 
               <FormInput
-                label="Email address"
+                label="Alamat Email"
                 value={email}
                 onChangeText={setEmail}
-                error={hasEmailErrors() ? "Please enter a valid email address" : undefined}
+                error={hasEmailErrors() ? "Silakan masukkan alamat email yang valid" : undefined}
               />
 
               <FormInput
-                label="Password"
+                label="Kata Sandi"
                 value={password}
                 onChangeText={setPassword}
-                error={hasPasswordErrors() ? "Password must be at least 6 characters" : undefined}
+                error={hasPasswordErrors() ? "Kata sandi minimal 6 karakter" : undefined}
                 secureTextEntry={secureTextEntry}
                 right={
                   <TextInput.Icon
@@ -95,7 +95,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               />
 
               <FormButton
-                title={loading ? 'Signing in...' : 'Sign in'}
+                title={loading ? 'Sedang Masuk...' : 'Masuk'}
                 onPress={handleLogin}
                 loading={loading}
               />
@@ -110,10 +110,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                         .map(([key, value]) => `EXPO_PUBLIC_${key.toUpperCase()}: ${value}`)
                         .join('\n\n');
 
-                      Alert.alert('Environment Variables', envMessage);
+                      Alert.alert('Variabel Lingkungan', envMessage);
                     }}
                   >
-                    Debug Environment
+                    Debug Lingkungan
                   </Text>
                 </View>
               )}
@@ -123,22 +123,25 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                   style={styles.forgotPassword}
                   onPress={() => navigation.navigate('ForgotPassword')}
                 >
-                  Forgot your password?
+                  Lupa kata sandi?
                 </Text>
                 <View style={styles.signupContainer}>
-                  <Text style={styles.signupText}>Don't have an account? </Text>
+                  <Text style={styles.signupText}>Belum punya akun? </Text>
                   <Text
                     style={styles.signupLink}
                     onPress={() => navigation.navigate('Signup')}
                   >
-                    Sign up
+                    Daftar
                   </Text>
                 </View>
               </View>
             </View>
           </Surface>
 
-          <AppCopyright />
+          <AppCopyright
+            showVersion={true}
+            version={Constants.expoConfig?.version || '1.0.0'}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </PaperProvider>

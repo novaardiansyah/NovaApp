@@ -12,7 +12,7 @@ interface AppCopyrightProps {
 
 const AppCopyright: React.FC<AppCopyrightProps> = ({
   year = new Date().getFullYear(),
-  companyName = 'NovaApp',
+  companyName = 'Nova Ardiansyah',
   showVersion = false,
   version = '1.0.0',
 }) => {
@@ -23,7 +23,7 @@ const AppCopyright: React.FC<AppCopyrightProps> = ({
       </Text>
       {showVersion && (
         <Text style={styles.version}>
-          Version {version}
+          Nova App - Version {version}
         </Text>
       )}
     </View>
@@ -33,11 +33,11 @@ const AppCopyright: React.FC<AppCopyrightProps> = ({
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 32,
     marginBottom: 20,
   },
   copyright: {
-    fontSize: 12,
+    fontSize: 11,
     color: Colors.text.tertiary,
     textAlign: 'center',
   },

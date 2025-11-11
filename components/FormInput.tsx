@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { TextInput, HelperText, TextInputProps } from 'react-native-paper';
+import { TextInput, HelperText } from 'react-native-paper';
 import { Colors } from '@/constants/colors';
 
-interface FormInputProps extends Omit<TextInputProps, 'mode' | 'outlineColor' | 'activeOutlineColor'> {
+interface FormInputProps {
   label: string;
   value: string;
   onChangeText: (text: string) => void;
@@ -12,6 +12,11 @@ interface FormInputProps extends Omit<TextInputProps, 'mode' | 'outlineColor' | 
   numeric?: boolean;
   maxLength?: number;
   leftIcon?: string;
+  left?: React.ReactNode;
+  right?: React.ReactNode;
+  secureTextEntry?: boolean;
+  keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'number-pad';
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
 }
 
 const FormInput: React.FC<FormInputProps> = ({
@@ -70,7 +75,7 @@ const FormInput: React.FC<FormInputProps> = ({
     if (label.toLowerCase().includes('email')) {
       return <TextInput.Icon icon="email-outline" color={Colors.text.tertiary} />;
     }
-    if (label.toLowerCase().includes('password')) {
+    if (label.toLowerCase().includes('password') || label.toLowerCase().includes('kata sandi')) {
       return <TextInput.Icon icon="lock-outline" color={Colors.text.tertiary} />;
     }
     if (label.toLowerCase().includes('name')) {
