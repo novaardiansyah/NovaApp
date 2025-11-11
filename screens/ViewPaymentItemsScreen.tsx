@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, RefreshControl, Alert, Modal, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Card, Button, FAB } from 'react-native-paper';
+import { PaperProvider, Card, FAB } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { commonStyles, formatCurrency, getScrollContainerStyle } from '@/styles';
@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { PaymentItemsSkeleton, PaymentSummarySkeleton } from '@/components';
 import paymentService from '@/services/paymentService';
+import EmptyPaymentItemCard from '@/components/EmptyPaymentItemCard';
 
 interface PaymentItem {
   id: number;
@@ -50,7 +51,7 @@ interface ViewPaymentItemsScreenProps {
 const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
   const { isAuthenticated, token } = useAuth();
-  const { paymentId, paymentTitle } = route?.params || {};
+  const { paymentId } = route?.params || {};
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingSummary, setLoadingSummary] = useState(false);
@@ -209,14 +210,6 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
     return paymentSummary ? paymentSummary.total_items : 0;
   };
 
-  const getTypeColor = (type: string) => {
-    return type === 'Product' ? '#10b981' : '#3b82f6';
-  };
-
-  const getTypeIcon = (type: string) => {
-    return type === 'Product' ? 'cube-outline' : 'briefcase-outline';
-  };
-
   const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: any) => {
     const paddingToBottom = 20;
     return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
@@ -275,15 +268,9 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
               </Card>
             ) : null}
             {loading || refreshing ? (
-              <PaymentItemsSkeleton count={5} />
+              <PaymentItemsSkeleton count={3} />
             ) : paymentItems.length === 0 ? (
-              <Card style={styles.emptyCard}>
-                <Card.Content style={styles.emptyCardContent}>
-                  <Ionicons name="cube-outline" size={48} color="#d1d5db" />
-                  <Text style={styles.emptyText}>No items found</Text>
-                  <Text style={styles.emptySubtext}>Add items to this payment</Text>
-                </Card.Content>
-              </Card>
+              <EmptyPaymentItemCard />
             ) : (
               <Card style={styles.itemsCard}>
                 <Card.Content style={styles.itemsCardContent}>

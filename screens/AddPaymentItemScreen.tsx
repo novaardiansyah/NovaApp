@@ -200,6 +200,8 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
   const savePaymentItems = async () => {
     if (!validateItems()) return;
 
+    if (loading) return;
+
     setLoading(true);
 
     const formData: AttachMultipleItemsData = {
@@ -243,7 +245,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
           <View style={styles.header}>
             <View style={styles.headerLeft}>
               <Ionicons name="document-text-outline" size={24} color="#6366f1" style={styles.headerIcon} />
-              <Text style={styles.headerTitle}>Add Payment Items</Text>
+              <Text style={styles.headerTitle}>Tambah produk / layanan</Text>
             </View>
             <TouchableOpacity
               style={styles.searchButton}
@@ -270,7 +272,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
               }
             >
               <Text style={styles.description}>
-                You can add multiple items with quantities and amounts.
+                Anda dapat menambahkan beberapa produk / layanan sekaligus.
               </Text>
 
               {/* Items List */}
@@ -299,7 +301,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                       </View>
 
                       <TextInput
-                        label="Item Name"
+                        label="Nama produk / layanan"
                         value={item.name}
                         onChangeText={(value) => updateItem(index, 'name', value)}
                         mode="outlined"
@@ -309,7 +311,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                       />
 
                       <TextInput
-                        label={'Amount (Rp' + (item.amount ? ` ${formatAmount(item.amount)}` : '') + ')'}
+                        label={'Nominal (Rp' + (item.amount ? ` ${formatAmount(item.amount)}` : '') + ')'}
                         value={item.amount}
                         onChangeText={(value) => updateItem(index, 'amount', value)}
                         mode="outlined"
@@ -320,7 +322,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                       />
 
                       <TextInput
-                        label="Quantity"
+                        label="Kuantitas"
                         value={item.qty}
                         onChangeText={(value) => updateItem(index, 'qty', value)}
                         mode="outlined"
@@ -342,20 +344,20 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                 icon={() => <Ionicons name="add" size={18} color="#6366f1" />}
                 labelStyle={styles.addItemButtonText}
               >
-                Add Item
+                Tambah produk / layanan
               </Button>
 
               {/* Total Amount */}
               <Card style={styles.totalCard}>
                 <Card.Content style={styles.totalContent}>
-                  <Text style={styles.totalLabel}>Total Amount</Text>
+                  <Text style={styles.totalLabel}>Total Nominal</Text>
                   <Text style={styles.totalAmount}>Rp {parseFloat(totalAmount).toLocaleString('id-ID')}</Text>
                 </Card.Content>
               </Card>
 
               {/* Save Button */}
               <FormButton
-                title="Save Payment Items"
+                title="Simpan"
                 onPress={savePaymentItems}
                 loading={loading}
                 icon="cash-plus"
@@ -363,9 +365,9 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
               />
 
               <FormButton
-                title="Cancel"
+                title="Batal"
                 onPress={() => {
-                  navigation?.navigate('AllTransactions', { refresh: Date.now() })
+                  navigation?.navigate('TransactionsMain', { refresh: Date.now() })
                 }}
                 variant="outline"
                 style={styles.cancelButton}
@@ -507,7 +509,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
         message={notification || ''}
         onDismiss={() => {
           setNotification(null)
-          navigation?.navigate('AllTransactions', { refresh: Date.now() })
+          navigation?.navigate('TransactionsMain', { refresh: Date.now() })
         }}
         type="success"
       />
