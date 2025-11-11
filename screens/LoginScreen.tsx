@@ -51,6 +51,16 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     return password && password.length < 6;
   };
 
+  const handleSignUp = () => {
+    // navigation.navigate('Signup')
+    return Alert.alert('Peringatan', 'Fitur ini sedang dalam tahap pengembangan!')
+  }
+
+  const handleForgotPassword = () => {
+    // navigation.navigate('ForgotPassword')
+    return Alert.alert('Peringatan', 'Fitur ini sedang dalam tahap pengembangan!')
+  }
+
   return (
     <PaperProvider theme={Theme}>
       <KeyboardAvoidingView
@@ -121,7 +131,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               <View style={styles.footer}>
                 <Text
                   style={styles.forgotPassword}
-                  onPress={() => navigation.navigate('ForgotPassword')}
+                  onPress={handleForgotPassword}
                 >
                   Lupa kata sandi?
                 </Text>
@@ -129,7 +139,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                   <Text style={styles.signupText}>Belum punya akun? </Text>
                   <Text
                     style={styles.signupLink}
-                    onPress={() => navigation.navigate('Signup')}
+                    onPress={handleSignUp}
                   >
                     Daftar
                   </Text>
