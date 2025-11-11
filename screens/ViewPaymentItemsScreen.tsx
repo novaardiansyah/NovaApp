@@ -8,7 +8,7 @@ import { commonStyles, formatCurrency, getScrollContainerStyle } from '@/styles'
 import { paymentItemsStyles as styles } from '@/styles/ViewPaymentItemsStyles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
-import { PaymentItemsSkeleton, PaymentSummarySkeleton } from '@/components';
+import { PaymentItemsSkeleton, PaymentSummarySkeleton, Notification } from '@/components';
 import paymentService, { PaymentItemsSummary, PaymentItem, Pagination, DeleteItemResponse } from '@/services/paymentService';
 import EmptyPaymentItemCard from '@/components/EmptyPaymentItemCard';
 
@@ -38,6 +38,7 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
   const [selectedItem, setSelectedItem] = useState<PaymentItem | null>(null);
   const [actionSheetVisible, setActionSheetVisible] = useState(false);
   const [paymentSummary, setPaymentSummary] = useState<PaymentSummary | null>(null);
+  const [notification, setNotification] = useState<string | null>(null);
   const [paymentItems, setPaymentItems] = useState<PaymentItem[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -188,10 +189,7 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
           formatted_amount: response.data.formatted_amount,
         } : null);
 
-        Alert.alert(
-          'Berhasil',
-          `Item berhasil dihapus. Total: ${response.data.formatted_amount}`
-        );
+        setNotification(`Item pembayaran berhasil dihapus.`);
       } else {
         Alert.alert('Error', response.message || 'Gagal menghapus item.');
       }
@@ -400,6 +398,13 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
             </View>
           </SafeAreaView>
         </Modal>
+
+        <Notification
+          visible={!!notification}
+          message={notification || ''}
+          type="success"
+          onDismiss={() => setNotification(null)}
+        />
       </SafeAreaView>
     </PaperProvider>
   );
