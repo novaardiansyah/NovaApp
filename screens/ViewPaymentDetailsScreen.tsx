@@ -1,70 +1,60 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  Text,
-  ScrollView,
-  RefreshControl,
-  ActivityIndicator,
-  StatusBar,
-  Alert,
-  Pressable,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Appbar, Card, Divider } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
-import { Theme } from '@/constants/colors';
-import { useAuth } from '@/contexts/AuthContext';
-import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
-import paymentService from '@/services/paymentService';
-import { PaymentDetailsSkeleton } from '@/components';
+import React, { useState, useEffect } from 'react'
+import { View, StyleSheet, Text, ScrollView, RefreshControl, StatusBar, Alert, Pressable } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { PaperProvider, Appbar, Card, Divider } from 'react-native-paper'
+import { Ionicons } from '@expo/vector-icons'
+import { Theme } from '@/constants/colors'
+import { useAuth } from '@/contexts/AuthContext'
+import { commonStyles, statusBarConfig } from '@/styles'
+import paymentService, { PaymentDetailsData } from '@/services/paymentService'
+import { PaymentDetailsSkeleton } from '@/components'
 
-type PaymentData = paymentService.PaymentDetailsData;
+type PaymentData = PaymentDetailsData
 
 interface ViewPaymentDetailsScreenProps {
-  navigation: any;
-  route: any;
+  navigation: any
+  route: any
 }
 
 const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ navigation, route }) => {
-  const { token } = useAuth();
-  const { paymentId } = route.params;
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
-  const [pressedCardId, setPressedCardId] = useState<string | null>(null);
+  const { token } = useAuth()
+  const { paymentId } = route.params
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [paymentData, setPaymentData] = useState<PaymentData | null>(null)
+  const [pressedCardId, setPressedCardId] = useState<string | null>(null)
 
   const loadPaymentDetails = async () => {
-    if (!token || !paymentId) return;
+    if (!token || !paymentId) return
 
-    setLoading(true);
+    setLoading(true)
     try {
-      const response = await paymentService.getPaymentDetails(token, paymentId);
+      const response = await paymentService.getPaymentDetails(token, paymentId)
 
       if (response.success && response.data) {
-        setPaymentData(response.data);
+        setPaymentData(response.data)
       } else {
-        Alert.alert('Error', response.message || 'Failed to load payment details');
-        navigation.goBack();
+        Alert.alert('Error', response.message || 'Failed to load payment details')
+        navigation.goBack()
       }
     } catch (error) {
-      console.error('Error loading payment details:', error);
-      Alert.alert('Error', 'Failed to load payment details. Please check your connection.');
-      navigation.goBack();
+      console.error('Error loading payment details:', error)
+      Alert.alert('Error', 'Failed to load payment details. Please check your connection.')
+      navigation.goBack()
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleRefresh = async () => {
-    setRefreshing(true);
-    await loadPaymentDetails();
-    setRefreshing(false);
-  };
+    setRefreshing(true)
+    await loadPaymentDetails()
+    setRefreshing(false)
+  }
 
   useEffect(() => {
-    loadPaymentDetails();
-  }, [paymentId]);
+    loadPaymentDetails()
+  }, [paymentId])
 
   const renderInfoRow = (label: string, value: string, icon?: string, iconColor?: string) => (
     <View style={styles.infoRow}>
@@ -81,20 +71,16 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
       </View>
       <Text style={styles.infoValue}>{value}</Text>
     </View>
-  );
+  )
 
   
   const getTypeColor = (type: string) => {
-    return type === 'income' ? '#10b981' : '#ef4444';
-  };
-
-  const getTypeIcon = (type: string) => {
-    return type === 'income' ? 'arrow-down' : 'arrow-up';
-  };
+    return type === 'income' ? '#10b981' : '#ef4444'
+  }
 
   const getTypeName = (type: string) => {
-    return type === 'income' ? 'Income' : 'Expense';
-  };
+    return type === 'income' ? 'Income' : 'Expense'
+  }
 
   if (loading || refreshing) {
     return (
@@ -116,11 +102,11 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
           </ScrollView>
         </SafeAreaView>
       </PaperProvider>
-    );
+    )
   }
 
   if (!paymentData) {
-    return null;
+    return null
   }
 
   return (
@@ -232,8 +218,8 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
         </ScrollView>
       </SafeAreaView>
     </PaperProvider>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   scrollContent: {
@@ -394,6 +380,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     opacity: 0.7,
   },
-});
+})
 
-export default ViewPaymentDetailsScreen;
+export default ViewPaymentDetailsScreen

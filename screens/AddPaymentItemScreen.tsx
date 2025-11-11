@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, ScrollView, Text, KeyboardAvoidingView, Platform, Alert, RefreshControl, Modal, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, ScrollView, Text, KeyboardAvoidingView, Platform, Alert, RefreshControl, Modal, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card, TextInput, Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -32,9 +32,6 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
   const { token } = useAuth();
 
   if (!token || !paymentId) return null;
-
-  // No navigation listeners needed for this screen
-
 
   const [items, setItems] = useState<PaymentItem[]>([
     { name: '', amount: '', qty: '1' }
@@ -507,11 +504,15 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
       <Notification
         visible={!!notification}
         message={notification || ''}
+        type="success"
         onDismiss={() => {
           setNotification(null)
-          navigation?.navigate('TransactionsMain', { refresh: Date.now() })
+
+          navigation.navigate('ViewPaymentItems', {
+            paymentId,
+            refresh: new Date().getTime()
+          });
         }}
-        type="success"
       />
     </PaperProvider>
   );
