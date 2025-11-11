@@ -154,8 +154,19 @@ export const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
 
-  transactionItemsIcon: {
+  transactionIconsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     marginTop: 2,
+  },
+
+  transactionItemsIcon: {
+
+  },
+
+  transactionScheduledIcon: {
+
   },
 
   transactionDivider: {

@@ -12,6 +12,7 @@ export interface Transaction {
   type_id: number;
   updated_at: string;
   has_items?: boolean;
+  is_scheduled?: boolean;
 }
 
 export interface FinancialData {
