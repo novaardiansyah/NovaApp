@@ -9,31 +9,8 @@ import { paymentItemsStyles as styles } from '@/styles/ViewPaymentItemsStyles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { PaymentItemsSkeleton, PaymentSummarySkeleton } from '@/components';
-import paymentService from '@/services/paymentService';
+import paymentService, { PaymentItemsSummary, PaymentItem, Pagination, DeleteItemResponse } from '@/services/paymentService';
 import EmptyPaymentItemCard from '@/components/EmptyPaymentItemCard';
-
-interface PaymentItem {
-  id: number;
-  name: string;
-  type_id: number;
-  type: string;
-  code: string;
-  price: number;
-  quantity: number;
-  total: number;
-  formatted_price: string;
-  formatted_total: string;
-  updated_at: string;
-}
-
-interface Pagination {
-  current_page: number;
-  from: number;
-  last_page: number;
-  per_page: number;
-  to: number;
-  total: number;
-}
 
 interface PaymentSummary {
   payment_id: number;
@@ -182,16 +159,45 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
             },
             {
               text: 'Hapus',
-              onPress: () => {
-                // Remove item from list
-                setPaymentItems(prev => prev.filter(i => i.id !== selectedItem.id));
-                Alert.alert('Berhasil', 'Item berhasil dihapus');
-              },
+              onPress: () => handleDeleteItem(selectedItem),
               style: 'destructive',
             },
           ]
         );
         break;
+    }
+  };
+
+  const handleDeleteItem = async (item: PaymentItem) => {
+    if (!token || !item.id || !paymentSummary) {
+      Alert.alert('Error', 'Gagal menghapus item. Data tidak lengkap.');
+      return;
+    }
+
+    try {
+      const response = await paymentService.deleteItem(token, paymentId, item.id);
+
+      if (response.success) {
+        setPaymentItems(prev => prev.filter(i => i.id !== item.id));
+
+        setPaymentSummary(prev => prev ? {
+          ...prev,
+          total_items: prev.total_items - 1,
+          total_qty: prev.total_qty - item.quantity,
+          total_amount: prev.total_amount - response.data.amount,
+          formatted_amount: response.data.formatted_amount,
+        } : null);
+
+        Alert.alert(
+          'Berhasil',
+          `Item berhasil dihapus. Total: ${response.data.formatted_amount}`
+        );
+      } else {
+        Alert.alert('Error', response.message || 'Gagal menghapus item.');
+      }
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      Alert.alert('Error', 'Gagal menghapus item. Silakan coba lagi.');
     }
   };
 

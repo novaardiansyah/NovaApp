@@ -74,6 +74,7 @@ export interface PaymentItem {
   formatted_price: string;
   formatted_total: string;
   updated_at: string;
+  pivot_id?: number;
 }
 
 export interface Pagination {
@@ -136,6 +137,16 @@ export interface Attachment {
   mime_type: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface DeleteItemResponse {
+  success: boolean;
+  message: string;
+  data: {
+    amount: number;
+    formatted_amount: string;
+    items_count: number;
+  };
 }
 
 
@@ -472,6 +483,21 @@ class PaymentService {
       return data;
     } catch (error) {
       console.error('Error deleting attachment by filepath:', error);
+      throw error;
+    }
+  }
+
+  async deleteItem(token: string, paymentId: number, pivotId: number): Promise<DeleteItemResponse> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/items/${pivotId}`, {
+        method: 'DELETE',
+        headers: this.getHeaders(token),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error deleting payment item:', error);
       throw error;
     }
   }
