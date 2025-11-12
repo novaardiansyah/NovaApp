@@ -96,6 +96,20 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
     }
   };
 
+  const handleTermsOfService = async () => {
+    const urlTermsOfService = 'https://novaardiansyah.my.id/live/nova-app/terms-of-service';
+
+    try {
+      await WebBrowser.openBrowserAsync(urlTermsOfService, {
+        presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
+        enableBarCollapsing: true,
+      });
+    } catch (error) {
+      console.error('Error opening terms of service:', error);
+      Linking.openURL(urlTermsOfService);
+    }
+  };
+
   return (
     <PaperProvider theme={Theme}>
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -194,7 +208,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 title="Syarat dan Ketentuan"
                 description="Lihat syarat dan ketentuan kami"
                 left={props => <List.Icon {...props} icon="file-document" />}
-                onPress={() => navigation.navigate('TermsOfService')}
+                onPress={handleTermsOfService}
               />
 
               <List.Item
