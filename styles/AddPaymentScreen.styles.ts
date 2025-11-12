@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
   description: {
     fontSize: 16,
     color: '#6b7280',
-    marginBottom: 24,
+    marginBottom: 16,
     lineHeight: 24,
   },
   inputGroup: {

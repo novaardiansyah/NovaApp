@@ -282,7 +282,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Add Payment" />
+          <Appbar.Content title="Tambah Pembayaran" />
         </Appbar.Header>
 
         <KeyboardAvoidingView
@@ -303,32 +303,32 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
             }
           >
             <Text style={styles.description}>
-              Add a new payment record. Fill in the required information below.
+              Tambah catatan pembayaran baru. Isi informasi yang diperlukan di bawah ini.
             </Text>
 
             <TextInput
-              label={'Amount (Rp' + (formData.amount ? ` ${formatAmount(formData.amount)}` : '') + ')' + (formData.has_items ? '' : ' *')}
+              label={'Jumlah (Rp' + (formData.amount ? ` ${formatAmount(formData.amount)}` : '') + ')' + (formData.has_items ? '' : ' *')}
               value={formData.amount}
               onChangeText={(value) => handleInputChange('amount', value)}
               mode="outlined"
               outlineColor="#e5e7eb"
               activeOutlineColor="#6366f1"
               style={styles.input}
-              placeholder={'Amount (Rp)' + (formData.has_items ? '' : ' *')}
+              placeholder={'Jumlah (Rp)' + (formData.has_items ? '' : ' *')}
               keyboardType="numeric"
               editable={!formData.has_items}
             />
             {errors.amount && <HelperText type="error" style={styles.helperText}>{errors.amount}</HelperText>}
 
             <TextInput
-              label={'Description' + (formData.has_items ? '' : ' *')}
+              label={'Deskripsi' + (formData.has_items ? '' : ' *')}
               value={formData.name}
               onChangeText={(value) => handleInputChange('name', value)}
               mode="outlined"
               outlineColor="#e5e7eb"
               activeOutlineColor="#6366f1"
               style={styles.input}
-              placeholder={'Description' + (formData.has_items ? '' : ' *')}
+              placeholder={'Deskripsi' + (formData.has_items ? '' : ' *')}
               multiline
               numberOfLines={4}
               editable={!formData.has_items}
@@ -337,21 +337,21 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
             
             <TouchableOpacity onPress={() => setDatePickerVisible(true)} activeOpacity={0.7}>
               <TextInput
-                label="Date *"
+                label="Tanggal *"
                 value={formData.date}
                 onChangeText={() => {}}
                 mode="outlined"
                 outlineColor="#e5e7eb"
                 activeOutlineColor="#6366f1"
                 style={styles.input}
-                placeholder="Select date"
+                placeholder="Pilih tanggal"
                 editable={false}
               />
             </TouchableOpacity>
             {errors.date && <HelperText type="error" style={styles.helperText}>{errors.date}</HelperText>}
 
             <Select
-              label="Category"
+              label="Kategori"
               value={formData.type_id}
               onValueChange={handlePaymentTypeChange}
               options={paymentTypes}
@@ -363,7 +363,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
             />
 
             <Select
-              label="Payment Account"
+              label="Akun Pembayaran"
               value={formData.payment_account_id}
               onValueChange={handlePaymentAccountChange}
               options={paymentAccounts}
@@ -374,7 +374,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
             />
 
             <Select
-              label="To Payment Account"
+              label="Ke Akun Pembayaran"
               value={formData.payment_account_to_id}
               onValueChange={handlePaymentAccountToChange}
               options={paymentAccounts}
@@ -387,16 +387,16 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
 
             {/* Collapsible Options Section */}
             <List.Accordion
-              title="Payment Options"
-              description="Additional payment settings"
+              title="Opsi Pembayaran"
+              description="Pengaturan tambahan"
               left={props => <List.Icon {...props} icon="tune" />}
               expanded={optionsExpanded}
               onPress={() => setOptionsExpanded(!optionsExpanded)}
               style={styles.accordion}
             >
               <List.Item
-                title="Has Items"
-                description="Include products / services"
+                title="Memiliki Item"
+                description="Termasuk produk / layanan"
                 left={props => <List.Icon {...props} icon="format-list-bulleted" />}
                 right={() => (
                   <Switch
@@ -409,8 +409,8 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               />
 
               <List.Item
-                title="Has Charge"
-                description="Payment already charge"
+                title="Memiliki Biaya"
+                description="Sudah dikenakan biaya"
                 left={props => <List.Icon {...props} icon="cash-plus" />}
                 right={() => (
                   <Switch
@@ -423,8 +423,8 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               />
 
               <List.Item
-                title="Is Scheduled"
-                description="Set as scheduled payment"
+                title="Terjadwal"
+                description="Atur pembayaran terjadwal"
                 left={props => <List.Icon {...props} icon="calendar-clock" />}
                 right={() => (
                   <Switch
@@ -439,7 +439,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
 
 
             <FormButton
-              title="Add Payment"
+              title="Tambah Pembayaran"
               onPress={handleSubmit}
               loading={loading}
               icon="cash-plus"
@@ -447,7 +447,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
             />
 
             <FormButton
-              title="Cancel"
+              title="Batal"
               onPress={() => {
                 if (!loading) {
                   navigation.goBack();
@@ -467,8 +467,8 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
           onConfirm={handleDateConfirm}
           date={formData.date ? new Date(formData.date) : new Date()}
           mode="single"
-          saveLabel="Save"
-          label="Select date"
+          saveLabel="Simpan"
+          label="Pilih tanggal"
           animationType="slide"
           presentationStyle="pageSheet"
           locale="en"
