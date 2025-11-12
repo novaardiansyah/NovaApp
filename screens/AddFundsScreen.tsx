@@ -97,7 +97,7 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
       const response = await PaymentGoalsService.addFundsToGoal(token, goal.id, fundsData);
 
       if (response.success) {
-        setNotification('Funds added to goal successfully!');
+        setNotification('Dana berhasil ditambahkan ke tujuan keuangan!');
       } else {
         setLoading(false);
 
@@ -112,13 +112,13 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
 
           setErrors(newErrors);
         } else {
-          Alert.alert('Error', response.message || 'Failed to add funds. Please try again.');
+          Alert.alert('Error', response.message || 'Gagal menambahkan dana. Silakan coba lagi.');
         }
       }
     } catch (error) {
       setLoading(false);
       console.error('Error adding funds:', error);
-      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      Alert.alert('Error', 'Terjadi kesalahan tak terduga. Silakan coba lagi.');
     }
   };
 
@@ -127,7 +127,7 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation?.goBack()} />
-          <Appbar.Content title="Add Funds" />
+          <Appbar.Content title="Tambah Dana" />
         </Appbar.Header>
 
         <KeyboardAvoidingView
@@ -146,7 +146,7 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
 
               <View style={styles.goalProgress}>
                 <View style={styles.progressRow}>
-                  <Text style={styles.progressLabel}>Current</Text>
+                  <Text style={styles.progressLabel}>Saat Ini</Text>
                   <Text style={styles.progressValue}>{goal.formatted.amount}</Text>
                 </View>
                 <View style={styles.progressRow}>
@@ -168,12 +168,8 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
               </View>
             </View>
 
-            <Text style={styles.description}>
-              Add funds to your goal. Select the payment account and enter the amount.
-            </Text>
-
             <Select
-              label="Payment Account"
+              label="Akun Pembayaran"
               value={formData.payment_account_id}
               onValueChange={(value) => handleInputChange('payment_account_id', value)}
               options={paymentAccounts}
@@ -184,14 +180,14 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
             />
 
             <TextInput
-              label={'Amount (Rp' + (formData.amount ? ` ${formatAmount(formData.amount)}` : '') + ') *'}
+              label={'Jumlah (Rp' + (formData.amount ? ` ${formatAmount(formData.amount)}` : '') + ') *'}
               value={formData.amount}
               onChangeText={(value) => handleInputChange('amount', value)}
               mode="outlined"
               outlineColor="#e5e7eb"
               activeOutlineColor="#6366f1"
               style={styles.input}
-              placeholder="Amount (Rp) *"
+              placeholder="Jumlah (Rp) *"
               keyboardType="numeric"
               autoCapitalize="none"
               autoCorrect={false}
@@ -200,7 +196,7 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
             {errors.amount && <HelperText type="error" style={styles.helperText}>{errors.amount}</HelperText>}
 
             <FormButton
-              title="Add Funds"
+              title="Tambah Dana"
               onPress={handleSubmit}
               loading={loading}
               icon="plus"
@@ -208,7 +204,7 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
             />
 
             <FormButton
-              title="Cancel"
+              title="Batal"
               onPress={() => {
                 if (!loading) {
                   navigation?.goBack();

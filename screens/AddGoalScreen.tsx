@@ -102,7 +102,7 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
 
   const handleSubmit = async () => {
     if (!token) {
-      Alert.alert('Error', 'Authentication token not found. Please login again.');
+      Alert.alert('Error', 'Token autentikasi tidak ditemukan. Silakan masuk kembali.');
       return;
     }
 
@@ -139,7 +139,7 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
 
           setErrors(newErrors);
         } else {
-          Alert.alert('Error', response.message || 'Failed to create goal. Please try again.');
+          Alert.alert('Error', response.message || 'Gagal membuat tujuan keuangan. Silakan coba lagi.');
         }
       }
 
@@ -157,7 +157,7 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
 
         setErrors(newErrors);
       } else {
-        Alert.alert('Error', 'Failed to create goal. Please try again.');
+        Alert.alert('Error', 'Gagal membuat tujuan keuangan. Silakan coba lagi.');
       }
     }
   };
@@ -199,7 +199,7 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Create Financial Goal" />
+          <Appbar.Content title="Buat Tujuan Keuangan" />
         </Appbar.Header>
 
         <KeyboardAvoidingView
@@ -220,12 +220,12 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
             }
           >
             <Text style={styles.description}>
-              Create a new financial goal to track your savings targets and achieve your financial dreams.
+              Buat tujuan keuangan baru untuk melacak target tabungan Anda dan mencapai impian finansial Anda.
             </Text>
 
             <TextInput
-              label="Goal Name *"
-              placeholder="Enter goal name"
+              label="Nama Tujuan *"
+              placeholder="Masukkan nama tujuan"
               value={formData.name}
               onChangeText={(value) => handleInputChange('name', value)}
               mode="outlined"
@@ -238,8 +238,8 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
             {errors.name && <HelperText type="error" style={styles.helperText}>{errors.name}</HelperText>}
 
             <TextInput
-              label="Description"
-              placeholder="Enter goal description"
+              label="Deskripsi"
+              placeholder="Masukkan deskripsi tujuan"
               value={formData.description}
               onChangeText={(value) => handleInputChange('description', value)}
               mode="outlined"
@@ -254,8 +254,8 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
 
   
             <TextInput
-              label={'Target Amount (Rp' + (formData.target_amount ? ` ${formatAmount(formData.target_amount)}` : '') + ') *'}
-              placeholder="Enter target amount"
+              label={'Target Jumlah (Rp' + (formData.target_amount ? ` ${formatAmount(formData.target_amount)}` : '') + ') *'}
+              placeholder="Masukkan target jumlah"
               value={formData.target_amount}
               onChangeText={(value) => handleInputChange('target_amount', value)}
               mode="outlined"
@@ -269,14 +269,14 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
 
             <TouchableOpacity onPress={() => setStartDatePickerVisible(true)} activeOpacity={0.7}>
               <TextInput
-                label="Start Date *"
+                label="Tanggal Mulai *"
                 value={formData.start_date ? new Date(formData.start_date).toLocaleDateString() : ''}
                 onChangeText={() => {}}
                 mode="outlined"
                 outlineColor="#e5e7eb"
                 activeOutlineColor="#6366f1"
                 style={styles.input}
-                placeholder="Select start date"
+                placeholder="Pilih tanggal mulai"
                 editable={false}
                 left={<TextInput.Icon icon="calendar" color="#6b7280" />}
               />
@@ -285,14 +285,14 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
 
             <TouchableOpacity onPress={() => setTargetDatePickerVisible(true)} activeOpacity={0.7}>
               <TextInput
-                label="Target Date *"
+                label="Tanggal Target *"
                 value={formData.target_date ? new Date(formData.target_date).toLocaleDateString() : ''}
                 onChangeText={() => {}}
                 mode="outlined"
                 outlineColor="#e5e7eb"
                 activeOutlineColor="#6366f1"
                 style={styles.input}
-                placeholder="Select target date"
+                placeholder="Pilih tanggal target"
                 editable={false}
                 left={<TextInput.Icon icon="calendar" color="#6b7280" />}
               />
@@ -300,7 +300,7 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
             {errors.target_date && <HelperText type="error" style={styles.helperText}>{errors.target_date}</HelperText>}
 
             <FormButton
-              title="Create Goal"
+              title="Buat Tujuan"
               onPress={handleSubmit}
               loading={submitting}
               icon="trophy"
@@ -308,7 +308,7 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
             />
 
             <FormButton
-              title="Cancel"
+              title="Batal"
               onPress={() => navigation.goBack()}
               variant="outline"
               loading={submitting}
@@ -325,8 +325,8 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
         onConfirm={handleStartDateConfirm}
         date={formData.start_date ? new Date(formData.start_date) : new Date()}
         mode="single"
-        saveLabel="Save"
-        label="Select start date"
+        saveLabel="Simpan"
+        label="Pilih tanggal mulai"
         animationType="slide"
         presentationStyle="pageSheet"
         locale="en"
@@ -339,8 +339,8 @@ const AddGoalScreen: React.FC<AddGoalScreenProps> = ({ navigation, route }) => {
         onConfirm={handleTargetDateConfirm}
         date={formData.target_date ? new Date(formData.target_date) : new Date()}
         mode="single"
-        saveLabel="Save"
-        label="Select target date"
+        saveLabel="Simpan"
+        label="Pilih tanggal target"
         animationType="slide"
         presentationStyle="pageSheet"
         locale="en"
