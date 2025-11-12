@@ -73,15 +73,6 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
     </View>
   )
 
-  
-  const getTypeColor = (type: string) => {
-    return type === 'income' ? '#10b981' : '#ef4444'
-  }
-
-  const getTypeName = (type: string) => {
-    return type === 'income' ? 'Income' : 'Expense'
-  }
-
   if (loading || refreshing) {
     return (
       <PaperProvider theme={Theme}>
@@ -89,7 +80,7 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
           <StatusBar {...statusBarConfig} />
           <Appbar.Header>
             <Appbar.BackAction onPress={() => navigation.goBack()} />
-            <Appbar.Content title="Payment Details" />
+            <Appbar.Content title="Detail Pembayaran" />
           </Appbar.Header>
           <ScrollView
             contentContainerStyle={styles.scrollContent}
@@ -115,7 +106,7 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
         <StatusBar {...statusBarConfig} />
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Payment Details" />
+          <Appbar.Content title="Detail Pembayaran" />
         </Appbar.Header>
 
         <ScrollView
@@ -128,7 +119,7 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
           {/* Payment Name Card */}
           <Card style={styles.nameCard}>
             <Card.Content>
-              <Text style={styles.nameCardTitle}>Payment Name</Text>
+              <Text style={styles.nameCardTitle}>Nama Pembayaran</Text>
               <Divider style={styles.cardDivider} />
               <Text style={styles.nameCardText}>{paymentData.name}</Text>
             </Card.Content>
@@ -137,24 +128,25 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
           {/* Payment Information */}
           <Card style={styles.infoCard}>
             <Card.Content>
-              <Text style={styles.infoCardTitle}>Payment Information</Text>
+              <Text style={styles.infoCardTitle}>Informasi Pembayaran</Text>
               <Divider style={styles.cardDivider} />
 
-              {renderInfoRow('Transaction Code', paymentData.code, 'pricetag-outline', '#6366f1')}
-              {renderInfoRow('Amount', paymentData.formatted_amount, 'cash-outline', getTypeColor(paymentData.type))}
-              {renderInfoRow('Date', paymentData.formatted_date, 'calendar-outline', '#6366f1')}
-              {renderInfoRow('Type', getTypeName(paymentData.type), 'folder-outline', '#f59e0b')}
-              {renderInfoRow('Has Items', paymentData.has_items ? 'Yes' : 'No', 'list-outline', paymentData.has_items ? '#10b981' : '#ef4444')}
+              {renderInfoRow('Kode Transaksi', paymentData.code, 'pricetag-outline', '#6366f1')}
+              {renderInfoRow('Jumlah', paymentData.formatted_amount, 'cash-outline', '#6366f1')}
+              {renderInfoRow('Tanggal', paymentData.formatted_date, 'calendar-outline', '#6366f1')}
+              {renderInfoRow('Tipe', paymentData.type === 'income' ? 'Pemasukan' : 'Pengeluaran', 'folder-outline', '#6366f1')}
+              {renderInfoRow('Memiliki Item', paymentData.has_items ? 'Ya' : 'Tidak', 'list-outline', '#6366f1')}
+              {renderInfoRow('Terjadwal', paymentData.is_scheduled ? 'Ya' : 'Tidak', 'time-outline', '#6366f1')}
             </Card.Content>
           </Card>
 
           {/* Timestamp Information */}
           <Card style={styles.timestampCard}>
             <Card.Content>
-              <Text style={styles.infoCardTitle}>Additional Information</Text>
+              <Text style={styles.infoCardTitle}>Informasi Tambahan</Text>
               <Divider style={styles.cardDivider} />
 
-              {renderInfoRow('Last Updated', paymentData.formatted_updated_at, 'refresh-outline', '#6b7280')}
+              {renderInfoRow('Terakhir Diperbarui', paymentData.formatted_updated_at, 'refresh-outline', '#6b7280')}
             </Card.Content>
           </Card>
 
@@ -176,8 +168,8 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
                         <Ionicons name="list-outline" size={24} color="#6366f1" />
                       </View>
                       <View style={styles.actionInfo}>
-                        <Text style={styles.actionTitle}>View Payment Items</Text>
-                        <Text style={styles.actionSubtitle}>See detailed item breakdown</Text>
+                        <Text style={styles.actionTitle}>Lihat Item Pembayaran</Text>
+                        <Text style={styles.actionSubtitle}>Lihat rincian item secara detail</Text>
                       </View>
                     </View>
                     <Ionicons name="chevron-forward" size={20} color="#6b7280" />
@@ -204,8 +196,8 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
                       <Ionicons name="attach-outline" size={24} color="#ffffff" />
                     </View>
                     <View style={styles.actionInfo}>
-                      <Text style={styles.actionTitle}>View Attachments</Text>
-                      <Text style={styles.actionSubtitle}>View attached files and documents</Text>
+                      <Text style={styles.actionTitle}>Lihat Lampiran</Text>
+                      <Text style={styles.actionSubtitle}>Lihat file dan dokumen terlampir</Text>
                     </View>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color="#6b7280" />

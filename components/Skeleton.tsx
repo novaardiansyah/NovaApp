@@ -565,7 +565,7 @@ export const PaymentDetailsSkeleton: React.FC<PaymentDetailsSkeletonProps> = ({ 
           <Skeleton width={140} height={20} style={{ marginBottom: 12 }} />
           <View style={{ height: 1, backgroundColor: '#f3f4f6', marginVertical: 6 }} />
 
-          {Array.from({ length: 5 }).map((_, index) => (
+          {Array.from({ length: 2 }).map((_, index) => (
             <View key={index} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 16 }}>
                 <Skeleton width={20} height={20} style={{ borderRadius: 4, marginRight: 12 }} />

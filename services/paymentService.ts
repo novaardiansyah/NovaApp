@@ -36,6 +36,7 @@ export interface PaymentDetailsData {
   date: string;
   amount: number;
   has_items: boolean;
+  is_scheduled: boolean;
   formatted_amount: string;
   formatted_date: string;
   type: string;
