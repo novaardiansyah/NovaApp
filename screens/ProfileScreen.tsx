@@ -18,25 +18,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const { user, token, logout, toggleNotificationSettings } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
 
-  const handleDarkModeToggle = (enabled: boolean) => {
-    Alert.alert(
-      'Fitur Segera Hadir',
-      'Mode gelap sedang dalam pengembangan dan akan segera tersedia di versi mendatang.',
-      [
-        {
-          text: 'Mengerti',
-          style: 'default',
-        },
-      ]
-    );
-
-    // Prevent toggle by reverting to original state
-    setDarkModeEnabled(false);
-  };
-
-  // Initialize notification switch with user data
   useEffect(() => {
     if (user?.has_allow_notification !== undefined) {
       setNotificationsEnabled(user.has_allow_notification);
@@ -170,19 +152,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                   />
                 )}
               />
-
-              {/* <List.Item
-                title="Mode Gelap"
-                description="Aktifkan mode gelap"
-                left={props => <List.Icon {...props} icon="theme-light-dark" />}
-                right={() => (
-                  <Switch
-                    value={darkModeEnabled}
-                    onValueChange={handleDarkModeToggle}
-                    color="#6366f1"
-                  />
-                )}
-              /> */}
 
               <List.Item
                 title="Bahasa"

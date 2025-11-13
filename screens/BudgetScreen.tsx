@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Card, Avatar } from 'react-native-paper';
+import { PaperProvider, Card, Avatar, FAB } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 import TransactionService from '@/services/transactionService';
 import PaymentService, { PaymentAccount } from '@/services/paymentService';
+import accountService from '@/services/accountService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
-import { AccountsListSkeleton, BalanceCardSkeleton } from '@/components';
+import { AccountsListSkeleton, BalanceCardSkeleton, Notification } from '@/components';
 import { Alert } from 'react-native';
 
 interface BudgetScreenProps {
@@ -25,6 +26,8 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
   const [financialData, setFinancialData] = useState<any>(null);
   const [selectedAccount, setSelectedAccount] = useState<PaymentAccount | null>(null);
   const [actionSheetVisible, setActionSheetVisible] = useState(false);
+  const [deletingAccountId, setDeletingAccountId] = useState<number | null>(null);
+  const [notification, setNotification] = useState<string | null>(null);
 
   const fetchFinancialData = async () => {
     if (!isAuthenticated || !token) return;
@@ -82,11 +85,52 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
           accountId: selectedAccount.id
         });
         break;
+      case 'delete':
+        handleDeleteAccount(selectedAccount.id);
+        break;
     }
   };
 
   const closeActionSheet = () => {
     setActionSheetVisible(false);
+  };
+
+  
+  const handleDeleteAccount = async (accountId: number) => {
+    if (deletingAccountId) return; // Prevent double request
+    if (!isAuthenticated || !token) return;
+
+    Alert.alert(
+      'Delete Account',
+      'Are you sure you want to delete this account? This action cannot be undone.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            setDeletingAccountId(accountId);
+            setActionSheetVisible(false);
+
+            try {
+              await accountService.deleteAccount(token, accountId);
+
+              // Remove from local state
+              setPaymentAccounts(prev => prev.filter(account => account.id !== accountId));
+
+              setNotification('Account deleted successfully');
+            } catch (error: any) {
+              Alert.alert('Error', error.message || 'Failed to delete account. Please try again.');
+            } finally {
+              setDeletingAccountId(null);
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -204,6 +248,21 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
                   <Ionicons name="resize-outline" size={24} color="#ef4444" style={styles.actionIcon} />
                   <Text style={styles.actionText}>Audit Deposit</Text>
                 </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => handleActionSelect('delete')}
+                  disabled={deletingAccountId === selectedAccount?.id}
+                >
+                  <Ionicons
+                    name="trash-outline"
+                    size={24}
+                    color="#ef4444"
+                    style={styles.actionIcon}
+                  />
+                  <Text style={styles.actionText}>
+                    {deletingAccountId === selectedAccount?.id ? 'Deleting...' : 'Delete Account'}
+                  </Text>
+                </TouchableOpacity>
               </View>
 
               <TouchableOpacity
@@ -215,6 +274,22 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
             </View>
           </SafeAreaView>
         </Modal>
+
+        <Notification
+          visible={!!notification}
+          message={notification || ''}
+          onDismiss={() => setNotification(null)}
+          type="success"
+        />
+
+        <FAB
+          icon="plus"
+          color="#ffffff"
+          style={[styles.fab, {
+            bottom: -6
+          }]}
+          onPress={() => navigation.navigate('AddAccount')}
+        />
       </SafeAreaView>
     </PaperProvider>
   );
@@ -356,6 +431,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#6366f1',
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#6366f1',
   },
 });
 

@@ -1,4 +1,5 @@
 import APP_CONFIG from '@/config/app';
+import { convertImageToBase64 } from '@/utils/imageUtils';
 
 export interface PaymentType {
   id: number;
@@ -532,25 +533,7 @@ class PaymentService {
   }
 
   convertFileToBase64 = async (uri: string, mimeType: string): Promise<string> => {
-    try {
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const base64 = reader.result as string;
-          // Add data URL prefix if not present
-          const base64WithPrefix = base64.startsWith('data:')
-            ? base64
-            : `data:${mimeType};base64,${base64.split(',')[1]}`;
-          resolve(base64WithPrefix);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-    } catch (error) {
-      throw new Error('Failed to process file. Please try again.');
-    }
+    return convertImageToBase64(uri, mimeType);
   }
 
   formatFileSize(bytes: number): string {

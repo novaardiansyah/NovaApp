@@ -21,6 +21,7 @@ import AddAttachmentScreen from '@/screens/AddAttachmentScreen';
 import ViewAttachmentScreen from '@/screens/ViewAttachmentScreen';
 import CurrentAttachmentsScreen from '@/screens/CurrentAttachmentsScreen';
 import ViewPaymentDetailsScreen from '@/screens/ViewPaymentDetailsScreen';
+import AddAccountScreen from '@/screens/AddAccountScreen';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -60,19 +61,12 @@ const BudgetStackNavigator = () => {
         component={AuditScreen}
         options={{ headerShown: false }}
       />
-    </BudgetStack.Navigator>
-  );
-};
-
-const ReportsStackNavigator = () => {
-  return (
-    <ReportsStack.Navigator screenOptions={{ headerShown: false }}>
-      <ReportsStack.Screen
-        name="ReportsMain"
-        component={ReportsScreen}
-        options={{ title: 'Reports' }}
+      <BudgetStack.Screen
+        name="AddAccount"
+        component={AddAccountScreen}
+        options={{ title: 'Add Account' }}
       />
-    </ReportsStack.Navigator>
+    </BudgetStack.Navigator>
   );
 };
 
