@@ -62,9 +62,7 @@ class AccountService {
 
       if (response.status === 422) {
         try {
-          const errorData = JSON.parse(responseText);
-          const errorMessage = errorData.message || Object.values(errorData.errors || {}).flat().join(', ');
-          throw new Error(errorMessage);
+          return JSON.parse(responseText);
         } catch {
           throw new Error('Validation failed. Please check your input.');
         }
@@ -105,7 +103,7 @@ class AccountService {
 
   async createAccount(token: string, accountData: CreateAccountData): Promise<ApiResponse<Account>> {
     try {
-      const response = await this.request('/accounts', {
+      const response = await this.request('/payment-accounts', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -120,26 +118,9 @@ class AccountService {
     }
   }
 
-  async updateAccount(token: string, accountId: number, accountData: UpdateAccountData): Promise<Account> {
-    try {
-      const response = await this.request(`/accounts/${accountId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(accountData),
-      });
-
-      return response.data;
-    } catch (error) {
-      console.error('Error updating account:', error);
-      throw error;
-    }
-  }
-
   async deleteAccount(token: string, accountId: number): Promise<void> {
     try {
-      await this.request(`/accounts/${accountId}`, {
+      await this.request(`/payment-accounts/${accountId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

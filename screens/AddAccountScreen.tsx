@@ -95,17 +95,17 @@ const AddAccountScreen: React.FC<AddAccountScreenProps> = ({ navigation }) => {
 
       const response = await accountService.createAccount(token, accountData);
 
-      if (response.success || response.data) {
+      if (response.success) {
         setNotification('Akun berhasil dibuat!');
       } else {
         setLoading(false);
 
         if (response.errors) {
-          const newErrors = { ...errors };
+          const newErrors: FormErrors = {};
 
           Object.entries(response.errors).forEach(([field, messages]) => {
-            if (Array.isArray(messages) && messages.length > 0 && field in newErrors) {
-              newErrors[field as keyof typeof errors] = messages[0] as string;
+            if (Array.isArray(messages) && messages.length > 0) {
+              newErrors[field as keyof FormErrors] = messages[0] as string;
             }
           });
 
