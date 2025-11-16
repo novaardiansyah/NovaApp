@@ -45,6 +45,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
   const [searchResults, setSearchResults] = useState<SearchItem[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<SearchItem[]>([]);
 
   // Load initial items when modal opens
   useEffect(() => {
@@ -113,7 +114,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
   // Search functionality
   const handleSearch = async () => {
     if (searchQuery.trim().length < 2) {
-      Alert.alert('Validation Error', 'Please enter at least 2 characters to search');
+      Alert.alert('Error Validasi', 'Masukkan minimal 2 karakter untuk mencari');
       return;
     }
 
@@ -123,7 +124,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
       setSearchResults(results);
     } catch (error) {
       setSearchResults([]);
-      Alert.alert('Search Error', 'Failed to search items. Please try again.');
+      Alert.alert('Error Pencarian', 'Gagal mencari item. Silakan coba lagi.');
     } finally {
       setSearchLoading(false);
     }
@@ -135,59 +136,81 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
 
     if (existingItemIndex !== -1) {
       Alert.alert(
-        'Item Already Added',
-        'This item has already been added to the form. Please adjust the quantity instead.',
+        'Item Sudah Ditambahkan',
+        'Item ini sudah ditambahkan ke formulir. Silakan sesuaikan kuantitasnya.',
         [{ text: 'OK' }]
       );
       return;
     }
 
-    // Update the first empty item or add new item
-    const emptyItemIndex = items.findIndex(item => !item.name.trim());
-    let newItems;
+    // Toggle item selection
+    const isSelected = selectedItems.some(selectedItem => selectedItem.id === item.id);
 
-    if (emptyItemIndex !== -1) {
-      newItems = [...items];
-      newItems[emptyItemIndex] = {
-        name: item.name,
-        amount: item.amount.toString(),
-        qty: '1',
-        item_id: item.id
-      };
+    if (isSelected) {
+      // Remove from selected items
+      setSelectedItems(selectedItems.filter(selectedItem => selectedItem.id !== item.id));
     } else {
-      newItems = [...items, {
-        name: item.name,
-        amount: item.amount.toString(),
-        qty: '1',
-        item_id: item.id
-      }];
+      // Add to selected items
+      setSelectedItems([...selectedItems, item]);
     }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    loadInitialItems(); // Reload initial items when clearing search
+    setSelectedItems([]); // Clear selected items when clearing search
+  };
+
+  const addSelectedItems = () => {
+    if (selectedItems.length === 0) {
+      Alert.alert('Peringatan', 'Pilih minimal satu item untuk ditambahkan');
+      return;
+    }
+
+    let newItems = [...items];
+
+    selectedItems.forEach(selectedItem => {
+      // Find first empty slot or add new item
+      const emptyItemIndex = newItems.findIndex(item => !item.name.trim());
+
+      if (emptyItemIndex !== -1) {
+        newItems[emptyItemIndex] = {
+          name: selectedItem.name,
+          amount: selectedItem.amount.toString(),
+          qty: '1',
+          item_id: selectedItem.id
+        };
+      } else {
+        newItems.push({
+          name: selectedItem.name,
+          amount: selectedItem.amount.toString(),
+          qty: '1',
+          item_id: selectedItem.id
+        });
+      }
+    });
 
     setItems(newItems);
     calculateTotal(newItems);
     setShowSearchModal(false);
     setSearchQuery('');
     setSearchResults([]);
-  };
-
-  const clearSearch = () => {
-    setSearchQuery('');
-    loadInitialItems(); // Reload initial items when clearing search
+    setSelectedItems([]);
   };
 
   const validateItems = () => {
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       if (!item.name.trim()) {
-        Alert.alert('Validation Error', `Item name is required for item ${i + 1}`);
+        Alert.alert('Error Validasi', `Nama item diperlukan untuk item ${i + 1}`);
         return false;
       }
       if (!item.amount || parseFloat(item.amount) <= 0) {
-        Alert.alert('Validation Error', `Valid amount is required for item ${i + 1}`);
+        Alert.alert('Error Validasi', `Nominal yang valid diperlukan untuk item ${i + 1}`);
         return false;
       }
       if (!item.qty || parseFloat(item.qty) <= 0) {
-        Alert.alert('Validation Error', `Valid quantity is required for item ${i + 1}`);
+        Alert.alert('Error Validasi', `Kuantitas yang valid diperlukan untuk item ${i + 1}`);
         return false;
       }
     }
@@ -215,11 +238,11 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
       const response = await paymentService.attachMultipleItems(token, paymentId, formData);
 
       if (response.success) {
-        setNotification('Payment items added successfully!');
+        setNotification('Item pembayaran berhasil ditambahkan!');
       } else {
         Alert.alert(
           'Error',
-          response.message || 'Failed to save payment items',
+          response.message || 'Gagal menyimpan item pembayaran',
           [{ text: 'OK' }]
         );
         setLoading(false);
@@ -227,7 +250,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
     } catch (error) {
       Alert.alert(
         'Error',
-        'Failed to save payment items. Please try again.',
+        'Gagal menyimpan item pembayaran. Silakan coba lagi.',
         [{ text: 'OK' }]
       );
       setLoading(false);
@@ -283,7 +306,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                           {item.item_id && (
                             <View style={styles.searchedIndicator}>
                               <Ionicons name="search" size={12} color="#6366f1" />
-                              <Text style={styles.searchedText}>Searched</Text>
+                              <Text style={styles.searchedText}>Dicari</Text>
                             </View>
                           )}
                         </View>
@@ -383,6 +406,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
         onRequestClose={() => {
           setShowSearchModal(false);
           clearSearch();
+          setSelectedItems([]);
         }}
       >
         <SafeAreaView style={commonStyles.container} edges={['top', 'left', 'right']}>
@@ -391,7 +415,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
             <View style={styles.searchModalHeader}>
               <View style={styles.searchInputContainer}>
                 <TextInput
-                  placeholder="Search items..."
+                  placeholder="Cari item..."
                   value={searchQuery}
                   onChangeText={setSearchQuery}
                   mode="outlined"
@@ -410,6 +434,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                 onPress={() => {
                   setShowSearchModal(false);
                   clearSearch();
+                  setSelectedItems([]);
                 }}
                 style={styles.closeButton}
               >
@@ -430,13 +455,13 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                   textColor="#ffffff"
                   icon={() => <Ionicons name="search" size={18} color="#ffffff" />}
                 >
-                  Search Items
+                  Cari Item
                 </Button>
               </View>
             )}
 
             {/* Search Results */}
-            <ScrollView style={styles.searchResultsContainer}>
+            <ScrollView style={styles.searchResultsContainer} contentContainerStyle={{ paddingBottom: 80 }}>
               {searchLoading ? (
                 <SearchResultsSkeleton count={5} />
               ) : searchResults.length > 0 ? (
@@ -444,7 +469,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                   {searchQuery.length > 0 && (
                     <View style={styles.searchResultsHeader}>
                       <Text style={styles.searchResultsText}>
-                        {searchResults.length} item{searchResults.length !== 1 ? 's' : ''} found
+                        {searchResults.length} item{searchResults.length !== 1 ? '' : ''} ditemukan
                       </Text>
                     </View>
                   )}
@@ -452,19 +477,31 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                   <View style={{ marginTop: 16, paddingBottom: 50 }}>
                     {searchResults.map((item) => {
                       const isItemAdded = items.some(existingItem => existingItem.item_id === item.id);
+                      const isSelected = selectedItems.some(selectedItem => selectedItem.id === item.id);
 
                       return (
                       <TouchableOpacity
                         key={item.id}
                         style={[
                           styles.searchResultItem,
-                          isItemAdded && styles.searchResultItemDisabled
+                          isItemAdded && styles.searchResultItemDisabled,
+                          isSelected && styles.searchResultItemSelected
                         ]}
                         onPress={() => handleSearchItemSelect(item)}
                         disabled={isItemAdded}
                       >
                         <View style={styles.searchResultContent}>
-                          <Text style={styles.searchResultName}>{item.name}</Text>
+                          <View style={styles.searchResultHeader}>
+                            <Text style={styles.searchResultName}>{item.name}</Text>
+                            <View style={styles.searchResultActions}>
+                              {isSelected && (
+                                <Ionicons name="checkmark-circle" size={24} color="#6366f1" style={styles.selectedIcon} />
+                              )}
+                              {isItemAdded && (
+                                <Ionicons name="checkmark-circle" size={20} color="#10b981" style={styles.addedIcon} />
+                              )}
+                            </View>
+                          </View>
                           <View style={styles.searchResultDetails}>
                             <Text style={styles.searchResultCode}>{item.code}</Text>
                             <Text style={styles.searchResultPrice}>{item.formatted_amount}</Text>
@@ -474,9 +511,6 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                               {item.type}
                             </Text>
                           </View>
-                          {isItemAdded && (
-                            <Ionicons name="checkmark-circle" size={20} color="#10b981" style={styles.addedIcon} />
-                          )}
                         </View>
                       </TouchableOpacity>
                     );
@@ -486,17 +520,34 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
               ) : searchQuery.length > 0 ? (
                 <View style={styles.emptyContainer}>
                   <Ionicons name="search" size={48} color="#d1d5db" />
-                  <Text style={styles.emptyText}>No items found</Text>
-                  <Text style={styles.emptySubtext}>Try searching with different keywords</Text>
+                  <Text style={styles.emptyText}>Tidak ada item yang ditemukan</Text>
+                  <Text style={styles.emptySubtext}>Coba cari dengan kata kunci yang berbeda</Text>
                 </View>
               ) : (
                 <View style={styles.emptyContainer}>
                   <Ionicons name="search" size={48} color="#d1d5db" />
-                  <Text style={styles.emptyText}>Available Items</Text>
-                  <Text style={styles.emptySubtext}>No items available or search for specific items</Text>
+                  <Text style={styles.emptyText}>Item Tersedia</Text>
+                  <Text style={styles.emptySubtext}>Tidak ada item tersedia atau cari item tertentu</Text>
                 </View>
               )}
             </ScrollView>
+
+            {/* Add Selected Items Button */}
+            {selectedItems.length > 0 && (
+              <View style={styles.addSelectedItemsContainer}>
+                <Button
+                  mode="contained"
+                  onPress={addSelectedItems}
+                  style={styles.addSelectedItemsButton}
+                  buttonColor="#6366f1"
+                  textColor="#ffffff"
+                  contentStyle={{ height: 48 }}
+                  labelStyle={styles.addSelectedItemsButtonText}
+                >
+                  Tambah {selectedItems.length} Item Terpilih
+                </Button>
+              </View>
+            )}
           </View>
         </SafeAreaView>
       </Modal>

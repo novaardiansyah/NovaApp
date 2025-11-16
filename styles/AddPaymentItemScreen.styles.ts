@@ -218,11 +218,19 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
 
+  searchResultHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 4,
+  },
+
   searchResultName: {
     fontSize: 14,
     fontWeight: '600',
     color: '#1f2937',
-    marginBottom: 4,
+    flex: 1,
+    marginRight: 8,
   },
 
   searchResultDetails: {
@@ -357,5 +365,49 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     top: -4,
     right: -4,
+  },
+
+  // Selection styles
+  searchResultItemSelected: {
+    backgroundColor: '#f0f9ff',
+    borderColor: '#3b82f6',
+    borderWidth: 2,
+  },
+
+  searchResultMainContent: {
+    flex: 1,
+  },
+
+  searchResultActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+
+  selectedIcon: {
+    // Remove marginLeft since icon is now positioned at top right
+  },
+
+  // Add Selected Items Button Container
+  addSelectedItemsContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#ffffff',
+    borderTopWidth: 1,
+    borderTopColor: '#f3f4f6',
+    padding: 16,
+    paddingBottom: 20,
+  },
+
+  addSelectedItemsButton: {
+    borderRadius: 8,
+    minHeight: 48,
+  },
+
+  addSelectedItemsButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
