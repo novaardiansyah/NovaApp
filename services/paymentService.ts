@@ -489,6 +489,22 @@ class PaymentService {
     }
   }
 
+  async editPaymentItem(token: string, paymentId: number, pivotId: number, itemData: { quantity: number; price?: number }): Promise<ApiResponse<any>> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/items/${pivotId}`, {
+        method: 'PUT',
+        headers: this.getHeaders(token),
+        body: JSON.stringify(itemData),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error editing payment item:', error);
+      throw error;
+    }
+  }
+
   async deleteItem(token: string, paymentId: number, pivotId: number): Promise<DeleteItemResponse> {
     try {
       const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/items/${pivotId}`, {

@@ -144,10 +144,13 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
     if (!selectedItem) return;
 
     setActionSheetVisible(false);
-
+    console.log(selectedItem)
     switch (action) {
       case 'edit_item':
-        Alert.alert('Edit Item', `Fitur edit ${selectedItem.name} akan segera hadir!`);
+        navigation.navigate('EditPaymentItem', {
+          paymentId,
+          item: selectedItem
+        });
         break;
       case 'delete_item':
         Alert.alert(
