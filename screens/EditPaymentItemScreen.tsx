@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, ScrollView, Text, KeyboardAvoidingView, Platform, Alert } from 'react-native';
-import { PaperProvider, Appbar, Card, TextInput } from 'react-native-paper';
+import { View, ScrollView, Text, KeyboardAvoidingView, Platform, Alert, RefreshControl } from 'react-native';
+import { PaperProvider, Appbar, Card, TextInput, HelperText } from 'react-native-paper';
 import { Theme } from '@/constants/colors';
 import { FormButton, Notification } from '@/components';
+import { EditItemSkeleton } from '@/components';
 import { styles } from '@/styles/EditPaymentItemScreen.styles';
 import { useAuth } from '@/contexts/AuthContext';
 import paymentService from '@/services/paymentService';
@@ -25,6 +26,11 @@ interface EditPaymentItemScreenProps {
   };
 }
 
+interface FormErrors {
+  quantity?: string;
+  price?: string;
+}
+
 const EditPaymentItemScreen: React.FC<EditPaymentItemScreenProps> = ({ navigation, route }) => {
   const { paymentId, item } = route?.params || {};
   const { token } = useAuth();
@@ -34,7 +40,9 @@ const EditPaymentItemScreen: React.FC<EditPaymentItemScreenProps> = ({ navigatio
   const [quantity, setQuantity] = useState(item.quantity.toString());
   const [price, setPrice] = useState(item.price.toString());
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const savePaymentItem = async () => {
     if (loading) return;
@@ -52,21 +60,19 @@ const EditPaymentItemScreen: React.FC<EditPaymentItemScreenProps> = ({ navigatio
       if (response.success) {
         setNotification('Item pembayaran berhasil diperbarui!');
       } else {
-        Alert.alert(
-          'Error',
-          response.message || 'Gagal memperbarui item pembayaran',
-          [{ text: 'OK' }]
-        );
-        setLoading(false);
+        throw response;
       }
     } catch (error: any) {
       if (error.errors) {
-        const errorMessages = Object.entries(error.errors)
-          .map(([field, messages]) => {
-            const fieldMessages = Array.isArray(messages) ? messages : [messages];
-            return `${field}: ${fieldMessages.join(', ')}`;
-          })
-          .join('\n');
+        const newErrors: FormErrors = {};
+
+        Object.entries(error.errors).forEach(([field, messages]) => {
+          if (Array.isArray(messages) && messages.length > 0) {
+            newErrors[field as keyof FormErrors] = messages[0] as string;
+          }
+        });
+
+        setErrors(newErrors);
       } else {
         Alert.alert(
           'Error',
@@ -84,6 +90,27 @@ const EditPaymentItemScreen: React.FC<EditPaymentItemScreenProps> = ({ navigatio
     return qty * itemPrice;
   };
 
+  const handleRefresh = () => {
+    setRefreshing(true);
+    // Reset form to original values
+    setQuantity(item.quantity.toString());
+    setPrice(item.price.toString());
+    setNotification(null);
+    setErrors({});
+
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  };
+
+  const clearErrorForField = (field: keyof FormErrors) => {
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[field];
+      return newErrors;
+    });
+  };
+
   return (
     <PaperProvider theme={Theme}>
       <View style={styles.container}>
@@ -99,72 +126,102 @@ const EditPaymentItemScreen: React.FC<EditPaymentItemScreenProps> = ({ navigatio
           <ScrollView
             style={styles.scrollView}
             contentContainerStyle={styles.scrollContent}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+                colors={['#6366f1']}
+                tintColor="#6366f1"
+              />
+            }
           >
-            <Text style={styles.description}>
-              Pembaruan akan otomatis di sesuaikan dengan akun keuangan yang dipilih.
-            </Text>
-
-            {/* Item Info */}
-            <Card style={styles.itemInfoCard}>
-              <Card.Content style={styles.itemInfoContent}>
-                <Text style={styles.itemInfoName}>{item.name}</Text>
-                <Text style={styles.itemInfoCode}>ID: {item.code}</Text>
-              </Card.Content>
-            </Card>
-
-            {/* Edit Form */}
-            <Card style={styles.formCard}>
-              <Card.Content style={styles.formContent}>
-                <TextInput
-                  label="Kuantitas"
-                  value={quantity}
-                  onChangeText={setQuantity}
-                  mode="outlined"
-                  keyboardType="numeric"
-                  style={styles.input}
-                  outlineColor="#e5e7eb"
-                  activeOutlineColor="#6366f1"
-                />
-
-                <TextInput
-                  label={`Harga (Rp${price ? ` ${formatAmount(price)}` : ` ${formatAmount(item.price.toString())}`})`}
-                  value={price}
-                  onChangeText={setPrice}
-                  mode="outlined"
-                  keyboardType="numeric"
-                  style={styles.input}
-                  outlineColor="#e5e7eb"
-                  activeOutlineColor="#6366f1"
-                />
-              </Card.Content>
-            </Card>
-
-            {/* Total Amount */}
-            <Card style={styles.totalCard}>
-              <Card.Content style={styles.totalContent}>
-                <Text style={styles.totalLabel}>Total</Text>
-                <Text style={styles.totalAmount}>
-                  Rp {calculateTotal().toLocaleString('id-ID')}
+            {refreshing ? (
+              <EditItemSkeleton />
+            ) : (
+              <>
+                <Text style={styles.description}>
+                  Pembaruan akan otomatis di sesuaikan dengan akun keuangan yang dipilih.
                 </Text>
-              </Card.Content>
-            </Card>
 
-            {/* Save Button */}
-            <FormButton
-              title="Simpan Perubahan"
-              onPress={savePaymentItem}
-              loading={loading}
-              icon="content-save"
-              style={styles.saveButton}
-            />
+                {/* Item Info */}
+                <Card style={styles.itemInfoCard}>
+                  <Card.Content style={styles.itemInfoContent}>
+                    <Text style={styles.itemInfoName}>{item.name}</Text>
+                    <Text style={styles.itemInfoCode}>ID: {item.code}</Text>
+                  </Card.Content>
+                </Card>
 
-            <FormButton
-              title="Batal"
-              onPress={() => navigation?.goBack()}
-              variant="outline"
-              style={styles.cancelButton}
-              loading={loading}
-            />
+                {/* Edit Form */}
+                <Card style={styles.formCard}>
+                  <Card.Content style={styles.formContent}>
+                    <View style={styles.inputContainer}>
+                      <TextInput
+                        label="Kuantitas"
+                        value={quantity}
+                        onChangeText={(value) => {
+                          setQuantity(value);
+                          clearErrorForField('quantity');
+                        }}
+                        mode="outlined"
+                        keyboardType="numeric"
+                        style={styles.input}
+                        outlineColor="#e5e7eb"
+                        activeOutlineColor="#6366f1"
+                      />
+                      <HelperText type="error" visible={!!errors.quantity} style={styles.helperText}>
+                        {errors.quantity}
+                      </HelperText>
+                    </View>
+
+                    <View style={[styles.inputContainer, { marginBottom: 0 }]}>
+                      <TextInput
+                        label={`Harga (Rp${price ? ` ${formatAmount(price)}` : ` ${formatAmount(item.price.toString())}`})`}
+                        value={price}
+                        onChangeText={(value) => {
+                          setPrice(value);
+                          clearErrorForField('price');
+                        }}
+                        mode="outlined"
+                        keyboardType="numeric"
+                        style={styles.input}
+                        outlineColor="#e5e7eb"
+                        activeOutlineColor="#6366f1"
+                      />
+                      <HelperText type="error" visible={!!errors.price} style={styles.helperText}>
+                        {errors.price}
+                      </HelperText>
+                    </View>
+                  </Card.Content>
+                </Card>
+
+                {/* Total Amount */}
+                <Card style={styles.totalCard}>
+                  <Card.Content style={styles.totalContent}>
+                    <Text style={styles.totalLabel}>Total</Text>
+                    <Text style={styles.totalAmount}>
+                      Rp {calculateTotal().toLocaleString('id-ID')}
+                    </Text>
+                  </Card.Content>
+                </Card>
+
+                {/* Save Button */}
+                <FormButton
+                  title="Simpan Perubahan"
+                  onPress={savePaymentItem}
+                  loading={loading}
+                  icon="content-save"
+                  style={styles.saveButton}
+                />
+
+                <FormButton
+                  title="Batal"
+                  onPress={() => navigation?.goBack()}
+                  variant="outline"
+                  style={styles.cancelButton}
+                  loading={loading}
+                />
+              </>
+            )}
           </ScrollView>
         </KeyboardAvoidingView>
       </View>

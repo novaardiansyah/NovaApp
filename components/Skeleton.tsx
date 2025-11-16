@@ -834,4 +834,40 @@ export const GoalsScreenSkeleton: React.FC<GoalsScreenSkeletonProps> = ({ style 
   );
 };
 
+// Edit Item Skeleton
+interface EditItemSkeletonProps {
+  style?: object;
+}
+
+export const EditItemSkeleton: React.FC<EditItemSkeletonProps> = ({ style }) => {
+  return (
+    <View style={[commonStyles.container, style]}>
+      <Card style={{ backgroundColor: '#ffffff', borderRadius: 12, marginBottom: 8 }}>
+        <Card.Content style={{ padding: 16 }}>
+          <Skeleton width={150} height={20} style={{ marginBottom: 8 }} />
+          <Skeleton width={80} height={16} />
+        </Card.Content>
+      </Card>
+
+      <Card style={{ backgroundColor: '#ffffff', borderRadius: 12, marginBottom: 8 }}>
+        <Card.Content style={{ padding: 16 }}>
+          <Skeleton width={100} height={16} style={{ marginBottom: 16 }} />
+          <Skeleton width="100%" height={48} style={{ marginBottom: 12 }} />
+          <Skeleton width="100%" height={48} />
+        </Card.Content>
+      </Card>
+
+      <Card style={{ backgroundColor: '#ffffff', borderRadius: 12, marginBottom: 12 }}>
+        <Card.Content style={{ paddingVertical: 20, paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Skeleton width={60} height={20} />
+          <Skeleton width={120} height={24} />
+        </Card.Content>
+      </Card>
+
+      <Skeleton width="100%" height={48} style={{ marginBottom: -10, borderRadius: 8 }} />
+      <Skeleton width="100%" height={48} style={{ borderRadius: 8 }} />
+    </View>
+  );
+};
+
 export default Skeleton;

@@ -144,7 +144,7 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
     if (!selectedItem) return;
 
     setActionSheetVisible(false);
-    console.log(selectedItem)
+    
     switch (action) {
       case 'edit_item':
         navigation.navigate('EditPaymentItem', {

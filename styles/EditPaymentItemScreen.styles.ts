@@ -64,12 +64,23 @@ export const styles = StyleSheet.create({
   },
 
   formContent: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+
+  inputContainer: {
+    marginBottom: 16,
   },
 
   input: {
     backgroundColor: '#ffffff',
-    marginBottom: 12,
+  },
+
+  helperText: {
+    marginTop: -1,
+    paddingLeft: 4,
+    marginBottom: -12,
   },
 
   totalCard: {
