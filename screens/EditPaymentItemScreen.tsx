@@ -92,7 +92,7 @@ const EditPaymentItemScreen: React.FC<EditPaymentItemScreenProps> = ({ navigatio
 
   const handleRefresh = () => {
     setRefreshing(true);
-    // Reset form to original values
+    
     setQuantity(item.quantity.toString());
     setPrice(item.price.toString());
     setNotification(null);
@@ -100,7 +100,7 @@ const EditPaymentItemScreen: React.FC<EditPaymentItemScreenProps> = ({ navigatio
 
     setTimeout(() => {
       setRefreshing(false);
-    }, 1000);
+    }, 200);
   };
 
   const clearErrorForField = (field: keyof FormErrors) => {
