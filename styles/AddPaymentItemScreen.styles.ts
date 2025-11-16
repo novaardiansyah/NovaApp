@@ -212,6 +212,8 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
+    // Ensure clean borders
+    borderWidth: 0,
   },
 
   searchResultContent: {
@@ -362,9 +364,8 @@ export const styles = StyleSheet.create({
   },
 
   addedIcon: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
+    // Remove absolute positioning to prevent shadow artifacts
+    // Icon is now positioned within the searchResultActions container
   },
 
   // Selection styles
@@ -372,6 +373,9 @@ export const styles = StyleSheet.create({
     backgroundColor: '#f0f9ff',
     borderColor: '#3b82f6',
     borderWidth: 2,
+    borderRadius: 12, // Explicitly match base borderRadius
+    // Use higher elevation but no colored shadow to prevent artifacts
+    elevation: 4,
   },
 
   searchResultMainContent: {
@@ -398,7 +402,7 @@ export const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#f3f4f6',
     padding: 16,
-    paddingBottom: 20,
+    paddingBottom: 48, // Extra padding to avoid Android navigation bar
   },
 
   addSelectedItemsButton: {

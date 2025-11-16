@@ -461,7 +461,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
             )}
 
             {/* Search Results */}
-            <ScrollView style={styles.searchResultsContainer} contentContainerStyle={{ paddingBottom: 80 }}>
+            <ScrollView style={styles.searchResultsContainer} contentContainerStyle={{ paddingBottom: 120 }}>
               {searchLoading ? (
                 <SearchResultsSkeleton count={5} />
               ) : searchResults.length > 0 ? (
