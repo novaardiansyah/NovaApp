@@ -5,6 +5,7 @@ import { FormButton, Notification } from '@/components';
 import { AuditAccountCardSkeleton, AuditFormSkeleton } from '@/components';
 import { Theme } from '@/constants/colors';
 import { formatCurrency } from '@/styles';
+import { formatAmount } from '@/utils/transactionUtils';
 import { useAuth } from '@/contexts/AuthContext';
 import PaymentService, { PaymentAccount } from '@/services/paymentService';
 
@@ -201,7 +202,7 @@ const AuditScreen: React.FC<AuditScreenProps> = ({ navigation, route }) => {
 
                 {/* Deposit */}
                 <TextInput
-                  label="Deposit"
+                  label={'Deposit (Rp' + (formData.deposit ? ` ${formatAmount(formData.deposit.toString())}` : '') + ')'}
                   value={formData.deposit === 0 ? '' : formData.deposit.toString()}
                   onChangeText={(value) => handleInputChange('deposit', value)}
                   placeholder="Enter deposit amount"
