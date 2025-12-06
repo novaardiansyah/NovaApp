@@ -10,10 +10,16 @@
     },
     "preview": {
       "distribution": "internal",
-      "autoIncrement": false
+      "autoIncrement": false,
+      "version": {
+        "source": "local"
+      }
     },
     "production": {
-      "autoIncrement": false
+      "autoIncrement": false,
+      "version": {
+        "source": "local"
+      }
     },
     "apk": {
       "android": {

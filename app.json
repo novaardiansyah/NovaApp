@@ -16,7 +16,6 @@
       "buildNumber": "2.1.0"
     },
     "version": "2.7.6",
-    "versionSource": "local",
     "android": {
       "versionCode": 21,
       "adaptiveIcon": {
