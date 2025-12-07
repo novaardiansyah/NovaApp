@@ -8,7 +8,7 @@ import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles } from '@/styles';
-import { FormButton } from '@/components';
+import { FormButton, Notification } from '@/components';
 import { styles } from '../styles/GenerateReportScreen.styles';
 import PaymentService from '@/services/paymentService';
 
@@ -56,6 +56,7 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [notification, setNotification] = useState<string | null>(null);
 
   const monthOptions = useMemo(() => {
     const now = new Date();
@@ -110,6 +111,10 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
       return;
     }
 
+    if (submitting) {
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -130,10 +135,9 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
       const response = await PaymentService.generateReport(token, payload);
 
       if (response.success) {
-        Alert.alert('Sukses', response.message, [
-          { text: 'OK', onPress: () => navigation.goBack() }
-        ]);
+        setNotification(response.message || '');
       } else {
+        setSubmitting(false);
         if (response.errors) {
           const errorMessages = Object.values(response.errors).flat().join('\n');
           Alert.alert('Validation Error', errorMessages || response.message || 'Validation failed');
@@ -142,10 +146,9 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
         }
       }
     } catch (error) {
+      setSubmitting(false);
       console.error('Error generating report:', error);
       Alert.alert('Error', 'Gagal generate report. Silakan coba lagi.');
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -285,7 +288,6 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
               title="Proses Laporan"
               onPress={handleSubmit}
               loading={submitting}
-              disabled={submitting}
               fullWidth
             />
 
@@ -435,6 +437,18 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
           locale="en"
         />
       </View>
+
+      <Notification
+        visible={!!notification}
+        message={notification || ''}
+        onDismiss={() => {
+          setNotification(null);
+          setSubmitting(false);
+          navigation.goBack();
+        }}
+        type="success"
+        duration={2000}
+      />
     </PaperProvider>
   );
 };
