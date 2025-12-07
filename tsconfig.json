@@ -9,6 +9,7 @@
       "@/config/*": ["./config/*"],
       "@/constants/*": ["./constants/*"],
       "@/screens/*": ["./screens/*"],
+      "@/styles/*": ["./styles/*"],
       "@/navigation/*": ["./navigation/*"]
     }
   }

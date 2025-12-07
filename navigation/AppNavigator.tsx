@@ -23,6 +23,7 @@ import ViewAttachmentScreen from '@/screens/ViewAttachmentScreen';
 import CurrentAttachmentsScreen from '@/screens/CurrentAttachmentsScreen';
 import ViewPaymentDetailsScreen from '@/screens/ViewPaymentDetailsScreen';
 import AddAccountScreen from '@/screens/AddAccountScreen';
+import GenerateReportScreen from '@/screens/GenerateReportScreen';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -151,6 +152,11 @@ const TransactionsStackNavigator = () => {
         component={ReportsScreen}
         options={{ title: 'Reports' }}
       />
+      <TransactionsStack.Screen
+        name="GenerateReport"
+        component={GenerateReportScreen}
+        options={{ title: 'Generate Report' }}
+      />
     </TransactionsStack.Navigator>
   );
 };
@@ -199,7 +205,7 @@ const TabNavigator = () => {
           fontSize: 12,
           fontWeight: '500',
         },
-        }}
+      }}
     >
       <Tab.Screen
         name="Home"

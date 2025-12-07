@@ -95,7 +95,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
       setErrors(prev => ({ ...prev, [field as keyof typeof errors]: '' }));
     }
   };
-  
+
   const formatMonthYear = (monthYear: string) => {
     const [year, month] = monthYear.split('-');
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -108,8 +108,8 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const currentDate = new Date();
-    const year        = currentDate.getFullYear();
-    const month       = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
 
     const selected = `${year}-${month}`
     saveSelectedMonth(selected)
@@ -119,7 +119,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
   const getMonthOptions = () => {
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth() + 1; 
+    const currentMonth = currentDate.getMonth() + 1;
 
     const options = [];
 
@@ -394,7 +394,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     }
   }, [isAuthenticated]);
 
-  
+
   if (!isAuthenticated) {
     return (
       <PaperProvider theme={Theme}>
@@ -650,12 +650,12 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
       </SafeAreaView>
 
       <FAB
-        icon="send"
+        icon="file-document-outline"
         color="#ffffff"
         style={[styles.fab, {
           bottom: -6
         }]}
-        onPress={handleExportReport}
+        onPress={() => navigation.navigate('GenerateReport')}
       />
 
       <Modal
