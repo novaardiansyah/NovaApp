@@ -46,12 +46,10 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     color: '#1f2937',
-    marginLeft: 12,
   },
   selectorDescription: {
     fontSize: 12,
     color: '#6b7280',
-    marginLeft: 12,
     marginTop: 2,
   },
   helperText: {

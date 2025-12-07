@@ -237,7 +237,9 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
               >
                 <View style={styles.selectorContent}>
                   <Ionicons name="calendar-outline" size={20} color="#6366f1" />
-                  <Text style={styles.selectorTitle}>{getSelectedPeriodeLabel()}</Text>
+                  <View style={styles.selectorTextContainer}>
+                    <Text style={styles.selectorTitle}>{getSelectedPeriodeLabel()}</Text>
+                  </View>
                 </View>
                 <Ionicons name="chevron-down" size={20} color="#9ca3af" />
               </TouchableOpacity>
@@ -255,7 +257,9 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
                 >
                   <View style={styles.selectorContent}>
                     <Ionicons name="calendar-outline" size={20} color="#6366f1" />
-                    <Text style={styles.selectorTitle}>{formatDisplayDate(startDate)}</Text>
+                    <View style={styles.selectorTextContainer}>
+                      <Text style={styles.selectorTitle}>{formatDisplayDate(startDate)}</Text>
+                    </View>
                   </View>
                   <Ionicons name="chevron-down" size={20} color="#9ca3af" />
                 </TouchableOpacity>
@@ -270,7 +274,9 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
                 >
                   <View style={styles.selectorContent}>
                     <Ionicons name="calendar-outline" size={20} color="#6366f1" />
-                    <Text style={styles.selectorTitle}>{formatDisplayDate(endDate)}</Text>
+                    <View style={styles.selectorTextContainer}>
+                      <Text style={styles.selectorTitle}>{formatDisplayDate(endDate)}</Text>
+                    </View>
                   </View>
                   <Ionicons name="chevron-down" size={20} color="#9ca3af" />
                 </TouchableOpacity>

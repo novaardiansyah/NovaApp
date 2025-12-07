@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity, Alert, Modal, Platform, KeyboardAvoidingView } from 'react-native';
+import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Card, Divider, TextInput, FAB, HelperText } from 'react-native-paper';
+import { PaperProvider, Card, Divider, FAB } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
-import { ReportsPeriodSkeleton, ReportsSummarySkeleton, FormButton, Notification } from '@/components';
+import { ReportsPeriodSkeleton, ReportsSummarySkeleton, FormButton } from '@/components';
 import { styles } from '@/styles/ReportScreen.styles'
 import PaymentService, { PaymentSummaryData } from '@/services/paymentService';
 
@@ -326,50 +326,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
       setFormData(prev => ({ ...prev, email: user.email }))
     }
   };
-
-  const handleSendEmail = async () => {
-    if (!token || submitting) return;
-
-    if (!formData.email.trim()) {
-      Alert.alert('Error', 'Please enter a valid email address');
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setErrors(prev => ({ ...prev, email: 'Please enter a valid email address' }))
-      return
-    }
-
-    try {
-      setSubmitting(true);
-      const response = await PaymentService.submitMonthlyReport(token, formData.email, formData.periode);
-
-      if (response.success) {
-        setNotification('Monthly report submitted successfully');
-        setEmailModalVisible(false);
-      } else {
-        setSubmitting(false);
-        if (response.errors) {
-          const newErrors = { ...errors };
-
-          Object.entries(response.errors).forEach(([field, messages]) => {
-            if (Array.isArray(messages) && messages.length > 0 && field in newErrors) {
-              newErrors[field as keyof typeof errors] = messages[0] as string;
-            }
-          });
-
-          setErrors(newErrors);
-        } else {
-          Alert.alert('Error', response.message || 'Failed to submit report. Please try again.');
-        }
-      }
-    } catch (error) {
-      console.error('Error submitting monthly report:', error);
-      setSubmitting(false);
-      Alert.alert('Error', 'Failed to submit report');
-    }
-  }
 
   const currentMonthData: MonthlyData = summaryData.monthly ? convertPaymentSummaryToMonthlyData(summaryData.monthly) : {
     income: 0,
@@ -701,103 +657,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
           </View>
         </SafeAreaView>
       </Modal>
-
-      <Modal
-        visible={emailModalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setEmailModalVisible(false)}
-      >
-        <SafeAreaView style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <TouchableOpacity
-            style={{ flex: 1 }}
-            activeOpacity={1}
-            onPress={() => setEmailModalVisible(false)}
-          />
-
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ flex: 1, justifyContent: 'flex-end' }}
-          >
-            <View style={{
-              backgroundColor: 'white',
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-              paddingBottom: Platform.OS === 'ios' ? 14 : 24
-            }}>
-              <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
-                Kirim Laporan via Email
-              </Text>
-
-              <View style={{ paddingHorizontal: 20 }}>
-                <TextInput
-                  label="Periode Laporan"
-                  placeholder="Periode Laporan"
-                  value={formData.periodeStr}
-                  onChangeText={(value) => handleInputChange('periodeStr', value)}
-                  mode="outlined"
-                  outlineColor="#e5e7eb"
-                  activeOutlineColor="#6366f1"
-                  style={styles.input}
-                  keyboardType="default"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  editable={false}
-                  left={<TextInput.Icon icon="calendar-month" color="#6b7280" />}
-                />
-                {errors.periodeStr && <HelperText type="error" style={styles.helperText}>{errors.periodeStr}</HelperText>}
-
-                <TextInput
-                  label="Alamat email"
-                  placeholder="Alamat email"
-                  value={formData.email}
-                  onChangeText={(value) => handleInputChange('email', value)}
-                  mode="outlined"
-                  outlineColor="#e5e7eb"
-                  activeOutlineColor="#6366f1"
-                  style={styles.input}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  left={<TextInput.Icon icon="email-outline" color="#6b7280" />}
-                />
-                {errors.email && <HelperText type="error" style={styles.helperText}>{errors.email}</HelperText>}
-
-                <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
-                  <FormButton
-                    title="Batal"
-                    variant="outline"
-                    fullWidth={false}
-                    style={{ flex: 1 }}
-                    onPress={() => setEmailModalVisible(false)}
-                    loading={submitting}
-                  />
-
-                  <FormButton
-                    title="Kirim"
-                    fullWidth={false}
-                    style={{ flex: 1 }}
-                    onPress={handleSendEmail}
-                    icon="send"
-                    loading={submitting}
-                  />
-                </View>
-              </View>
-            </View>
-          </KeyboardAvoidingView>
-        </SafeAreaView>
-      </Modal>
-
-      <Notification
-        visible={!!notification}
-        message={notification || ''}
-        onDismiss={() => {
-          setNotification(null)
-          setSubmitting(false)
-        }}
-        type="success"
-        duration={2000}
-      />
     </PaperProvider>
   );
 };
