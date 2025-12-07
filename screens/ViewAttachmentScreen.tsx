@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
-  Text,
   Image,
   ActivityIndicator,
   StatusBar,
@@ -11,12 +10,11 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Appbar, Card, FAB } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
+import { PaperProvider, Appbar, FAB } from 'react-native-paper';
 import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 import paymentService from '@/services/paymentService';
-import { commonStyles, statusBarConfig } from '@/styles';
+import { statusBarConfig } from '@/styles';
 import { Notification } from '@/components';
 
 interface ViewAttachmentScreenProps {
@@ -24,16 +22,12 @@ interface ViewAttachmentScreenProps {
   route: any;
 }
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation, route }) => {
   const { token } = useAuth();
   const {
     imageUrl,
-    filename,
-    fileSize,
-    mimeType,
-    attachmentId,
     paymentId,
     filepath
   } = route.params;
@@ -50,7 +44,7 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
 
     Alert.alert(
       'Delete Attachment',
-      `Are you sure you want to delete "${filename}"? This action cannot be undone.`,
+      'Are you sure you want to delete this attachment? This action cannot be undone.',
       [
         {
           text: 'Cancel',
@@ -90,11 +84,12 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
         </Appbar.Header>
 
         <ScrollView
-          contentContainerStyle={{ paddingBottom: 75 }}
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 80 }}
           showsVerticalScrollIndicator={false}
         >
-          {/* Image Display */}
-          <Card style={styles.imageContainer}>
+          {/* Image Display - Full Screen */}
+          <View style={styles.imageContainer}>
             {imageLoading && (
               <View style={styles.imageLoadingContainer}>
                 <ActivityIndicator size="large" color="#6366f1" />
@@ -117,31 +112,7 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
                 Alert.alert('Error', 'Failed to load image. Please check your connection.');
               }}
             />
-          </Card>
-
-          {/* Attachment Details */}
-          <Card style={styles.detailsCard}>
-              <View style={styles.detailsRow}>
-                <Text style={styles.detailsLabel}>File Name</Text>
-                <Text style={styles.detailsValue} numberOfLines={1}>
-                  {filename}
-                </Text>
-              </View>
-
-              <View style={styles.detailsRow}>
-                <Text style={styles.detailsLabel}>File Size</Text>
-                <Text style={styles.detailsValue}>
-                  {fileSize}
-                </Text>
-              </View>
-
-              <View style={styles.detailsRow}>
-                <Text style={styles.detailsLabel}>File Type</Text>
-                <Text style={styles.detailsValue}>
-                  {mimeType || 'image/png'}
-                </Text>
-              </View>
-          </Card>
+          </View>
         </ScrollView>
 
         {!deleting && !notification && (
@@ -176,18 +147,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f9fafb',
   },
-  scrollView: {
-    flex: 1,
-  },
   imageContainer: {
-    backgroundColor: '#ffffff',
-    width: '92%',
-    height: 300,
-    position: 'relative',
-    alignSelf: 'center',
+    minHeight: height * 0.9,
+    marginHorizontal: 0,
     marginTop: 16,
-    borderRadius: 8,
-    elevation: 3,
+    borderRadius: 0,
+    overflow: 'hidden',
   },
   imageLoadingContainer: {
     position: 'absolute',
@@ -198,43 +163,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.1)',
+    zIndex: 1,
   },
   image: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
-  },
-  detailsCard: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    marginTop: 8,
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    elevation: 2,
-  },
-  detailsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  detailsLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#6b7280',
-    flex: 1,
-  },
-  detailsValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1f2937',
-    flex: 2,
-    textAlign: 'right',
+    resizeMode: 'contain',
   },
   fab: {
     position: 'absolute',
