@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles } from '@/styles';
 import { FormButton } from '@/components';
 import { styles } from '../styles/GenerateReportScreen.styles';
+import PaymentService from '@/services/paymentService';
 
 registerTranslation('en', enGB);
 
@@ -33,7 +34,7 @@ const reportTypeOptions: ReportTypeOption[] = [
 
 const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, token } = useAuth();
 
   const [reportType, setReportType] = useState<ReportType>('monthly');
   const [selectedPeriode, setSelectedPeriode] = useState<string>(() => {
@@ -103,36 +104,21 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
     return option?.label || '';
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: { [key: string]: string } = {};
-
-    if (reportType === 'date_range') {
-      if (!startDate) {
-        newErrors.startDate = 'Tanggal mulai harus diisi';
-      }
-      if (!endDate) {
-        newErrors.endDate = 'Tanggal akhir harus diisi';
-      }
-      if (startDate && endDate && startDate > endDate) {
-        newErrors.endDate = 'Tanggal akhir harus setelah tanggal mulai';
-      }
-    }
-
-    if (reportType === 'monthly' && !selectedPeriode) {
-      newErrors.periode = 'Periode harus dipilih';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    if (!token) {
+      Alert.alert('Error', 'Authentication token not found. Please login again.');
+      return;
+    }
 
     setSubmitting(true);
 
     try {
-      let payload: any = { report_type: reportType };
+      let payload: {
+        report_type: 'daily' | 'monthly' | 'date_range';
+        periode?: string;
+        start_date?: string;
+        end_date?: string;
+      } = { report_type: reportType };
 
       if (reportType === 'monthly') {
         payload.periode = selectedPeriode;
@@ -141,25 +127,20 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
         payload.end_date = formatDateToString(endDate);
       }
 
-      console.log('Generate Report Payload:', payload);
+      const response = await PaymentService.generateReport(token, payload);
 
-      let message = '';
-      switch (reportType) {
-        case 'daily':
-          message = 'Daily report will be sent to your email.';
-          break;
-        case 'monthly':
-          message = 'Monthly report will be sent to your email.';
-          break;
-        case 'date_range':
-          message = 'PDF is being generated. You will be notified when ready.';
-          break;
+      if (response.success) {
+        Alert.alert('Sukses', response.message, [
+          { text: 'OK', onPress: () => navigation.goBack() }
+        ]);
+      } else {
+        if (response.errors) {
+          const errorMessages = Object.values(response.errors).flat().join('\n');
+          Alert.alert('Validation Error', errorMessages || response.message || 'Validation failed');
+        } else {
+          Alert.alert('Error', response.message || 'Gagal generate report. Silakan coba lagi.');
+        }
       }
-
-      Alert.alert('Sukses', message, [
-        { text: 'OK', onPress: () => navigation.goBack() }
-      ]);
-
     } catch (error) {
       console.error('Error generating report:', error);
       Alert.alert('Error', 'Gagal generate report. Silakan coba lagi.');
