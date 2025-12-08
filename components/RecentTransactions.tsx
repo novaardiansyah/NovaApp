@@ -149,14 +149,24 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                         ]}>
                           {transaction.formatted_amount}
                         </Text>
-                        {transaction.has_items && (
-                          <Ionicons
-                            name="list-outline"
-                            size={14}
-                            color="#6b7280"
-                            style={styles.transactionItemsIcon}
-                          />
-                        )}
+                        <View style={styles.transactionIconsContainer}>
+                          {transaction.has_items && (
+                            <Ionicons
+                              name="list-outline"
+                              size={14}
+                              color="#6b7280"
+                              style={styles.transactionItemsIcon}
+                            />
+                          )}
+                          {transaction.is_scheduled && (
+                            <Ionicons
+                              name="time-outline"
+                              size={14}
+                              color="#6b7280"
+                              style={styles.transactionScheduledIcon}
+                            />
+                          )}
+                        </View>
                       </View>
                     </View>
                   </View>
@@ -250,7 +260,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   transactionItemsIcon: {
+  },
+  transactionIconsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     marginTop: 2,
+  },
+  transactionScheduledIcon: {
   },
   transactionAmount: {
     fontSize: 14,

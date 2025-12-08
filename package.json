@@ -10,7 +10,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "build:release": "npx expo prebuild && npx react-native build-android --mode=release",
-    "submit:android": "eas submit --platform android"
+    "submit:android": "eas build --platform android --auto-submit"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
