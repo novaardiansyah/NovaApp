@@ -171,10 +171,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
 
           <RecentTransactions
             onSeeAll={() => navigation.getParent()?.navigate('AllTransactions')}
-            onTransactionPress={(transaction) => navigation.getParent()?.navigate('AllTransactions', {
-              screen: 'ViewPaymentDetails',
-              params: { paymentId: transaction.id }
-            })}
             refreshTrigger={transactionRefreshKey}
           />
         </ScrollView>
