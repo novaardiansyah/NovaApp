@@ -51,11 +51,12 @@ export interface TransactionParams {
   date_to?: string;
   type?: string;
   account_id?: string;
+  search?: string;
 }
 
 class TransactionService {
   async getTransactions(token: string, params: TransactionParams = {}): Promise<TransactionsResponse> {
-    const { page = 1, limit, date_from, date_to, type, account_id } = params;
+    const { page = 1, limit, date_from, date_to, type, account_id, search } = params;
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -84,6 +85,10 @@ class TransactionService {
 
     if (account_id) {
       queryParams.append('account_id', account_id);
+    }
+
+    if (search) {
+      queryParams.append('search', search);
     }
 
     const url = `${APP_CONFIG.API_BASE_URL}/payments?${queryParams.toString()}`;

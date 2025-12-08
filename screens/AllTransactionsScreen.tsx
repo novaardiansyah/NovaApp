@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, RefreshControl, ActivityIndicator, StatusBar, TouchableOpacity, Alert, Modal, Pressable } from 'react-native';
+import { View, ScrollView, Text, RefreshControl, ActivityIndicator, StatusBar, TouchableOpacity, Alert, Modal, Pressable, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card, FAB, Divider } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -41,6 +41,8 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
   const [deleting, setDeleting] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
   const [filterVisible, setFilterVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchVisible, setSearchVisible] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterOptions>({
     dateFrom: null,
     dateTo: null,
@@ -227,8 +229,43 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
     fetchTransactionsWithFilters(1, emptyFilters);
   };
 
-  const fetchTransactionsWithFilters = async (page: number = 1, filters: FilterOptions) => {
-    if (!isAuthenticated || loading || loadingMore || !token) return;
+  const handleSearch = () => {
+    if (!searchQuery.trim()) return;
+    setTransactions([]);
+    setCurrentPage(1);
+    fetchTransactionsWithFilters(1, activeFilters, searchQuery);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setSearchVisible(false);
+    setTransactions([]);
+    setCurrentPage(1);
+    // Refetch with current filters but without search
+    const hasActiveFilters = !!(activeFilters.dateFrom || activeFilters.dateTo ||
+      (activeFilters.transactionType && activeFilters.transactionType !== '') ||
+      (activeFilters.accountId && activeFilters.accountId !== ''));
+    if (hasActiveFilters) {
+      fetchTransactionsWithFilters(1, activeFilters, '');
+    } else {
+      fetchTransactions(1);
+    }
+  };
+
+  const toggleSearchVisible = () => {
+    if (searchVisible && searchQuery.trim()) {
+      // If closing with active search, clear it
+      handleClearSearch();
+    } else {
+      setSearchVisible(!searchVisible);
+    }
+  };
+
+  const fetchTransactionsWithFilters = async (page: number = 1, filters: FilterOptions, searchOverride?: string) => {
+    if (!isAuthenticated || !token) return;
+
+    // Prevent loading more while already loading more (but allow new page 1 requests)
+    if (page > 1 && loadingMore) return;
 
     if (page === 1) {
       setLoading(true);
@@ -243,6 +280,10 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
       if (filters.dateTo) queryParams.date_to = filters.dateTo;
       if (filters.transactionType && filters.transactionType !== '') queryParams.type = filters.transactionType;
       if (filters.accountId && filters.accountId !== '') queryParams.account_id = filters.accountId;
+
+      // Use searchOverride if provided, otherwise use state
+      const searchValue = searchOverride !== undefined ? searchOverride : searchQuery;
+      if (searchValue.trim()) queryParams.search = searchValue.trim();
 
       const data: ApiResponse = await transactionService.getAllTransactions(token, page, queryParams);
 
@@ -303,6 +344,32 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
               <Text style={commonStyles.headerTitle}>Transaksi</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              {/* Search Icon */}
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  backgroundColor: searchQuery.trim() ? '#f59e0b' : '#f3f4f6',
+                  shadowColor: searchQuery.trim() ? '#f59e0b' : 'transparent',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: searchQuery.trim() ? 0.2 : 0,
+                  shadowRadius: 4,
+                  elevation: searchQuery.trim() ? 3 : 0
+                }}
+                onPress={toggleSearchVisible}
+                activeOpacity={0.8}
+              >
+                <Ionicons
+                  name="search"
+                  size={18}
+                  color={searchQuery.trim() ? '#ffffff' : '#6b7280'}
+                />
+              </TouchableOpacity>
+
+              {/* Filter Icon */}
               {(() => {
                 const hasActiveFilters = !!(activeFilters.dateFrom || activeFilters.dateTo ||
                   (activeFilters.transactionType && activeFilters.transactionType !== '') ||
@@ -334,6 +401,8 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                   </TouchableOpacity>
                 );
               })()}
+
+              {/* Reports Icon */}
               <TouchableOpacity
                 style={{
                   alignItems: 'center',
@@ -355,6 +424,50 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
               </TouchableOpacity>
             </View>
           </View>
+
+          {/* Expandable Search Bar */}
+          {searchVisible && (
+            <View style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              marginBottom: 16,
+              borderWidth: 1,
+              borderColor: '#e5e7eb',
+              elevation: 2,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.1,
+              shadowRadius: 2,
+            }}>
+              <TouchableOpacity onPress={handleSearch} style={{ marginRight: 12 }}>
+                <Ionicons name="search" size={20} color={searchQuery.trim() ? '#6366f1' : '#6b7280'} />
+              </TouchableOpacity>
+              <TextInput
+                style={{
+                  flex: 1,
+                  fontSize: 14,
+                  color: '#111827',
+                  paddingVertical: 8,
+                }}
+                placeholder="Cari transaksi..."
+                placeholderTextColor="#9ca3af"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                onSubmitEditing={handleSearch}
+                returnKeyType="search"
+                autoFocus
+              />
+              {searchQuery.trim() !== '' && (
+                <TouchableOpacity onPress={handleClearSearch} style={{ padding: 2, marginLeft: 4 }}>
+                  <Ionicons name="close-circle" size={20} color="#9ca3af" />
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
           <View style={styles.transactionsSection}>
             {loading || (refreshing && transactions.length === 0) ? (
               <TransactionsSkeleton count={5} />
@@ -443,24 +556,24 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
               </View>
             )}
 
-              { pagination && currentPage >= pagination.last_page && transactions.length > 0 ? (
-                <View style={styles.endOfList}>
-                  <Text style={styles.endOfListText}>
-                    Menampilkan {transactions.length} dari {pagination.total} transaksi
-                  </Text>
-                </View>
-              ) : loadingMore ? (
-                <></>
-              ) : transactions.length > 0 && pagination && currentPage < pagination.last_page ? (
-                <View style={styles.endOfList}>
-                  <TouchableOpacity
-                    style={styles.loadMoreButton}
-                    onPress={handleLoadMore}
-                  >
-                    <Ionicons name="chevron-down" size={16} color="#6366f1" />
-                  </TouchableOpacity>
-                </View>
-              ) : null
+            {pagination && currentPage >= pagination.last_page && transactions.length > 0 ? (
+              <View style={styles.endOfList}>
+                <Text style={styles.endOfListText}>
+                  Menampilkan {transactions.length} dari {pagination.total} transaksi
+                </Text>
+              </View>
+            ) : loadingMore ? (
+              <></>
+            ) : transactions.length > 0 && pagination && currentPage < pagination.last_page ? (
+              <View style={styles.endOfList}>
+                <TouchableOpacity
+                  style={styles.loadMoreButton}
+                  onPress={handleLoadMore}
+                >
+                  <Ionicons name="chevron-down" size={16} color="#6366f1" />
+                </TouchableOpacity>
+              </View>
+            ) : null
             }
           </View>
         </ScrollView>
@@ -533,13 +646,13 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
       </Modal>
 
       <FAB
-          icon="plus"
-          color="#ffffff"
-          style={[styles.fab, {
-            bottom: -6
-          }]}
-          onPress={() => navigation.navigate('AddPayment')}
-        />
+        icon="plus"
+        color="#ffffff"
+        style={[styles.fab, {
+          bottom: -6
+        }]}
+        onPress={() => navigation.navigate('AddPayment')}
+      />
 
       <Notification
         visible={!!notification}
