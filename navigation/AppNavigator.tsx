@@ -220,6 +220,14 @@ const TabNavigator = () => {
             />
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate("Home", {
+              screen: "HomeMain",
+            });
+          },
+        })}
       />
       <Tab.Screen
         name="Budget"
@@ -234,6 +242,14 @@ const TabNavigator = () => {
             />
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate("Budget", {
+              screen: "BudgetMain",
+            });
+          },
+        })}
       />
       <Tab.Screen
         name="AllTransactions"
@@ -248,6 +264,15 @@ const TabNavigator = () => {
             />
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+
+            navigation.navigate("AllTransactions", {
+              screen: "TransactionsMain",
+            });
+          },
+        })}
       />
       <Tab.Screen
         name="Goals"
@@ -262,6 +287,14 @@ const TabNavigator = () => {
             />
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate("Goals", {
+              screen: "GoalsMain",
+            });
+          },
+        })}
       />
       <Tab.Screen
         name="Profile"
@@ -277,6 +310,14 @@ const TabNavigator = () => {
           ),
           headerShown: false,
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate("Profile", {
+              screen: "ProfileMain",
+            });
+          },
+        })}
       />
     </Tab.Navigator>
   );
