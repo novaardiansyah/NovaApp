@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Card, Divider } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import RecentTransactionsSkeleton from './RecentTransactionsSkeleton';
@@ -11,6 +11,7 @@ import transactionService from '@/services/transactionService';
 interface RecentTransactionsProps {
   limit?: number;
   onSeeAll?: () => void;
+  onTransactionPress?: (transaction: any) => void;
   style?: any;
   refreshTrigger?: boolean | number;
 }
@@ -18,6 +19,7 @@ interface RecentTransactionsProps {
 const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   limit = 5,
   onSeeAll,
+  onTransactionPress,
   style,
   refreshTrigger
 }) => {
@@ -27,6 +29,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hasValidated, setHasValidated] = useState(false);
   const [lastRefreshTrigger, setLastRefreshTrigger] = useState<boolean | number | undefined>(undefined);
+  const [pressedCardId, setPressedCardId] = useState<number | null>(null);
 
   const validateSession = async (): Promise<boolean> => {
     if (!token || hasValidated) return false;
@@ -124,52 +127,59 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
             ) : (
               transactions.map((transaction, index) => (
                 <View key={transaction.id}>
-                  <View style={styles.transactionItem}>
-                    <View style={styles.transactionLeft}>
-                      <View style={[
-                        styles.transactionIcon,
-                        { backgroundColor: getTransactionColor(transaction.type_id) }
-                      ]}>
-                        <Ionicons
-                          name={getTransactionIcon(transaction.type_id) as any}
-                          size={16}
-                          color="white"
-                        />
-                      </View>
-                      <View style={styles.transactionInfo}>
-                        <Text style={styles.transactionName} numberOfLines={1} ellipsizeMode="tail">{transaction.name || transaction.title}</Text>
-                        <Text style={styles.transactionDate}>{transaction.formatted_date}</Text>
-                      </View>
-                    </View>
-                    <View style={styles.transactionRight}>
-                      <View style={styles.transactionAmountContainer}>
-                        <Text style={[
-                          styles.transactionAmount,
-                          { color: getTransactionColor(transaction.type_id) }
+                  <Pressable
+                    onPress={() => onTransactionPress?.(transaction)}
+                    onPressIn={() => setPressedCardId(transaction.id)}
+                    onPressOut={() => setPressedCardId(null)}
+                    style={pressedCardId === transaction.id && styles.transactionItemPressed}
+                  >
+                    <View style={styles.transactionItem}>
+                      <View style={styles.transactionLeft}>
+                        <View style={[
+                          styles.transactionIcon,
+                          { backgroundColor: getTransactionColor(transaction.type_id) }
                         ]}>
-                          {transaction.formatted_amount}
-                        </Text>
-                        <View style={styles.transactionIconsContainer}>
-                          {transaction.has_items && (
-                            <Ionicons
-                              name="list-outline"
-                              size={14}
-                              color="#6b7280"
-                              style={styles.transactionItemsIcon}
-                            />
-                          )}
-                          {transaction.is_scheduled && (
-                            <Ionicons
-                              name="time-outline"
-                              size={14}
-                              color="#6b7280"
-                              style={styles.transactionScheduledIcon}
-                            />
-                          )}
+                          <Ionicons
+                            name={getTransactionIcon(transaction.type_id) as any}
+                            size={16}
+                            color="white"
+                          />
+                        </View>
+                        <View style={styles.transactionInfo}>
+                          <Text style={styles.transactionName} numberOfLines={1} ellipsizeMode="tail">{transaction.name || transaction.title}</Text>
+                          <Text style={styles.transactionDate}>{transaction.formatted_date}</Text>
+                        </View>
+                      </View>
+                      <View style={styles.transactionRight}>
+                        <View style={styles.transactionAmountContainer}>
+                          <Text style={[
+                            styles.transactionAmount,
+                            { color: getTransactionColor(transaction.type_id) }
+                          ]}>
+                            {transaction.formatted_amount}
+                          </Text>
+                          <View style={styles.transactionIconsContainer}>
+                            {transaction.has_items && (
+                              <Ionicons
+                                name="list-outline"
+                                size={14}
+                                color="#6b7280"
+                                style={styles.transactionItemsIcon}
+                              />
+                            )}
+                            {transaction.is_scheduled && (
+                              <Ionicons
+                                name="time-outline"
+                                size={14}
+                                color="#6b7280"
+                                style={styles.transactionScheduledIcon}
+                              />
+                            )}
+                          </View>
                         </View>
                       </View>
                     </View>
-                  </View>
+                  </Pressable>
                   {index < transactions.length - 1 && (
                     <Divider style={styles.transactionDivider} />
                   )}
@@ -224,6 +234,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 12,
+  },
+  transactionItemPressed: {
+    backgroundColor: 'transparent',
+    opacity: 0.7,
   },
   transactionLeft: {
     flexDirection: 'row',
