@@ -137,16 +137,7 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
               {renderInfoRow('Tipe', paymentData.type === 'income' ? 'Pemasukan' : 'Pengeluaran', 'folder-outline', '#6366f1')}
               {renderInfoRow('Memiliki Item', paymentData.has_items ? 'Ya' : 'Tidak', 'list-outline', '#6366f1')}
               {renderInfoRow('Terjadwal', paymentData.is_scheduled ? 'Ya' : 'Tidak', 'time-outline', '#6366f1')}
-            </Card.Content>
-          </Card>
-
-          {/* Timestamp Information */}
-          <Card style={styles.timestampCard}>
-            <Card.Content>
-              <Text style={styles.infoCardTitle}>Informasi Tambahan</Text>
-              <Divider style={styles.cardDivider} />
-
-              {renderInfoRow('Terakhir Diperbarui', paymentData.formatted_updated_at, 'refresh-outline', '#6b7280')}
+              {renderInfoRow('Diperbarui', paymentData.formatted_updated_at, 'stopwatch-outline', '#6366f1')}
             </Card.Content>
           </Card>
 
@@ -238,7 +229,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
-    nameCardTitle: {
+  nameCardTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#111827',
@@ -301,7 +292,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     flex: 1,
   },
-    actionCard: {
+  actionCard: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
     marginBottom: 16,
@@ -348,16 +339,6 @@ const styles = StyleSheet.create({
   actionCardContent: {
     paddingVertical: 8,
     paddingHorizontal: 0,
-  },
-  timestampCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    marginBottom: 8,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
   },
   bottomSpacing: {
     height: 16,

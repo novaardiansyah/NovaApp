@@ -500,16 +500,6 @@ const paymentDetailsSkeletonStyles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
-  timestampCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    marginBottom: 8,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
   actionCard: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
@@ -519,9 +509,6 @@ const paymentDetailsSkeletonStyles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-  },
-  actionCardWithItems: {
-    marginBottom: 8,
   },
   lastActionCard: {
     marginBottom: 8,
@@ -550,7 +537,7 @@ const paymentDetailsSkeletonStyles = StyleSheet.create({
 export const PaymentDetailsSkeleton: React.FC<PaymentDetailsSkeletonProps> = ({ style }) => {
   return (
     <View style={style}>
-      {/* Payment Name Card */}
+      {/* Nama Pembayaran Card */}
       <Card style={paymentDetailsSkeletonStyles.infoCard}>
         <Card.Content style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
           <Skeleton width={120} height={20} style={{ marginBottom: 12 }} />
@@ -559,13 +546,13 @@ export const PaymentDetailsSkeleton: React.FC<PaymentDetailsSkeletonProps> = ({ 
         </Card.Content>
       </Card>
 
-      {/* Payment Information Card */}
+      {/* Informasi Pembayaran Card */}
       <Card style={paymentDetailsSkeletonStyles.infoCard}>
         <Card.Content style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
           <Skeleton width={140} height={20} style={{ marginBottom: 12 }} />
           <View style={{ height: 1, backgroundColor: '#f3f4f6', marginVertical: 6 }} />
 
-          {Array.from({ length: 2 }).map((_, index) => (
+          {Array.from({ length: 7 }).map((_, index) => (
             <View key={index} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 16 }}>
                 <Skeleton width={20} height={20} style={{ borderRadius: 4, marginRight: 12 }} />
@@ -577,39 +564,7 @@ export const PaymentDetailsSkeleton: React.FC<PaymentDetailsSkeletonProps> = ({ 
         </Card.Content>
       </Card>
 
-      {/* Additional Information Card - uses timestampCard style */}
-      <Card style={paymentDetailsSkeletonStyles.timestampCard}>
-        <Card.Content style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-          <Skeleton width={160} height={20} style={{ marginBottom: 12 }} />
-          <View style={{ height: 1, backgroundColor: '#f3f4f6', marginVertical: 6 }} />
-
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 16 }}>
-              <Skeleton width={20} height={20} style={{ borderRadius: 4, marginRight: 12 }} />
-              <Skeleton width={100} height={14} />
-            </View>
-            <Skeleton width={120} height={14} />
-          </View>
-        </Card.Content>
-      </Card>
-
-      {/* View Items Button - uses actionCard style */}
-      <Card style={[paymentDetailsSkeletonStyles.actionCard, paymentDetailsSkeletonStyles.actionCardWithItems]}>
-        <Card.Content style={paymentDetailsSkeletonStyles.actionCardContent}>
-          <View style={paymentDetailsSkeletonStyles.actionItem}>
-            <View style={paymentDetailsSkeletonStyles.actionLeft}>
-              <Skeleton width={40} height={40} style={{ borderRadius: 8, marginRight: 16 }} />
-              <View style={paymentDetailsSkeletonStyles.actionInfo}>
-                <Skeleton width={120} height={16} style={{ marginBottom: 2 }} />
-                <Skeleton width={140} height={12} />
-              </View>
-            </View>
-            <Skeleton width={20} height={20} style={{ borderRadius: 4 }} />
-          </View>
-        </Card.Content>
-      </Card>
-
-      {/* View Attachments Button - uses actionCard style */}
+      {/* Lihat Lampiran Button */}
       <Card style={[paymentDetailsSkeletonStyles.actionCard, paymentDetailsSkeletonStyles.lastActionCard]}>
         <Card.Content style={paymentDetailsSkeletonStyles.actionCardContent}>
           <View style={paymentDetailsSkeletonStyles.actionItem}>
@@ -874,7 +829,7 @@ export const EditItemSkeleton: React.FC<EditItemSkeletonProps> = ({ style }) => 
         </Card.Content>
       </Card>
 
-        </View>
+    </View>
   );
 };
 
