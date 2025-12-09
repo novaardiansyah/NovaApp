@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, Alert, KeyboardAvoidingView, Platform, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, ScrollView, Text, Alert, KeyboardAvoidingView, Platform, TouchableOpacity, RefreshControl, Animated } from 'react-native';
 import { PaperProvider, Appbar, TextInput, HelperText } from 'react-native-paper';
 import { DatePickerModal, registerTranslation } from 'react-native-paper-dates';
 import { enGB } from 'react-native-paper-dates';
@@ -17,6 +17,86 @@ interface EditPaymentScreenProps {
   navigation: any;
   route: any;
 }
+
+interface SkeletonProps {
+  width?: number | string;
+  height?: number;
+  style?: object;
+}
+
+const Skeleton: React.FC<SkeletonProps> = ({ width = '100%', height = 20, style }) => {
+  const animatedValue = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(animatedValue, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedValue, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: false,
+        }),
+      ])
+    );
+    animation.start();
+    return () => animation.stop();
+  }, [animatedValue]);
+
+  const opacity = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.4, 0.7],
+  });
+
+  return (
+    <Animated.View
+      style={[
+        {
+          width,
+          height,
+          backgroundColor: '#e5e7eb',
+          borderRadius: 4,
+          opacity,
+        },
+        style,
+      ]}
+    />
+  );
+};
+
+const EditPaymentFormSkeleton: React.FC = () => {
+  return (
+    <>
+      {/* Amount Field */}
+      <View style={{ marginBottom: 16 }}>
+        <Skeleton width="100%" height={56} style={{ borderRadius: 4 }} />
+      </View>
+
+      {/* Description Field */}
+      <View style={{ marginBottom: 16 }}>
+        <Skeleton width="100%" height={100} style={{ borderRadius: 4 }} />
+      </View>
+
+      {/* Date Field */}
+      <View style={{ marginBottom: 16 }}>
+        <Skeleton width="100%" height={56} style={{ borderRadius: 4 }} />
+      </View>
+
+      {/* Category Field */}
+      <View style={{ marginBottom: 16 }}>
+        <Skeleton width="100%" height={56} style={{ borderRadius: 4 }} />
+      </View>
+
+      {/* Account Field */}
+      <View style={{ marginBottom: 16 }}>
+        <Skeleton width="100%" height={56} style={{ borderRadius: 4 }} />
+      </View>
+    </>
+  );
+};
 
 const EditPaymentScreen: React.FC<EditPaymentScreenProps> = ({ navigation, route }) => {
   const { paymentId } = route.params || {};
@@ -252,10 +332,13 @@ const EditPaymentScreen: React.FC<EditPaymentScreenProps> = ({ navigation, route
             <Appbar.BackAction onPress={() => navigation.goBack()} />
             <Appbar.Content title="Edit Pembayaran" />
           </Appbar.Header>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#6366f1" />
-            <Text style={{ marginTop: 16, color: '#6b7280' }}>Memuat data...</Text>
-          </View>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <EditPaymentFormSkeleton />
+          </ScrollView>
         </View>
       </PaperProvider>
     );
