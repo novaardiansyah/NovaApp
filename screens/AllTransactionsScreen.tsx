@@ -598,7 +598,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
 
           <View style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 }}>
             <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
-              Aksi Pembayaran
+              Kelola Transaksi
             </Text>
 
             <View style={{ paddingHorizontal: 20 }}>
@@ -611,10 +611,10 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#fefce8', marginBottom: 8 }}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                 onPress={() => handleActionSelect('edit_payment')}
               >
-                <Ionicons name="create-outline" size={24} color="#ca8a04" style={{ marginRight: 16 }} />
+                <Ionicons name="create-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
                 <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Edit Pembayaran</Text>
               </TouchableOpacity>
 
@@ -624,25 +624,25 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                   style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                   onPress={() => handleActionSelect('view_items')}
                 >
-                  <Ionicons name="list-outline" size={24} color="#f59e0b" style={{ marginRight: 16 }} />
+                  <Ionicons name="list-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
                   <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Lihat Item</Text>
                 </TouchableOpacity>
               )}
 
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f0f9ff', marginBottom: 8 }}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                 onPress={() => handleActionSelect('view_attachment')}
               >
-                <Ionicons name="attach-outline" size={24} color="#3b82f6" style={{ marginRight: 16 }} />
+                <Ionicons name="attach-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
                 <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Lihat Lampiran</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#fef2f2', marginBottom: 8 }}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                 onPress={() => handleActionSelect('delete_payment')}
               >
-                <Ionicons name="trash-outline" size={24} color="#ef4444" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 16, fontWeight: '500', color: '#ef4444' }}>Hapus Pembayaran</Text>
+                <Ionicons name="trash-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Hapus Pembayaran</Text>
               </TouchableOpacity>
             </View>
 
