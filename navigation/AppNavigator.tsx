@@ -15,6 +15,7 @@ import UpdateProfileScreen from '@/screens/UpdateProfileScreen';
 import AllTransactionsScreen from '@/screens/AllTransactionsScreen';
 import AddPaymentScreen from '@/screens/AddPaymentScreen';
 import AddPaymentItemScreen from '@/screens/AddPaymentItemScreen';
+import EditPaymentScreen from '@/screens/EditPaymentScreen';
 import EditPaymentItemScreen from '@/screens/EditPaymentItemScreen';
 import ViewPaymentItemsScreen from '@/screens/ViewPaymentItemsScreen';
 import AuditScreen from '@/screens/AuditScreen';
@@ -111,6 +112,11 @@ const TransactionsStackNavigator = () => {
         name="AddPaymentItem"
         component={AddPaymentItemScreen}
         options={{ title: 'Add Payment Items' }}
+      />
+      <TransactionsStack.Screen
+        name="EditPayment"
+        component={EditPaymentScreen}
+        options={{ title: 'Edit Payment' }}
       />
       <TransactionsStack.Screen
         name="EditPaymentItem"

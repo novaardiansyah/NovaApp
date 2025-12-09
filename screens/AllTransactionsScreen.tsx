@@ -132,7 +132,11 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           paymentId: selectedTransaction.id
         });
         break;
-      // 'edit_payment' case removed - feature not implemented yet
+      case 'edit_payment':
+        navigation.navigate('EditPayment', {
+          paymentId: selectedTransaction.id
+        });
+        break;
       case 'delete_payment':
         handleDeletePayment(selectedTransaction);
         break;
@@ -606,7 +610,14 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                 <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Lihat Detail</Text>
               </TouchableOpacity>
 
-              {/* Edit payment button removed - feature not implemented yet */}
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#fefce8', marginBottom: 8 }}
+                onPress={() => handleActionSelect('edit_payment')}
+              >
+                <Ionicons name="create-outline" size={24} color="#ca8a04" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Edit Pembayaran</Text>
+              </TouchableOpacity>
+
 
               {selectedTransaction?.has_items && (
                 <TouchableOpacity

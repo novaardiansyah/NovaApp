@@ -46,6 +46,14 @@ export interface PaymentDetailsData {
   formatted_updated_at: string;
   attachments_count: number;
   items_count: number;
+  account: {
+    id: number;
+    name: string;
+  };
+  account_to: {
+    id: number | null;
+    name: string | null;
+  };
 }
 
 export interface PaymentItemData {
@@ -270,6 +278,29 @@ class PaymentService {
       return data;
     } catch (error) {
       console.error('Error creating payment:', error);
+      throw error;
+    }
+  }
+
+  async updatePayment(token: string, paymentId: number, paymentData: {
+    amount: number;
+    name: string;
+    date: string;
+    type_id: number;
+    payment_account_id: number;
+    payment_account_to_id: number | null;
+  }): Promise<ApiResponse<any>> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}`, {
+        method: 'PUT',
+        headers: this.getHeaders(token),
+        body: JSON.stringify(paymentData),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error updating payment:', error);
       throw error;
     }
   }
