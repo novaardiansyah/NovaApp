@@ -37,6 +37,7 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
   const [loadingMore, setLoadingMore] = useState(false);
   const [selectedItem, setSelectedItem] = useState<PaymentItem | null>(null);
   const [actionSheetVisible, setActionSheetVisible] = useState(false);
+  const [fabActionSheetVisible, setFabActionSheetVisible] = useState(false);
   const [paymentSummary, setPaymentSummary] = useState<PaymentSummary | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
   const [paymentItems, setPaymentItems] = useState<PaymentItem[]>([]);
@@ -64,11 +65,11 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
         setPagination(response.pagination);
         setCurrentPage(page);
       } else {
-        Alert.alert('Error', 'Gagal mengambil item pembayaran');
+        Alert.alert('Error', 'Gagal mengambil item transaksi');
       }
     } catch (error) {
       console.error('Error fetching payment items:', error);
-      Alert.alert('Error', 'Gagal mengambil item pembayaran. Silakan coba lagi.');
+      Alert.alert('Error', 'Gagal mengambil item transaksi. Silakan coba lagi.');
     } finally {
       if (page === 1) {
         setLoadingItems(false);
@@ -144,7 +145,7 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
     if (!selectedItem) return;
 
     setActionSheetVisible(false);
-    
+
     switch (action) {
       case 'edit_item':
         navigation.navigate('EditPaymentItem', {
@@ -192,7 +193,7 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
           formatted_amount: response.data.formatted_amount,
         } : null);
 
-        setNotification(`Item pembayaran berhasil dihapus.`);
+        setNotification(`Item transaksi berhasil dihapus.`);
       } else {
         Alert.alert('Error', response.message || 'Gagal menghapus item.');
       }
@@ -204,6 +205,25 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
 
   const closeActionSheet = () => {
     setActionSheetVisible(false);
+  };
+
+  const handleFabActionSelect = (action: string) => {
+    setFabActionSheetVisible(false);
+
+    switch (action) {
+      case 'view_attachment':
+        navigation.navigate('CurrentAttachments', {
+          paymentId
+        });
+        break;
+      case 'add_item':
+        navigation.navigate('AddPaymentItem', { paymentId });
+        break;
+    }
+  };
+
+  const closeFabActionSheet = () => {
+    setFabActionSheetVisible(false);
   };
 
   const getTotalAmount = () => {
@@ -230,7 +250,7 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Ionicons name="receipt-outline" size={20} color="#6366f1" style={styles.headerIcon} />
-            <Text style={styles.headerTitle}>Item Pembayaran</Text>
+            <Text style={styles.headerTitle}>Item Transaksi</Text>
           </View>
           <Text style={styles.headerSubtitle}>
             {refreshing || loadingSummary ? '...' : paymentSummary?.payment_code || ''}
@@ -349,12 +369,12 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
         </ScrollView>
 
         <FAB
-          icon="plus"
+          icon="menu"
           color="#ffffff"
           style={[styles.fab, {
             bottom: -6
           }]}
-          onPress={() => navigation.navigate('AddPaymentItem', { paymentId })}
+          onPress={() => setFabActionSheetVisible(true)}
         />
 
         {/* Action Sheet Modal */}
@@ -395,6 +415,53 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
               <TouchableOpacity
                 style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 12, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
                 onPress={closeActionSheet}
+              >
+                <Text style={{ fontSize: 16, fontWeight: '600', color: '#6366f1' }}>Batal</Text>
+              </TouchableOpacity>
+            </View>
+          </SafeAreaView>
+        </Modal>
+
+        {/* FAB Action Sheet Modal */}
+        <Modal
+          visible={fabActionSheetVisible}
+          transparent
+          animationType="slide"
+          onRequestClose={closeFabActionSheet}
+        >
+          <SafeAreaView style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+            <TouchableOpacity
+              style={{ flex: 1 }}
+              activeOpacity={1}
+              onPress={closeFabActionSheet}
+            />
+
+            <View style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 }}>
+              <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
+                Aksi Transaksi
+              </Text>
+
+              <View style={{ paddingHorizontal: 20 }}>
+                <TouchableOpacity
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                  onPress={() => handleFabActionSelect('view_attachment')}
+                >
+                  <Ionicons name="attach-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
+                  <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Lihat Lampiran</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                  onPress={() => handleFabActionSelect('add_item')}
+                >
+                  <Ionicons name="add-circle-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
+                  <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Tambah Item</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 12, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
+                onPress={closeFabActionSheet}
               >
                 <Text style={{ fontSize: 16, fontWeight: '600', color: '#6366f1' }}>Batal</Text>
               </TouchableOpacity>

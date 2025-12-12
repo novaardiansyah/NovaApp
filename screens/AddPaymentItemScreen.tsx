@@ -238,11 +238,11 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
       const response = await paymentService.attachMultipleItems(token, paymentId, formData);
 
       if (response.success) {
-        setNotification('Item pembayaran berhasil ditambahkan!');
+        setNotification('Item transaksi berhasil ditambahkan!');
       } else {
         Alert.alert(
           'Error',
-          response.message || 'Gagal menyimpan item pembayaran',
+          response.message || 'Gagal menyimpan item transaksi',
           [{ text: 'OK' }]
         );
         setLoading(false);
@@ -250,7 +250,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
     } catch (error) {
       Alert.alert(
         'Error',
-        'Gagal menyimpan item pembayaran. Silakan coba lagi.',
+        'Gagal menyimpan item transaksi. Silakan coba lagi.',
         [{ text: 'OK' }]
       );
       setLoading(false);
@@ -480,40 +480,40 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                       const isSelected = selectedItems.some(selectedItem => selectedItem.id === item.id);
 
                       return (
-                      <TouchableOpacity
-                        key={item.id}
-                        style={[
-                          styles.searchResultItem,
-                          isItemAdded && styles.searchResultItemDisabled,
-                          isSelected && styles.searchResultItemSelected
-                        ]}
-                        onPress={() => handleSearchItemSelect(item)}
-                        disabled={isItemAdded}
-                      >
-                        <View style={styles.searchResultContent}>
-                          <View style={styles.searchResultHeader}>
-                            <Text style={styles.searchResultName}>{item.name}</Text>
-                            <View style={styles.searchResultActions}>
-                              {isSelected && (
-                                <Ionicons name="checkmark-circle" size={24} color="#6366f1" style={styles.selectedIcon} />
-                              )}
-                              {isItemAdded && (
-                                <Ionicons name="checkmark-circle" size={20} color="#10b981" style={styles.addedIcon} />
-                              )}
+                        <TouchableOpacity
+                          key={item.id}
+                          style={[
+                            styles.searchResultItem,
+                            isItemAdded && styles.searchResultItemDisabled,
+                            isSelected && styles.searchResultItemSelected
+                          ]}
+                          onPress={() => handleSearchItemSelect(item)}
+                          disabled={isItemAdded}
+                        >
+                          <View style={styles.searchResultContent}>
+                            <View style={styles.searchResultHeader}>
+                              <Text style={styles.searchResultName}>{item.name}</Text>
+                              <View style={styles.searchResultActions}>
+                                {isSelected && (
+                                  <Ionicons name="checkmark-circle" size={24} color="#6366f1" style={styles.selectedIcon} />
+                                )}
+                                {isItemAdded && (
+                                  <Ionicons name="checkmark-circle" size={20} color="#10b981" style={styles.addedIcon} />
+                                )}
+                              </View>
+                            </View>
+                            <View style={styles.searchResultDetails}>
+                              <Text style={styles.searchResultCode}>{item.code}</Text>
+                              <Text style={styles.searchResultPrice}>{item.formatted_amount}</Text>
+                            </View>
+                            <View style={[styles.searchResultType, !item.code && styles.searchResultTypeNoSku]}>
+                              <Text style={[styles.searchResultTypeText, !item.code && styles.searchResultTypeTextNoSku]}>
+                                {item.type}
+                              </Text>
                             </View>
                           </View>
-                          <View style={styles.searchResultDetails}>
-                            <Text style={styles.searchResultCode}>{item.code}</Text>
-                            <Text style={styles.searchResultPrice}>{item.formatted_amount}</Text>
-                          </View>
-                          <View style={[styles.searchResultType, !item.code && styles.searchResultTypeNoSku]}>
-                            <Text style={[styles.searchResultTypeText, !item.code && styles.searchResultTypeTextNoSku]}>
-                              {item.type}
-                            </Text>
-                          </View>
-                        </View>
-                      </TouchableOpacity>
-                    );
+                        </TouchableOpacity>
+                      );
                     })}
                   </View>
                 </View>

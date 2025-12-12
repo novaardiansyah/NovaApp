@@ -159,7 +159,7 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
                         <Ionicons name="list-outline" size={24} color="#6366f1" />
                       </View>
                       <View style={styles.actionInfo}>
-                        <Text style={styles.actionTitle}>Lihat Item Pembayaran</Text>
+                        <Text style={styles.actionTitle}>Lihat Item Transaksi</Text>
                         <Text style={styles.actionSubtitle}>Lihat rincian item secara detail</Text>
                       </View>
                     </View>

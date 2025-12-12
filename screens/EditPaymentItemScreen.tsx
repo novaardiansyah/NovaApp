@@ -58,7 +58,7 @@ const EditPaymentItemScreen: React.FC<EditPaymentItemScreenProps> = ({ navigatio
       const response = await paymentService.editPaymentItem(token, paymentId, item.pivot_id || item.id, formData);
 
       if (response.success) {
-        setNotification('Item pembayaran berhasil diperbarui!');
+        setNotification('Item transaksi berhasil diperbarui!');
       } else {
         throw response;
       }
@@ -76,7 +76,7 @@ const EditPaymentItemScreen: React.FC<EditPaymentItemScreenProps> = ({ navigatio
       } else {
         Alert.alert(
           'Error',
-          'Gagal memperbarui item pembayaran. Silakan coba lagi.',
+          'Gagal memperbarui item transaksi. Silakan coba lagi.',
           [{ text: 'OK' }]
         );
       }
@@ -92,7 +92,7 @@ const EditPaymentItemScreen: React.FC<EditPaymentItemScreenProps> = ({ navigatio
 
   const handleRefresh = () => {
     setRefreshing(true);
-    
+
     setQuantity(item.quantity.toString());
     setPrice(item.price.toString());
     setNotification(null);
@@ -116,10 +116,10 @@ const EditPaymentItemScreen: React.FC<EditPaymentItemScreenProps> = ({ navigatio
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation?.goBack()} />
-          <Appbar.Content title="Edit item pembayaran" />
+          <Appbar.Content title="Edit item transaksi" />
         </Appbar.Header>
 
-          <KeyboardAvoidingView
+        <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardAvoidingView}
         >
