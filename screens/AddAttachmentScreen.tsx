@@ -48,14 +48,12 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
 
   const pickImage = async () => {
     try {
-      // Request permission
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission Required', 'Please grant camera roll permissions to upload images.');
+        Alert.alert('Izin Diperlukan', 'Mohon berikan izin akses galeri untuk mengunggah gambar.');
         return;
       }
 
-      // Pick image
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: true,
@@ -67,14 +65,43 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
         const validation = validateFile(asset);
 
         if (!validation.isValid) {
-          Alert.alert('Error', validation.error);
+          Alert.alert('Kesalahan', validation.error);
           return;
         }
 
         await addAttachmentItem(asset);
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to pick image. Please try again.');
+      Alert.alert('Kesalahan', 'Gagal memilih gambar. Silakan coba lagi.');
+    }
+  };
+
+  const takePhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Izin Diperlukan', 'Mohon berikan izin akses kamera untuk mengambil foto.');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const asset = result.assets[0];
+        const validation = validateFile(asset);
+
+        if (!validation.isValid) {
+          Alert.alert('Kesalahan', validation.error);
+          return;
+        }
+
+        await addAttachmentItem(asset);
+      }
+    } catch (error) {
+      Alert.alert('Kesalahan', 'Gagal mengambil foto. Silakan coba lagi.');
     }
   };
 
@@ -93,7 +120,6 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
 
     setSelectedAttachments(prev => [...prev, newAttachment]);
 
-    // Convert to base64
     try {
       const base64String = await paymentService.convertFileToBase64(asset.uri, newAttachment.type);
       setSelectedAttachments(prev =>
@@ -105,7 +131,7 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
       setSelectedAttachments(prev =>
         prev.filter(att => att.id !== attachmentId)
       );
-      Alert.alert('Error', 'Failed to process file. Please try again.');
+      Alert.alert('Kesalahan', 'Gagal memproses file. Silakan coba lagi.');
     }
   };
 
@@ -118,13 +144,12 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
 
     const readyToUpload = selectedAttachments.filter(att => att.base64 && !att.uploaded && !att.isUploading);
     if (readyToUpload.length === 0) {
-      Alert.alert('Info', 'No files to upload');
+      Alert.alert('Info', 'Tidak ada file untuk diunggah');
       return;
     }
 
     setLoading(true);
 
-    // Mark all as uploading
     setSelectedAttachments(prev =>
       prev.map(att =>
         att.base64 && !att.uploaded && !att.isUploading
@@ -134,7 +159,6 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
     );
 
     try {
-      // Prepare multiple files for batch upload
       const attachmentBase64Array = readyToUpload.map(att => att.base64!);
 
       const response = await paymentService.uploadMultipleAttachments(token, paymentId, {
@@ -142,7 +166,6 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
       });
 
       if (response.success) {
-        // Mark all as uploaded successfully
         setSelectedAttachments(prev =>
           prev.map(att =>
             att.base64 && !att.uploaded
@@ -153,8 +176,8 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
 
         const attachmentsCount = response.data?.attachments_count || readyToUpload.length;
         Alert.alert(
-          'Upload Complete',
-          `Successfully uploaded ${attachmentsCount} file${attachmentsCount !== 1 ? 's' : ''}`,
+          'Unggah Selesai',
+          `Berhasil mengunggah ${attachmentsCount} file`,
           [
             {
               text: 'OK',
@@ -165,7 +188,6 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
           ]
         );
       } else {
-        // Mark all as failed
         setSelectedAttachments(prev =>
           prev.map(att =>
             att.base64 && !att.uploaded
@@ -174,8 +196,7 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
           )
         );
 
-        // Handle validation errors jika ada
-        let errorMessage = response.message || 'Failed to upload attachments';
+        let errorMessage = response.message || 'Gagal mengunggah lampiran';
         if (response.errors) {
           if (Array.isArray(response.errors)) {
             errorMessage = response.errors.join(', ');
@@ -185,19 +206,18 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
           }
         }
 
-        Alert.alert('Error', errorMessage);
+        Alert.alert('Kesalahan', errorMessage);
       }
     } catch (error) {
-      // Mark all as failed
       setSelectedAttachments(prev =>
         prev.map(att =>
           att.base64 && !att.uploaded
-            ? { ...att, isUploading: false, error: 'Network error' }
+            ? { ...att, isUploading: false, error: 'Kesalahan jaringan' }
             : att
         )
       );
 
-      Alert.alert('Error', 'Failed to upload attachments. Please check your connection and try again.');
+      Alert.alert('Kesalahan', 'Gagal mengunggah lampiran. Silakan periksa koneksi Anda dan coba lagi.');
     } finally {
       setLoading(false);
     }
@@ -259,7 +279,7 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Add Attachments" />
+          <Appbar.Content title="Tambah Lampiran" />
         </Appbar.Header>
 
         <KeyboardAvoidingView
@@ -272,16 +292,16 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
             showsVerticalScrollIndicator={false}
           >
             <Text style={styles.description}>
-              Add attachments to this payment record. You can upload multiple image files at once.
+              Anda dapat mengunggah beberapa file gambar lampiran sekaligus.
             </Text>
 
             {/* Selected Attachments */}
             {selectedAttachments.length > 0 && (
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Files to Upload</Text>
+                <Text style={styles.sectionTitle}>File untuk Diunggah</Text>
                 {selectedAttachments.map(renderSelectedAttachmentItem)}
                 <FormButton
-                  title={`Upload ${selectedAttachments.length} File${selectedAttachments.length !== 1 ? 's' : ''}`}
+                  title={`Unggah ${selectedAttachments.length} File`}
                   onPress={uploadAttachments}
                   loading={loading}
                   icon="cloud-upload"
@@ -292,16 +312,32 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
 
             {/* Add Attachment Options */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Add New Attachment</Text>
+              <Text style={styles.sectionTitle}>Tambah Lampiran Baru</Text>
+
               <TouchableOpacity
-                style={styles.attachmentOptionFull}
+                style={styles.attachmentOption}
+                onPress={takePhoto}
+              >
+                <View style={[styles.optionIcon, { backgroundColor: '#3b82f6' }]}>
+                  <Ionicons name="camera" size={24} color="white" />
+                </View>
+                <View style={styles.optionTextContainer}>
+                  <Text style={styles.optionText}>Ambil Foto</Text>
+                  <Text style={styles.optionSubtext}>Gunakan kamera</Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.attachmentOption}
                 onPress={pickImage}
               >
                 <View style={[styles.optionIcon, { backgroundColor: '#10b981' }]}>
                   <Ionicons name="image" size={24} color="white" />
                 </View>
-                <Text style={styles.optionText}>Add Image</Text>
-                <Text style={styles.optionSubtext}>JPG, PNG, GIF, WEBP (Max 5MB)</Text>
+                <View style={styles.optionTextContainer}>
+                  <Text style={styles.optionText}>Pilih dari Galeri</Text>
+                  <Text style={styles.optionSubtext}>JPG, PNG, GIF, WEBP (Maks 5MB)</Text>
+                </View>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -403,13 +439,15 @@ const styles = StyleSheet.create({
   uploadButton: {
     marginTop: 12,
   },
-  attachmentOptionFull: {
+  attachmentOption: {
     backgroundColor: 'white',
     borderRadius: 12,
-    padding: 20,
+    padding: 16,
+    flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#e5e7eb',
+    marginBottom: 12,
   },
   optionIcon: {
     width: 48,
@@ -417,18 +455,20 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginRight: 12,
+  },
+  optionTextContainer: {
+    flex: 1,
   },
   optionText: {
     fontSize: 14,
     fontWeight: '600',
     color: '#1f2937',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   optionSubtext: {
     fontSize: 12,
     color: '#6b7280',
-    textAlign: 'center',
   },
   fab: {
     position: 'absolute',
