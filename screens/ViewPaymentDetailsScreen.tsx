@@ -7,7 +7,7 @@ import { Theme } from '@/constants/colors'
 import { useAuth } from '@/contexts/AuthContext'
 import { commonStyles, statusBarConfig } from '@/styles'
 import paymentService, { PaymentDetailsData } from '@/services/paymentService'
-import { PaymentDetailsSkeleton, Notification, Skeleton } from '@/components'
+import { PaymentDetailsSkeleton, Notification } from '@/components'
 import { showDeletePaymentAlert } from '@/utils/paymentActions'
 
 type PaymentData = PaymentDetailsData
@@ -122,9 +122,7 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
           >
             <PaymentDetailsSkeleton />
           </ScrollView>
-          <View style={styles.fab}>
-            <Skeleton width={56} height={56} style={{ borderRadius: 28 }} />
-          </View>
+          <View style={styles.fabSkeleton} />
         </SafeAreaView>
       </PaperProvider>
     )
@@ -458,6 +456,16 @@ const styles = StyleSheet.create({
     bottom: -6,
     backgroundColor: '#6366f1',
     borderRadius: 30,
+  },
+  fabSkeleton: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: -6,
+    width: 56,
+    height: 56,
+    backgroundColor: '#6366f1',
+    borderRadius: 28,
   },
 })
 
