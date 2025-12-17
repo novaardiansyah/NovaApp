@@ -578,7 +578,7 @@ class PaymentService {
       const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentCode}/manage-draft`, {
         method: 'POST',
         headers: this.getHeaders(token),
-        body: JSON.stringify({ action, allow_empty: allowEmpty }),
+        body: JSON.stringify({ status: action, allow_empty: allowEmpty }),
       });
 
       const data = await response.json();

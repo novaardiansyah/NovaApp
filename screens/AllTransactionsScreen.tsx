@@ -646,11 +646,11 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
 
               {selectedTransaction?.is_draft && (
                 <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#fef3c7', marginBottom: 8 }}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                   onPress={openDraftActionSheet}
                 >
-                  <Ionicons name="document-text-outline" size={24} color="#d97706" style={{ marginRight: 16 }} />
-                  <Text style={{ fontSize: 16, fontWeight: '500', color: '#92400e' }}>Kelola Draft</Text>
+                  <Ionicons name="document-text-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
+                  <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Kelola Draft</Text>
                 </TouchableOpacity>
               )}
 
@@ -702,21 +702,21 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
 
             <View style={{ paddingHorizontal: 20 }}>
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#dcfce7', marginBottom: 8 }}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                 onPress={() => handleManageDraft('approve')}
                 disabled={managingDraft}
               >
-                <Ionicons name="checkmark-circle-outline" size={24} color="#16a34a" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 16, fontWeight: '500', color: '#15803d' }}>Setujui Draft</Text>
+                <Ionicons name="checkmark-circle-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Setujui Draft</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#fee2e2', marginBottom: 8 }}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                 onPress={() => handleManageDraft('reject')}
                 disabled={managingDraft}
               >
-                <Ionicons name="close-circle-outline" size={24} color="#dc2626" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 16, fontWeight: '500', color: '#b91c1c' }}>Tolak Draft</Text>
+                <Ionicons name="close-circle-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Tolak Draft</Text>
               </TouchableOpacity>
             </View>
 
