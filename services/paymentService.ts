@@ -573,6 +573,22 @@ class PaymentService {
     }
   }
 
+  async manageDraft(token: string, paymentCode: string, action: 'approve' | 'reject', allowEmpty: boolean = true): Promise<ApiResponse<any>> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentCode}/manage-draft`, {
+        method: 'POST',
+        headers: this.getHeaders(token),
+        body: JSON.stringify({ action, allow_empty: allowEmpty }),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error managing draft:', error);
+      throw error;
+    }
+  }
+
   // File validation and utility methods
   validateFile(asset: any): { isValid: boolean; error?: string } {
     // Check file size (5MB max for attachments)

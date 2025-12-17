@@ -14,6 +14,7 @@ import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles
 import { styles } from '@/styles/AllTransactionsScreen.styles'
 import { getTransactionColor, getTransactionIcon } from '@/utils/transactionUtils'
 import transactionService from '@/services/transactionService'
+import paymentService from '@/services/paymentService'
 import { showDeletePaymentAlert } from '@/utils/paymentActions'
 
 type Transaction = import('@/services/transactionService').Transaction
@@ -43,6 +44,8 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
   const [filterVisible, setFilterVisible] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchVisible, setSearchVisible] = useState(false)
+  const [draftActionVisible, setDraftActionVisible] = useState(false)
+  const [managingDraft, setManagingDraft] = useState(false)
 
   const [activeFilters, setActiveFilters] = useState<FilterOptions>({
     dateFrom: null,
@@ -171,6 +174,49 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
     setActionSheetVisible(false)
   }
 
+  const openDraftActionSheet = () => {
+    setActionSheetVisible(false)
+    setDraftActionVisible(true)
+  }
+
+  const closeDraftActionSheet = () => {
+    setDraftActionVisible(false)
+  }
+
+  const handleManageDraft = async (action: 'approve' | 'reject') => {
+    if (!selectedTransaction || !token) return
+
+    setManagingDraft(true)
+    try {
+      const response = await paymentService.manageDraft(token, selectedTransaction.code, action, true)
+
+      if (response.success) {
+        if (action === 'reject') {
+          setTransactions(prev => prev.filter(t => t.id !== selectedTransaction.id))
+          setPagination((prev: Pagination | null) => prev ? {
+            ...prev,
+            total: prev.total - 1,
+            to: Math.max(0, prev.to - 1)
+          } : null)
+          setNotification('Draft berhasil ditolak!')
+        } else {
+          setTransactions(prev => prev.map(t =>
+            t.id === selectedTransaction.id ? { ...t, is_draft: false } : t
+          ))
+          setNotification('Draft berhasil disetujui!')
+        }
+      } else {
+        setNotification(response.message || 'Gagal mengelola draft')
+      }
+    } catch (error) {
+      console.error('Error managing draft:', error)
+      setNotification('Gagal mengelola draft. Silakan coba lagi.')
+    } finally {
+      setManagingDraft(false)
+      setDraftActionVisible(false)
+    }
+  }
+
   const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: any) => {
     const paddingToBottom = 20
     return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom
@@ -209,7 +255,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
     setSearchVisible(false)
     setTransactions([])
     setCurrentPage(1)
-    
+
     const hasActiveFilters = !!(activeFilters.dateFrom || activeFilters.dateTo ||
       (activeFilters.transactionType && activeFilters.transactionType !== '') ||
       (activeFilters.accountId && activeFilters.accountId !== ''))
@@ -598,6 +644,16 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                 <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Lihat Lampiran</Text>
               </TouchableOpacity>
 
+              {selectedTransaction?.is_draft && (
+                <TouchableOpacity
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#fef3c7', marginBottom: 8 }}
+                  onPress={openDraftActionSheet}
+                >
+                  <Ionicons name="document-text-outline" size={24} color="#d97706" style={{ marginRight: 16 }} />
+                  <Text style={{ fontSize: 16, fontWeight: '500', color: '#92400e' }}>Kelola Draft</Text>
+                </TouchableOpacity>
+              )}
+
               <TouchableOpacity
                 style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                 onPress={() => handleActionSelect('delete_payment')}
@@ -625,6 +681,55 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
         }]}
         onPress={() => navigation.navigate('AddPayment')}
       />
+
+      <Modal
+        visible={draftActionVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={closeDraftActionSheet}
+      >
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <TouchableOpacity
+            style={{ flex: 1 }}
+            activeOpacity={1}
+            onPress={closeDraftActionSheet}
+          />
+
+          <View style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 }}>
+            <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
+              Kelola Draft Transaksi
+            </Text>
+
+            <View style={{ paddingHorizontal: 20 }}>
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#dcfce7', marginBottom: 8 }}
+                onPress={() => handleManageDraft('approve')}
+                disabled={managingDraft}
+              >
+                <Ionicons name="checkmark-circle-outline" size={24} color="#16a34a" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 16, fontWeight: '500', color: '#15803d' }}>Setujui Draft</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#fee2e2', marginBottom: 8 }}
+                onPress={() => handleManageDraft('reject')}
+                disabled={managingDraft}
+              >
+                <Ionicons name="close-circle-outline" size={24} color="#dc2626" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 16, fontWeight: '500', color: '#b91c1c' }}>Tolak Draft</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 12, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
+              onPress={closeDraftActionSheet}
+              disabled={managingDraft}
+            >
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#6366f1' }}>Batal</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </Modal>
 
       <Notification
         visible={!!notification}

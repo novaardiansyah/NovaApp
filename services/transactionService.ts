@@ -13,6 +13,7 @@ export interface Transaction {
   updated_at: string;
   has_items?: boolean;
   is_scheduled?: boolean;
+  is_draft?: boolean;
 }
 
 export interface FinancialData {
