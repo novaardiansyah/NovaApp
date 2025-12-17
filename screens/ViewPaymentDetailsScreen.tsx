@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, Text, ScrollView, RefreshControl, StatusBar, Alert, Pressable } from 'react-native'
+import { View, StyleSheet, Text, ScrollView, RefreshControl, StatusBar, Alert, Pressable, Modal, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { PaperProvider, Appbar, Card, Divider } from 'react-native-paper'
+import { PaperProvider, Appbar, Card, Divider, FAB } from 'react-native-paper'
 import { Ionicons } from '@expo/vector-icons'
 import { Theme } from '@/constants/colors'
 import { useAuth } from '@/contexts/AuthContext'
 import { commonStyles, statusBarConfig } from '@/styles'
 import paymentService, { PaymentDetailsData } from '@/services/paymentService'
-import { PaymentDetailsSkeleton } from '@/components'
+import { PaymentDetailsSkeleton, Notification } from '@/components'
 
 type PaymentData = PaymentDetailsData
 
@@ -23,6 +23,9 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
   const [refreshing, setRefreshing] = useState(false)
   const [paymentData, setPaymentData] = useState<PaymentData | null>(null)
   const [pressedCardId, setPressedCardId] = useState<string | null>(null)
+  const [actionSheetVisible, setActionSheetVisible] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [notification, setNotification] = useState<string | null>(null)
 
   const loadPaymentDetails = async () => {
     if (!token || !paymentId) return
@@ -55,6 +58,70 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
   useEffect(() => {
     loadPaymentDetails()
   }, [paymentId])
+
+  const handleEditPayment = () => {
+    if (!paymentData) return
+    setActionSheetVisible(false)
+    navigation.navigate('EditPayment', {
+      paymentId: paymentData.id
+    })
+  }
+
+  const handleDeletePayment = () => {
+    if (!paymentData || !token) return
+
+    Alert.alert(
+      'Hapus Pembayaran',
+      `Apakah Anda yakin ingin menghapus "${paymentData.name}"? Tindakan ini tidak dapat dibatalkan.`,
+      [
+        {
+          text: 'Batal',
+          style: 'cancel',
+        },
+        {
+          text: 'Hapus',
+          style: 'destructive',
+          onPress: () => confirmDeletePayment(paymentData.id),
+        },
+      ]
+    )
+  }
+
+  const confirmDeletePayment = async (paymentIdToDelete: number) => {
+    if (!token) return
+
+    setDeleting(true)
+    try {
+      const response = await paymentService.deletePayment(token, paymentIdToDelete)
+
+      if (response.success) {
+        setNotification('Pembayaran berhasil dihapus!')
+        setTimeout(() => {
+          navigation.goBack()
+        }, 1500)
+      } else {
+        Alert.alert(
+          'Kesalahan',
+          response.message || 'Gagal menghapus pembayaran. Silakan coba lagi.',
+          [{ text: 'OK' }]
+        )
+      }
+    } catch (error) {
+      console.error('Error deleting payment:', error)
+      Alert.alert(
+        'Kesalahan',
+        'Gagal menghapus pembayaran. Silakan periksa koneksi Anda dan coba lagi.',
+        [{ text: 'OK' }]
+      )
+    } finally {
+      setDeleting(false)
+      setActionSheetVisible(false)
+    }
+  }
+
+  const closeActionSheet = () => {
+    setActionSheetVisible(false)
+  }
 
   const renderInfoRow = (label: string, value: string, icon?: string, iconColor?: string) => (
     <View style={styles.infoRow}>
@@ -200,7 +267,70 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
 
           <View style={styles.bottomSpacing} />
         </ScrollView>
+
+        <FAB
+          icon="menu"
+          color="#ffffff"
+          style={styles.fab}
+          onPress={() => setActionSheetVisible(true)}
+        />
       </SafeAreaView>
+
+      <Modal
+        visible={actionSheetVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={closeActionSheet}
+      >
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <TouchableOpacity
+            style={{ flex: 1 }}
+            activeOpacity={1}
+            onPress={closeActionSheet}
+          />
+
+          <View style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 }}>
+            <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
+              Kelola Detail Transaksi
+            </Text>
+
+            <View style={{ paddingHorizontal: 20 }}>
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                onPress={handleEditPayment}
+              >
+                <Ionicons name="create-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Edit Pembayaran</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                onPress={handleDeletePayment}
+              >
+                <Ionicons name="trash-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Hapus Pembayaran</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 12, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
+              onPress={closeActionSheet}
+            >
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#6366f1' }}>Batal</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </Modal>
+
+      <Notification
+        visible={!!notification}
+        message={notification || ''}
+        onDismiss={() => {
+          setNotification(null)
+        }}
+        type="success"
+        duration={2000}
+      />
     </PaperProvider>
   )
 }
@@ -208,7 +338,7 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
 const styles = StyleSheet.create({
   scrollContent: {
     padding: 16,
-    paddingBottom: 32,
+    paddingBottom: 40,
   },
   loadingContainer: {
     flex: 1,
@@ -353,6 +483,14 @@ const styles = StyleSheet.create({
   actionCardPressed: {
     backgroundColor: 'transparent',
     opacity: 0.7,
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: -6,
+    backgroundColor: '#6366f1',
+    borderRadius: 30,
   },
 })
 
