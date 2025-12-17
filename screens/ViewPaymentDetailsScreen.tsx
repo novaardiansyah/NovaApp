@@ -80,7 +80,7 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
           <StatusBar {...statusBarConfig} />
           <Appbar.Header>
             <Appbar.BackAction onPress={() => navigation.goBack()} />
-            <Appbar.Content title="Detail Pembayaran" />
+            <Appbar.Content title="Detail Transaksi" />
           </Appbar.Header>
           <ScrollView
             contentContainerStyle={styles.scrollContent}
@@ -106,7 +106,7 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
         <StatusBar {...statusBarConfig} />
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Detail Pembayaran" />
+          <Appbar.Content title="Detail Transaksi" />
         </Appbar.Header>
 
         <ScrollView
@@ -119,7 +119,7 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
           {/* Payment Name Card */}
           <Card style={styles.nameCard}>
             <Card.Content>
-              <Text style={styles.nameCardTitle}>Nama Pembayaran</Text>
+              <Text style={styles.nameCardTitle}>Nama Transaksi</Text>
               <Divider style={styles.cardDivider} />
               <Text style={styles.nameCardText}>{paymentData.name}</Text>
             </Card.Content>
@@ -128,7 +128,7 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
           {/* Payment Information */}
           <Card style={styles.infoCard}>
             <Card.Content>
-              <Text style={styles.infoCardTitle}>Informasi Pembayaran</Text>
+              <Text style={styles.infoCardTitle}>Informasi Transaksi</Text>
               <Divider style={styles.cardDivider} />
 
               {renderInfoRow('Kode Transaksi', paymentData.code, 'pricetag-outline', '#6366f1')}
@@ -136,7 +136,8 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
               {renderInfoRow('Tanggal', paymentData.formatted_date, 'calendar-outline', '#6366f1')}
               {renderInfoRow('Tipe', paymentData.type === 'income' ? 'Pemasukan' : 'Pengeluaran', 'folder-outline', '#6366f1')}
               {renderInfoRow('Memiliki Item', paymentData.has_items ? 'Ya' : 'Tidak', 'list-outline', '#6366f1')}
-              {renderInfoRow('Terjadwal', paymentData.is_scheduled ? 'Ya' : 'Tidak', 'time-outline', '#6366f1')}
+              {renderInfoRow('Terjadwal', paymentData.is_scheduled ? 'Ya' : 'Tidak', 'newspaper-outline', '#6366f1')}
+              {renderInfoRow('Draft', paymentData.is_draft ? 'Ya' : 'Tidak', 'document-text-outline', '#6366f1')}
               {renderInfoRow('Diperbarui', paymentData.formatted_updated_at, 'stopwatch-outline', '#6366f1')}
             </Card.Content>
           </Card>
@@ -216,7 +217,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 16,
-    fontSize: 16,
+    fontSize: 14,
     color: '#6b7280',
   },
   nameCard: {
@@ -230,7 +231,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   nameCardTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#111827',
   },
@@ -252,13 +253,13 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#111827',
     marginBottom: 2,
   },
   infoCardTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#111827',
     marginBottom: 0,

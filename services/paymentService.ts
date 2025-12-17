@@ -38,6 +38,7 @@ export interface PaymentDetailsData {
   amount: number;
   has_items: boolean;
   is_scheduled: boolean;
+  is_draft: boolean;
   formatted_amount: string;
   formatted_date: string;
   type: string;
