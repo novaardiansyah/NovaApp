@@ -1,224 +1,187 @@
-import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, RefreshControl, ActivityIndicator, StatusBar, TouchableOpacity, Alert, Modal, Pressable, TextInput } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Card, FAB, Divider } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
-import { Theme } from '@/constants/colors';
-import { Notification } from '@/components';
-import { TransactionsSkeleton } from '@/components';
-import TransactionFilter, { FilterOptions } from '@/components/TransactionFilter';
-import EmptyTransactionsCard from '@/components/EmptyTransactionsCard';
-import { useAuth } from '@/contexts/AuthContext';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
-import { styles } from '@/styles/AllTransactionsScreen.styles';
-import { getTransactionColor, getTransactionIcon, getTransactionType } from '@/utils/transactionUtils';
-import transactionService from '@/services/transactionService';
-import paymentService from '@/services/paymentService';
+import React, { useState, useEffect } from 'react'
+import { View, ScrollView, Text, RefreshControl, ActivityIndicator, StatusBar, TouchableOpacity, Modal, Pressable, TextInput } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { PaperProvider, Card, FAB, Divider } from 'react-native-paper'
+import { Ionicons } from '@expo/vector-icons'
+import { Theme } from '@/constants/colors'
+import { Notification } from '@/components'
+import { TransactionsSkeleton } from '@/components'
+import TransactionFilter, { FilterOptions } from '@/components/TransactionFilter'
+import EmptyTransactionsCard from '@/components/EmptyTransactionsCard'
+import { useAuth } from '@/contexts/AuthContext'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles'
+import { styles } from '@/styles/AllTransactionsScreen.styles'
+import { getTransactionColor, getTransactionIcon } from '@/utils/transactionUtils'
+import transactionService from '@/services/transactionService'
+import { showDeletePaymentAlert } from '@/utils/paymentActions'
 
-type Transaction = import('@/services/transactionService').Transaction;
+type Transaction = import('@/services/transactionService').Transaction
 
-type Pagination = import('@/services/transactionService').Pagination;
+type Pagination = import('@/services/transactionService').Pagination
 
-type ApiResponse = import('@/services/transactionService').TransactionsResponse;
+type ApiResponse = import('@/services/transactionService').TransactionsResponse
 
 interface AllTransactionsScreenProps {
-  navigation: any;
+  navigation: any
 }
 
 const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigation }) => {
-  const insets = useSafeAreaInsets();
-  const { isAuthenticated, token } = useAuth();
-  const [refreshing, setRefreshing] = useState(false);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
-  const [actionSheetVisible, setActionSheetVisible] = useState(false);
-  const [pressedCardId, setPressedCardId] = useState<number | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const [notification, setNotification] = useState<string | null>(null);
-  const [filterVisible, setFilterVisible] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchVisible, setSearchVisible] = useState(false);
+  const insets = useSafeAreaInsets()
+  const { isAuthenticated, token } = useAuth()
+  const [refreshing, setRefreshing] = useState(false)
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [loading, setLoading] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [pagination, setPagination] = useState<Pagination | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
+  const [actionSheetVisible, setActionSheetVisible] = useState(false)
+  const [pressedCardId, setPressedCardId] = useState<number | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [notification, setNotification] = useState<string | null>(null)
+  const [filterVisible, setFilterVisible] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchVisible, setSearchVisible] = useState(false)
+
   const [activeFilters, setActiveFilters] = useState<FilterOptions>({
     dateFrom: null,
     dateTo: null,
     transactionType: '',
     accountId: '',
-  });
+  })
 
   const fetchTransactions = async (page: number = 1) => {
-    if (!isAuthenticated || loading || loadingMore || !token) return;
+    if (!isAuthenticated || loading || loadingMore || !token) return
 
     if (page === 1) {
-      setLoading(true);
+      setLoading(true)
     } else {
-      setLoadingMore(true);
+      setLoadingMore(true)
     }
 
     try {
-      const data: ApiResponse = await transactionService.getAllTransactions(token, page);
+      const data: ApiResponse = await transactionService.getAllTransactions(token, page)
 
       if (data.success) {
         if (page === 1) {
-          setTransactions(data.data);
+          setTransactions(data.data)
         } else {
-          setTransactions(prev => [...prev, ...data.data]);
+          setTransactions(prev => [...prev, ...data.data])
         }
-        setPagination(data.pagination);
-        setCurrentPage(page);
+        setPagination(data.pagination)
+        setCurrentPage(page)
       }
     } catch (error) {
-      console.error('Error fetching transactions:', error);
+      console.error('Error fetching transactions:', error)
     } finally {
       if (page === 1) {
-        setLoading(false);
+        setLoading(false)
       } else {
-        setLoadingMore(false);
+        setLoadingMore(false)
       }
     }
-  };
+  }
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetchTransactions();
+      fetchTransactions()
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated])
 
   const handleRefresh = async () => {
-    setRefreshing(true);
-    setTransactions([]);
-    setLoading(true);
-    await fetchTransactions(1);
-    setRefreshing(false);
-  };
+    setRefreshing(true)
+    setTransactions([])
+    setLoading(true)
+    await fetchTransactions(1)
+    setRefreshing(false)
+  }
 
   const handleLoadMore = () => {
     if (pagination && currentPage < pagination.last_page && !loading && !loadingMore) {
       const hasActiveFilters = !!(activeFilters.dateFrom || activeFilters.dateTo ||
         (activeFilters.transactionType && activeFilters.transactionType !== '') ||
-        (activeFilters.accountId && activeFilters.accountId !== ''));
+        (activeFilters.accountId && activeFilters.accountId !== ''))
       if (hasActiveFilters) {
-        fetchTransactionsWithFilters(currentPage + 1, activeFilters);
+        fetchTransactionsWithFilters(currentPage + 1, activeFilters)
       } else {
-        fetchTransactions(currentPage + 1);
+        fetchTransactions(currentPage + 1)
       }
     }
-  };
+  }
 
   const handleTransactionPress = (transaction: Transaction) => {
-    setSelectedTransaction(transaction);
-    setActionSheetVisible(true);
-  };
+    setSelectedTransaction(transaction)
+    setActionSheetVisible(true)
+  }
 
   const handleActionSelect = (action: string) => {
-    if (!selectedTransaction) return;
+    if (!selectedTransaction) return
 
-    setActionSheetVisible(false);
+    setActionSheetVisible(false)
 
     switch (action) {
       case 'view_items':
         navigation.navigate('ViewPaymentItems', {
           paymentId: selectedTransaction.id,
           refresh: new Date().getTime()
-        });
-        break;
-      // 'add_items' case removed - feature moved to ViewItemsScreen
+        })
+        break
       case 'view_details':
         navigation.navigate('ViewPaymentDetails', {
           paymentId: selectedTransaction.id
-        });
-        break;
+        })
+        break
       case 'edit_payment':
         navigation.navigate('EditPayment', {
           paymentId: selectedTransaction.id
-        });
-        break;
+        })
+        break
       case 'delete_payment':
-        handleDeletePayment(selectedTransaction);
-        break;
+        handleDeletePayment(selectedTransaction)
+        break
       case 'view_attachment':
         navigation.navigate('CurrentAttachments', {
           paymentId: selectedTransaction.id
-        });
-        break;
+        })
+        break
     }
-  };
+  }
 
   const handleDeletePayment = (transaction: Transaction) => {
-    if (!token) return;
+    if (!token) return
 
-    Alert.alert(
-      'Hapus Pembayaran',
-      `Apakah Anda yakin ingin menghapus "${transaction.name}"? Tindakan ini tidak dapat dibatalkan.`,
-      [
-        {
-          text: 'Batal',
-          style: 'cancel',
-        },
-        {
-          text: 'Hapus',
-          style: 'destructive',
-          onPress: () => confirmDeletePayment(transaction.id),
-        },
-      ]
-    );
-  };
-
-  const confirmDeletePayment = async (paymentId: number) => {
-    if (!token) return;
-
-    setDeleting(true);
-    try {
-      const response = await paymentService.deletePayment(token, paymentId);
-
-      if (response.success) {
-        setTransactions(prev => prev.filter(t => t.id !== paymentId));
+    showDeletePaymentAlert(transaction.name, transaction.id, token, {
+      onSuccess: () => {
+        setTransactions(prev => prev.filter(t => t.id !== transaction.id))
 
         setPagination((prev: Pagination | null) => prev ? {
           ...prev,
           total: prev.total - 1,
           to: Math.max(0, prev.to - 1)
-        } : null);
+        } : null)
 
-        setNotification('Pembayaran berhasil dihapus!');
-      } else {
-        Alert.alert(
-          'Kesalahan',
-          response.message || 'Gagal menghapus pembayaran. Silakan coba lagi.',
-          [{ text: 'OK' }]
-        );
-      }
-    } catch (error) {
-      console.error('Error deleting payment:', error);
-      Alert.alert(
-        'Kesalahan',
-        'Gagal menghapus pembayaran. Silakan periksa koneksi Anda dan coba lagi.',
-        [{ text: 'OK' }]
-      );
-    } finally {
-      setDeleting(false);
-    }
-  };
+        setNotification('Pembayaran berhasil dihapus!')
+      },
+      setDeleting,
+    })
+  }
 
   const closeActionSheet = () => {
-    setActionSheetVisible(false);
-  };
+    setActionSheetVisible(false)
+  }
 
   const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: any) => {
-    const paddingToBottom = 20;
-    return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
-  };
+    const paddingToBottom = 20
+    return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom
+  }
 
   const handleApplyFilter = (filters: FilterOptions) => {
-    setActiveFilters(filters);
-    setTransactions([]);
-    setCurrentPage(1);
-    fetchTransactionsWithFilters(1, filters);
-  };
+    setActiveFilters(filters)
+    setTransactions([])
+    setCurrentPage(1)
+    fetchTransactionsWithFilters(1, filters)
+  }
 
   const handleResetFilter = () => {
     const emptyFilters: FilterOptions = {
@@ -226,90 +189,88 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
       dateTo: null,
       transactionType: '',
       accountId: '',
-    };
-    setActiveFilters(emptyFilters);
-    setTransactions([]);
-    setCurrentPage(1);
-    fetchTransactionsWithFilters(1, emptyFilters);
-  };
+    }
+
+    setActiveFilters(emptyFilters)
+    setTransactions([])
+    setCurrentPage(1)
+    fetchTransactionsWithFilters(1, emptyFilters)
+  }
 
   const handleSearch = () => {
-    if (!searchQuery.trim()) return;
-    setTransactions([]);
-    setCurrentPage(1);
-    fetchTransactionsWithFilters(1, activeFilters, searchQuery);
-  };
+    if (!searchQuery.trim()) return
+    setTransactions([])
+    setCurrentPage(1)
+    fetchTransactionsWithFilters(1, activeFilters, searchQuery)
+  }
 
   const handleClearSearch = () => {
-    setSearchQuery('');
-    setSearchVisible(false);
-    setTransactions([]);
-    setCurrentPage(1);
-    // Refetch with current filters but without search
+    setSearchQuery('')
+    setSearchVisible(false)
+    setTransactions([])
+    setCurrentPage(1)
+    
     const hasActiveFilters = !!(activeFilters.dateFrom || activeFilters.dateTo ||
       (activeFilters.transactionType && activeFilters.transactionType !== '') ||
-      (activeFilters.accountId && activeFilters.accountId !== ''));
+      (activeFilters.accountId && activeFilters.accountId !== ''))
     if (hasActiveFilters) {
-      fetchTransactionsWithFilters(1, activeFilters, '');
+      fetchTransactionsWithFilters(1, activeFilters, '')
     } else {
-      fetchTransactions(1);
+      fetchTransactions(1)
     }
-  };
+  }
 
   const toggleSearchVisible = () => {
     if (searchVisible && searchQuery.trim()) {
-      // If closing with active search, clear it
-      handleClearSearch();
+      handleClearSearch()
     } else {
-      setSearchVisible(!searchVisible);
+      setSearchVisible(!searchVisible)
     }
-  };
+  }
 
   const fetchTransactionsWithFilters = async (page: number = 1, filters: FilterOptions, searchOverride?: string) => {
-    if (!isAuthenticated || !token) return;
+    if (!isAuthenticated || !token) return
 
-    // Prevent loading more while already loading more (but allow new page 1 requests)
-    if (page > 1 && loadingMore) return;
+    if (page > 1 && loadingMore) return
 
     if (page === 1) {
-      setLoading(true);
+      setLoading(true)
     } else {
-      setLoadingMore(true);
+      setLoadingMore(true)
     }
 
     try {
-      const queryParams: any = { page };
+      const queryParams: any = { page }
 
-      if (filters.dateFrom) queryParams.date_from = filters.dateFrom;
-      if (filters.dateTo) queryParams.date_to = filters.dateTo;
-      if (filters.transactionType && filters.transactionType !== '') queryParams.type = filters.transactionType;
-      if (filters.accountId && filters.accountId !== '') queryParams.account_id = filters.accountId;
+      if (filters.dateFrom) queryParams.date_from = filters.dateFrom
+      if (filters.dateTo) queryParams.date_to = filters.dateTo
+      if (filters.transactionType && filters.transactionType !== '') queryParams.type = filters.transactionType
+      if (filters.accountId && filters.accountId !== '') queryParams.account_id = filters.accountId
 
-      // Use searchOverride if provided, otherwise use state
-      const searchValue = searchOverride !== undefined ? searchOverride : searchQuery;
-      if (searchValue.trim()) queryParams.search = searchValue.trim();
+      const searchValue = searchOverride !== undefined ? searchOverride : searchQuery
+      if (searchValue.trim()) queryParams.search = searchValue.trim()
 
-      const data: ApiResponse = await transactionService.getAllTransactions(token, page, queryParams);
+      const data: ApiResponse = await transactionService.getAllTransactions(token, page, queryParams)
 
       if (data.success) {
         if (page === 1) {
-          setTransactions(data.data);
+          setTransactions(data.data)
         } else {
-          setTransactions(prev => [...prev, ...data.data]);
+          setTransactions(prev => [...prev, ...data.data])
         }
-        setPagination(data.pagination);
-        setCurrentPage(page);
+        setPagination(data.pagination)
+        setCurrentPage(page)
       }
     } catch (error) {
-      console.error('Error fetching transactions with filters:', error);
+      console.error('Error fetching transactions with filters:', error)
     } finally {
       if (page === 1) {
-        setLoading(false);
+        setLoading(false)
       } else {
-        setLoadingMore(false);
+        setLoadingMore(false)
       }
     }
-  };
+  }
 
   if (!isAuthenticated) {
     return (
@@ -318,7 +279,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           <Text style={commonStyles.authText}>Please login first</Text>
         </View>
       </PaperProvider>
-    );
+    )
   }
 
   return (
@@ -332,7 +293,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           }
           onScroll={({ nativeEvent }) => {
             if (isCloseToBottom(nativeEvent)) {
-              handleLoadMore();
+              handleLoadMore()
             }
           }}
           scrollEventThrottle={400}
@@ -377,7 +338,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
               {(() => {
                 const hasActiveFilters = !!(activeFilters.dateFrom || activeFilters.dateTo ||
                   (activeFilters.transactionType && activeFilters.transactionType !== '') ||
-                  (activeFilters.accountId && activeFilters.accountId !== ''));
+                  (activeFilters.accountId && activeFilters.accountId !== ''))
 
                 return (
                   <TouchableOpacity
@@ -403,7 +364,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                       color={hasActiveFilters ? '#ffffff' : '#6b7280'}
                     />
                   </TouchableOpacity>
-                );
+                )
               })()}
 
               {/* Reports Icon */}
@@ -546,7 +507,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                               <Divider style={styles.transactionDivider} />
                             )}
                           </View>
-                        );
+                        )
                       })}
                     </Card.Content>
                   </Card>
@@ -669,7 +630,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
         visible={!!notification}
         message={notification || ''}
         onDismiss={() => {
-          setNotification(null);
+          setNotification(null)
         }}
         type="success"
         duration={2000}
@@ -683,7 +644,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
         currentFilters={activeFilters}
       />
     </PaperProvider>
-  );
-};
+  )
+}
 
-export default AllTransactionsScreen;
+export default AllTransactionsScreen

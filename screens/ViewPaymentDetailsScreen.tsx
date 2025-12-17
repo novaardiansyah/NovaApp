@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, Text, ScrollView, RefreshControl, StatusBar, Alert, Pressable, Modal, TouchableOpacity } from 'react-native'
+import { View, StyleSheet, Text, ScrollView, RefreshControl, StatusBar, Pressable, Modal, TouchableOpacity, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { PaperProvider, Appbar, Card, Divider, FAB } from 'react-native-paper'
 import { Ionicons } from '@expo/vector-icons'
@@ -7,7 +7,8 @@ import { Theme } from '@/constants/colors'
 import { useAuth } from '@/contexts/AuthContext'
 import { commonStyles, statusBarConfig } from '@/styles'
 import paymentService, { PaymentDetailsData } from '@/services/paymentService'
-import { PaymentDetailsSkeleton, Notification } from '@/components'
+import { PaymentDetailsSkeleton, Notification, Skeleton } from '@/components'
+import { showDeletePaymentAlert } from '@/utils/paymentActions'
 
 type PaymentData = PaymentDetailsData
 
@@ -70,53 +71,16 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
   const handleDeletePayment = () => {
     if (!paymentData || !token) return
 
-    Alert.alert(
-      'Hapus Pembayaran',
-      `Apakah Anda yakin ingin menghapus "${paymentData.name}"? Tindakan ini tidak dapat dibatalkan.`,
-      [
-        {
-          text: 'Batal',
-          style: 'cancel',
-        },
-        {
-          text: 'Hapus',
-          style: 'destructive',
-          onPress: () => confirmDeletePayment(paymentData.id),
-        },
-      ]
-    )
-  }
-
-  const confirmDeletePayment = async (paymentIdToDelete: number) => {
-    if (!token) return
-
-    setDeleting(true)
-    try {
-      const response = await paymentService.deletePayment(token, paymentIdToDelete)
-
-      if (response.success) {
+    showDeletePaymentAlert(paymentData.name, paymentData.id, token, {
+      onSuccess: () => {
         setNotification('Pembayaran berhasil dihapus!')
         setTimeout(() => {
           navigation.goBack()
         }, 1500)
-      } else {
-        Alert.alert(
-          'Kesalahan',
-          response.message || 'Gagal menghapus pembayaran. Silakan coba lagi.',
-          [{ text: 'OK' }]
-        )
-      }
-    } catch (error) {
-      console.error('Error deleting payment:', error)
-      Alert.alert(
-        'Kesalahan',
-        'Gagal menghapus pembayaran. Silakan periksa koneksi Anda dan coba lagi.',
-        [{ text: 'OK' }]
-      )
-    } finally {
-      setDeleting(false)
-      setActionSheetVisible(false)
-    }
+      },
+      setDeleting,
+      setActionSheetVisible,
+    })
   }
 
   const closeActionSheet = () => {
@@ -158,6 +122,9 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
           >
             <PaymentDetailsSkeleton />
           </ScrollView>
+          <View style={styles.fab}>
+            <Skeleton width={56} height={56} style={{ borderRadius: 28 }} />
+          </View>
         </SafeAreaView>
       </PaperProvider>
     )

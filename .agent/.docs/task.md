@@ -1,11 +1,13 @@
 # Commit
 
-- Menambahkan tombol aksi pada detail transaksi
-- Menambahkan aksi menu untuk edit dan delete transaksi
+- Menambahkan tombol fab pada skeleton detail transaksi
+- Refaktor fungsi delete transaksi menjadi reusable
+- Membersihkan kode dari variabel tidak digunakan serta penyesuaian format kode
 
 # TASK
 
 - detail transaksi: screens\ViewPaymentDetailsScreen.tsx
 - list transaksi: screens\AllTransactionsScreen.tsx
 
-1.  pada detail transaksi, perlu ada fab button untuk edit dan delete, fab ini harus sama seperti di list transaksi, baik itu style, posisi, maupun setiap aksi yang didalamnya. pada detail transaksi semetara hanya 2 aksi yaitu edit dan delete saja. (DONE)
+1. pada detail transaksi: perlu skeleton ditambah fab agar terlihat saat loading bahwa disitu ada button (DONE)
+2. handleDeletePayment dan confirmDeletePayment ini sepertinya bisa diubah menjadi reusable karena digunakan pada detail transaksi dan list transaksi (DONE)
