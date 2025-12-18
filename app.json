@@ -1,6 +1,5 @@
 {
   "expo": {
-    "version": "2.8.2",
     "name": "Nova App",
     "slug": "NovaApp",
     "orientation": "portrait",
@@ -16,8 +15,9 @@
       "supportsTablet": true,
       "buildNumber": "1.0.1"
     },
+    "version": "2.8.3",
     "android": {
-      "versionCode": 27,
+      "versionCode": 28,
       "runtimeVersion": {
         "policy": "appVersion"
       },
@@ -29,7 +29,7 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.novaardiansyah.NovaApp",
       "googleServicesFile": "./google-services.json"
-    }, 
+    },
     "web": {
       "favicon": "./assets/favicon.png"
     },
@@ -41,6 +41,9 @@
       "eas": {
         "projectId": "fa09bab4-0188-4de9-818d-d2eb206c6eab"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/fa09bab4-0188-4de9-818d-d2eb206c6eab"
     }
   }
 }

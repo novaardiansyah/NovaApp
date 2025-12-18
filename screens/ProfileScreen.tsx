@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Linking, Text, Image, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Button, List, Avatar, Switch } from 'react-native-paper';
+import { PaperProvider, Button, List, Avatar, Switch, ActivityIndicator } from 'react-native-paper';
 import Constants from 'expo-constants';
 import * as WebBrowser from 'expo-web-browser';
+import * as Updates from 'expo-updates';
 import { Theme } from '@/constants/colors';
 import { AppCopyright } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,12 +19,71 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const { user, token, logout, toggleNotificationSettings } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
 
   useEffect(() => {
     if (user?.has_allow_notification !== undefined) {
       setNotificationsEnabled(user.has_allow_notification);
     }
   }, [user]);
+
+  const handleCheckUpdate = async () => {
+    if (__DEV__) {
+      Alert.alert('Info', 'Pembaruan tidak tersedia dalam mode development.');
+      return;
+    }
+
+    setIsCheckingUpdate(true);
+    try {
+      const update = await Updates.checkForUpdateAsync();
+
+      if (update.isAvailable) {
+        Alert.alert(
+          'Pembaruan Tersedia',
+          'Versi baru aplikasi tersedia. Apakah Anda ingin mengunduh dan menginstal sekarang?',
+          [
+            {
+              text: 'Nanti',
+              style: 'cancel',
+            },
+            {
+              text: 'Perbarui',
+              onPress: async () => {
+                try {
+                  setIsCheckingUpdate(true);
+                  await Updates.fetchUpdateAsync();
+                  Alert.alert(
+                    'Pembaruan Selesai',
+                    'Aplikasi akan dimulai ulang untuk menerapkan pembaruan.',
+                    [
+                      {
+                        text: 'OK',
+                        onPress: async () => {
+                          await Updates.reloadAsync();
+                        },
+                      },
+                    ]
+                  );
+                } catch (error) {
+                  console.error('Error fetching update:', error);
+                  Alert.alert('Gagal', 'Gagal mengunduh pembaruan. Silakan coba lagi.');
+                } finally {
+                  setIsCheckingUpdate(false);
+                }
+              },
+            },
+          ]
+        );
+      } else {
+        Alert.alert('Info', 'Aplikasi Anda sudah versi terbaru.');
+      }
+    } catch (error) {
+      console.error('Error checking for updates:', error);
+      Alert.alert('Gagal', 'Gagal memeriksa pembaruan. Silakan coba lagi.');
+    } finally {
+      setIsCheckingUpdate(false);
+    }
+  };
 
   const handleNotificationToggle = async (enabled: boolean) => {
     if (!token) return;
@@ -46,15 +106,15 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
   const handleLogout = () => {
     Alert.alert(
-      'Confirm Logout',
-      'Are you sure you want to logout?',
+      'Konfirmasi keluar',
+      'Apakah anda yakin ingin keluar?',
       [
         {
-          text: 'Cancel',
+          text: 'Batal',
           style: 'cancel',
         },
         {
-          text: 'Logout',
+          text: 'Keluar',
           style: 'destructive',
           onPress: async () => {
             await logout();
@@ -136,7 +196,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             </List.Section>
 
             <View style={styles.divider} />
-            
+
             <List.Section>
               <List.Subheader>Pengaturan Umum</List.Subheader>
 
@@ -157,7 +217,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 title="Bahasa"
                 description="Indonesia"
                 left={props => <List.Icon {...props} icon="translate" />}
-                onPress={() => {}}
+                onPress={() => { }}
               />
             </List.Section>
 
@@ -165,7 +225,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
             <List.Section>
               <List.Subheader>Tentang Aplikasi</List.Subheader>
-              
+
               <List.Item
                 title="Kebijakan Privasi"
                 description="Lihat kebijakan privasi kami"
@@ -178,6 +238,17 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 description="Lihat syarat dan ketentuan kami"
                 left={props => <List.Icon {...props} icon="file-document" />}
                 onPress={handleTermsOfService}
+              />
+
+              <List.Item
+                title="Periksa Pembaruan"
+                description="Periksa versi terbaru aplikasi"
+                left={props => <List.Icon {...props} icon="update" />}
+                right={() => isCheckingUpdate ? (
+                  <ActivityIndicator size="small" color="#6366f1" style={{ marginRight: 8 }} />
+                ) : null}
+                onPress={handleCheckUpdate}
+                disabled={isCheckingUpdate}
               />
 
               <List.Item
@@ -214,7 +285,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f9fafb',
   },
-    profileSection: {
+  profileSection: {
     padding: 32,
     alignItems: 'center',
     backgroundColor: '#ffffff',
