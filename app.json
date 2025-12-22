@@ -13,11 +13,12 @@
     },
     "ios": {
       "supportsTablet": true,
-      "buildNumber": "1.0.1"
+      "buildNumber": "1.0.1",
+      "bundleIdentifier": "com.novaardiansyah.NovaApp"
     },
-    "version": "2.8.3",
+    "version": "2.8.4",
     "android": {
-      "versionCode": 28,
+      "versionCode": 29,
       "runtimeVersion": {
         "policy": "appVersion"
       },
@@ -35,7 +36,9 @@
     },
     "plugins": [
       "expo-splash-screen",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-font",
+      "expo-web-browser"
     ],
     "extra": {
       "eas": {
@@ -44,6 +47,9 @@
     },
     "updates": {
       "url": "https://u.expo.dev/fa09bab4-0188-4de9-818d-d2eb206c6eab"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }

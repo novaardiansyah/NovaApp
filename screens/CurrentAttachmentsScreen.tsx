@@ -68,11 +68,7 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
 
   const handleAttachmentPress = (attachment: any) => {
     navigation.navigate('ViewAttachment', {
-      imageUrl: attachment.url || attachment.file_url,
-      filename: attachment.filename,
-      fileSize: attachment.formatted_size || paymentService.formatFileSize(attachment.file_size),
-      mimeType: attachment.mime_type || 'image/png',
-      attachmentId: attachment.id,
+      imageUrl: attachment?.original?.url || attachment.url,
       paymentId: paymentId,
       filepath: attachment.filepath
     });

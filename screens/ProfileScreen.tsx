@@ -77,9 +77,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
       } else {
         Alert.alert('Info', 'Aplikasi Anda sudah versi terbaru.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error checking for updates:', error);
-      Alert.alert('Gagal', 'Gagal memeriksa pembaruan. Silakan coba lagi.');
+      Alert.alert('Gagal', error?.message || 'Gagal memeriksa pembaruan. Silakan coba lagi.');
     } finally {
       setIsCheckingUpdate(false);
     }
