@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, RefreshControl, Alert, Modal, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Card, FAB } from 'react-native-paper';
+import { PaperProvider, Card, FAB, Appbar } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { commonStyles, formatCurrency, getScrollContainerStyle } from '@/styles';
@@ -245,17 +245,11 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
 
   return (
     <PaperProvider theme={Theme}>
-      <SafeAreaView style={commonStyles.container} edges={['top', 'left', 'right']}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <Ionicons name="receipt-outline" size={20} color="#6366f1" style={styles.headerIcon} />
-            <Text style={styles.headerTitle}>Item Transaksi</Text>
-          </View>
-          <Text style={styles.headerSubtitle}>
-            {refreshing || loadingSummary ? '...' : paymentSummary?.payment_code || ''}
-          </Text>
-        </View>
+      <View style={commonStyles.container}>
+        <Appbar.Header>
+          <Appbar.BackAction onPress={() => navigation.goBack()} />
+          <Appbar.Content title="Item Transaksi" titleStyle={{ fontSize: 16 }} />
+        </Appbar.Header>
 
         {/* Items List */}
         <ScrollView
@@ -475,7 +469,7 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
           type="success"
           onDismiss={() => setNotification(null)}
         />
-      </SafeAreaView>
+      </View>
     </PaperProvider>
   );
 };

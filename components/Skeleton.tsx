@@ -398,19 +398,19 @@ interface PaymentItemSkeletonProps {
 
 export const PaymentItemSkeleton: React.FC<PaymentItemSkeletonProps> = ({ style }) => {
   return (
-    <View style={[{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 8 }, style]}>
+    <View style={[{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 0 }, style]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 12 }}>
         <View style={{ flex: 1 }}>
-          <Skeleton width={150} height={14} style={{ marginBottom: 4 }} />
+          <Skeleton width={150} height={13} style={{ marginBottom: 2 }} />
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Skeleton width={40} height={12} />
-            <Skeleton width={30} height={12} />
+            <Skeleton width={40} height={11} />
+            <Skeleton width={30} height={11} />
           </View>
         </View>
       </View>
       <View style={{ alignItems: 'flex-end' }}>
-        <Skeleton width={60} height={14} style={{ marginBottom: 2 }} />
-        <Skeleton width={50} height={12} />
+        <Skeleton width={60} height={13} style={{ marginBottom: 2 }} />
+        <Skeleton width={50} height={11} />
       </View>
     </View>
   );
@@ -446,14 +446,14 @@ interface PaymentSummarySkeletonProps {
 export const PaymentSummarySkeleton: React.FC<PaymentSummarySkeletonProps> = ({ style }) => {
   return (
     <Card style={[style, { borderRadius: 12, backgroundColor: '#ffffff', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, marginVertical: 16 }]}>
-      <Card.Content style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 20, paddingHorizontal: 16 }}>
+      <Card.Content style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 12 }}>
         <View style={{ flex: 1 }}>
-          <Skeleton width={80} height={16} style={{ marginBottom: 2 }} />
-          <Skeleton width={100} height={12} />
+          <Skeleton width={80} height={14} style={{ marginBottom: 2 }} />
+          <Skeleton width={100} height={11} />
         </View>
         <View style={{ alignItems: 'flex-end' }}>
-          <Skeleton width={40} height={14} style={{ marginBottom: 2 }} />
-          <Skeleton width={80} height={18} />
+          <Skeleton width={40} height={12} style={{ marginBottom: 2 }} />
+          <Skeleton width={80} height={16} />
         </View>
       </Card.Content>
     </Card>

@@ -24,13 +24,13 @@ export const paymentItemsStyles = StyleSheet.create({
   },
 
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: 'bold',
     color: '#1f2937',
   },
 
   headerSubtitle: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#6b7280',
     fontWeight: '500',
   },
@@ -51,8 +51,8 @@ export const paymentItemsStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 20,
-    paddingHorizontal: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
   },
 
   summaryLeft: {
@@ -64,24 +64,24 @@ export const paymentItemsStyles = StyleSheet.create({
   },
 
   summaryTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#374151',
   },
 
   summarySubtitle: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#6b7280',
     marginTop: 2,
   },
 
   summaryTotalLabel: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#6b7280',
   },
 
   summaryTotalAmount: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     color: '#6366f1',
   },
@@ -154,8 +154,8 @@ export const paymentItemsStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 0,
   },
 
   itemLeft: {
@@ -164,10 +164,10 @@ export const paymentItemsStyles = StyleSheet.create({
   },
 
   itemName: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
     color: '#1f2937',
-    marginBottom: 4,
+    marginBottom: 2,
   },
 
   itemMeta: {
@@ -186,7 +186,7 @@ export const paymentItemsStyles = StyleSheet.create({
   },
 
   itemTotal: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: '#6366f1',
   },
@@ -321,7 +321,7 @@ export const paymentItemsStyles = StyleSheet.create({
   },
 
   endOfListText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#9ca3af',
     fontStyle: 'italic',
     textAlign: 'center',
