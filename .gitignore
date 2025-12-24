@@ -54,3 +54,4 @@ service_account_playstore.json
 google-services.json
 _env
 todo.md
+.agent/.docs/notes.md

@@ -242,7 +242,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
               <List.Item
                 title="Periksa Pembaruan"
-                description="Periksa versi terbaru aplikasi"
+                description="Periksa pembaruan konten terbaru"
                 left={props => <List.Icon {...props} icon="update" />}
                 right={() => isCheckingUpdate ? (
                   <ActivityIndicator size="small" color="#6366f1" style={{ marginRight: 8 }} />
