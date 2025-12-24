@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import CurrentAttachmentsSkeleton from '@/components/CurrentAttachmentsSkeleton';
 import paymentService from '@/services/paymentService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
+import { commonStyles, getScrollContainerStyle, statusBarConfig, typography } from '@/styles';
 
 interface CurrentAttachmentsScreenProps {
   navigation: any;
@@ -118,7 +118,7 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
           <StatusBar {...statusBarConfig} />
           <Appbar.Header>
             <Appbar.BackAction onPress={() => navigation.goBack()} />
-            <Appbar.Content title="Current Attachments" />
+            <Appbar.Content title="Lampiran Saat Ini" titleStyle={typography.appbar.titleNormal} />
           </Appbar.Header>
           <View style={styles.loadingContainer}>
             <CurrentAttachmentsSkeleton />
@@ -134,7 +134,7 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
         <StatusBar {...statusBarConfig} />
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Current Attachments" />
+          <Appbar.Content title="Lampiran Saat Ini" titleStyle={typography.appbar.titleNormal} />
         </Appbar.Header>
 
         <ScrollView
@@ -149,14 +149,14 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
               <Card style={styles.emptyCard}>
                 <Card.Content style={styles.emptyCardContent}>
                   <Ionicons name="attach-outline" size={48} color="#9ca3af" />
-                  <Text style={styles.emptyText}>No attachments yet</Text>
-                  <Text style={styles.emptySubtext}>Add your first attachment to this payment</Text>
+                  <Text style={styles.emptyText}>Belum ada lampiran</Text>
+                  <Text style={styles.emptySubtext}>Tambahkan lampiran pertama untuk pembayaran ini</Text>
                 </Card.Content>
               </Card>
             ) : (
               <>
                 <Text style={styles.attachmentsCount}>
-                  {currentAttachments.length} attachment{currentAttachments.length !== 1 ? 's' : ''}
+                  {currentAttachments.length} lampiran
                 </Text>
                 <Card style={styles.attachmentsCard}>
                   <Card.Content style={styles.attachmentsCardContent}>
@@ -198,19 +198,19 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
   },
   emptyText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#6b7280',
     marginTop: 16,
     marginBottom: 8,
   },
   emptySubtext: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#9ca3af',
     textAlign: 'center',
   },
   attachmentsCount: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#6b7280',
     marginBottom: 12,
     fontWeight: '500',
@@ -256,14 +256,14 @@ const styles = StyleSheet.create({
     maxWidth: '60%',
   },
   attachmentName: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
     color: '#1f2937',
     marginBottom: 2,
     flexShrink: 1,
   },
   attachmentDetails: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#6b7280',
   },
   attachmentRight: {

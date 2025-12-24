@@ -16,6 +16,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Theme } from '@/constants/colors';
 import { FormButton } from '@/components';
 import paymentService from '@/services/paymentService';
+import { typography } from '@/styles';
 import * as ImagePicker from 'expo-image-picker';
 
 interface AddAttachmentScreenProps {
@@ -279,7 +280,7 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Tambah Lampiran" />
+          <Appbar.Content title="Tambah Lampiran" titleStyle={typography.appbar.titleNormal} />
         </Appbar.Header>
 
         <KeyboardAvoidingView
@@ -360,10 +361,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9fafb',
   },
   description: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#6b7280',
     marginBottom: 24,
-    lineHeight: 24,
+    lineHeight: 22,
   },
   keyboardAvoidingContainer: {
     flex: 1,
@@ -379,7 +380,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: '600',
     color: '#1f2937',
     marginBottom: 12,
@@ -413,13 +414,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   attachmentName: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
     color: '#1f2937',
     marginBottom: 2,
   },
   attachmentDetails: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#6b7280',
   },
   removeButton: {
@@ -461,13 +462,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   optionText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: '#1f2937',
     marginBottom: 2,
   },
   optionSubtext: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#6b7280',
   },
   fab: {

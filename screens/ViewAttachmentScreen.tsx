@@ -14,7 +14,7 @@ import { PaperProvider, Appbar, FAB } from 'react-native-paper';
 import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 import paymentService from '@/services/paymentService';
-import { statusBarConfig } from '@/styles';
+import { statusBarConfig, typography } from '@/styles';
 import { Notification } from '@/components';
 
 interface ViewAttachmentScreenProps {
@@ -36,22 +36,22 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
   const [deleting, setDeleting] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
 
-  
+
   const handleDelete = async () => {
     if (!token || !paymentId || !filepath) {
       return;
     }
 
     Alert.alert(
-      'Delete Attachment',
-      'Are you sure you want to delete this attachment? This action cannot be undone.',
+      'Hapus Lampiran',
+      'Apakah Anda yakin ingin menghapus lampiran ini? Tindakan ini tidak dapat dibatalkan.',
       [
         {
-          text: 'Cancel',
+          text: 'Batal',
           style: 'cancel',
         },
         {
-          text: 'Delete',
+          text: 'Hapus',
           style: 'destructive',
           onPress: async () => {
             setDeleting(true);
@@ -59,12 +59,12 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
               const response = await paymentService.deleteAttachmentByFilepath(token, paymentId, filepath);
 
               if (response.success) {
-                setNotification('Attachment deleted successfully');
+                setNotification('Lampiran berhasil dihapus');
               } else {
-                Alert.alert('Error', response.message || 'Failed to delete attachment');
+                Alert.alert('Kesalahan', response.message || 'Gagal menghapus lampiran');
               }
             } catch (error) {
-              Alert.alert('Error', 'Failed to delete attachment');
+              Alert.alert('Kesalahan', 'Gagal menghapus lampiran');
             } finally {
               setDeleting(false);
             }
@@ -80,7 +80,7 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
         <StatusBar {...statusBarConfig} />
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="View Attachment" />
+          <Appbar.Content title="Lihat Lampiran" titleStyle={typography.appbar.titleNormal} />
         </Appbar.Header>
 
         <ScrollView
@@ -109,7 +109,7 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
               }}
               onError={(error) => {
                 setImageLoading(false);
-                Alert.alert('Error', 'Failed to load image. Please check your connection.');
+                Alert.alert('Kesalahan', 'Gagal memuat gambar. Silakan periksa koneksi Anda.');
               }}
             />
           </View>
