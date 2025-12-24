@@ -11,10 +11,7 @@ export default ({ config }) => {
       env: process.env.EXPO_PUBLIC_ENV,
       privacyEmail: process.env.EXPO_PUBLIC_PRIVACY_EMAIL,
       supportEmail: process.env.EXPO_PUBLIC_SUPPORT_EMAIL,
-      officeAddress: process.env.EXPO_PUBLIC_OFFICE_ADDRESS,
-      eas: {
-        projectId: "fa09bab4-0188-4de9-818d-d2eb206c6eab"
-      }
+      officeAddress: process.env.EXPO_PUBLIC_OFFICE_ADDRESS
     }
   };
 };
