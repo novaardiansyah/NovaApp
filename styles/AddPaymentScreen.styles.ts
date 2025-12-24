@@ -16,10 +16,10 @@ export const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   description: {
-    fontSize: 16,
+    fontSize: 13,
     color: '#6b7280',
     marginBottom: 16,
-    lineHeight: 24,
+    lineHeight: 20,
   },
   inputGroup: {
     marginBottom: 20,
@@ -27,6 +27,7 @@ export const styles = StyleSheet.create({
   input: {
     backgroundColor: '#ffffff',
     marginBottom: 16,
+    fontSize: 13,
   },
   helperText: {
     marginTop: -16,
@@ -34,7 +35,7 @@ export const styles = StyleSheet.create({
     marginBottom: 8
   },
   inputLabel: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: '500',
     color: '#374151',
     marginBottom: 12,
@@ -50,10 +51,23 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#e5e7eb',
+    fontSize: 13,
   },
   accordionItem: {
     backgroundColor: '#f8fafc',
     paddingHorizontal: 0,
     paddingVertical: 4,
+  },
+  accordionTitle: {
+    fontSize: 13,
+  },
+  accordionDescription: {
+    fontSize: 11,
+  },
+  accordionItemTitle: {
+    fontSize: 13,
+  },
+  accordionItemDescription: {
+    fontSize: 11,
   },
 });

@@ -74,7 +74,7 @@ const Select: React.FC<SelectProps> = ({
           <TextInput
             label={label}
             value={getSelectedOptionName()}
-            onChangeText={() => {}}
+            onChangeText={() => { }}
             mode="outlined"
             outlineColor="#e5e7eb"
             activeOutlineColor="#6366f1"
@@ -127,14 +127,14 @@ const Select: React.FC<SelectProps> = ({
               backgroundColor: '#ffffff',
             }}>
               <Text style={{
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: '600',
                 color: '#111827',
               }}>
                 {label}
               </Text>
               <TouchableOpacity onPress={() => setMenuVisible(false)}>
-                <Ionicons name="close" size={24} color="#6b7280" />
+                <Ionicons name="close" size={20} color="#6b7280" />
               </TouchableOpacity>
             </View>
 
@@ -173,10 +173,10 @@ const Select: React.FC<SelectProps> = ({
                         alignItems: 'center',
                       }}>
                         {isSelected && (
-                          <Ionicons name="checkmark" size={20} color="#1e40af" style={{ marginRight: 12 }} />
+                          <Ionicons name="checkmark" size={16} color="#1e40af" style={{ marginRight: 12 }} />
                         )}
                         <Text style={{
-                          fontSize: 16,
+                          fontSize: 13,
                           color: isSelected ? '#1e40af' : '#111827',
                           fontWeight: isSelected ? '600' : '400',
                           flex: 1,

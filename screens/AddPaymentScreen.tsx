@@ -28,7 +28,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   const [optionsExpanded, setOptionsExpanded] = useState(false);
 
   // No navigation listeners needed for this screen
-  
+
   const [loadingPaymentTypes, setLoadingPaymentTypes] = useState(false);
   const [loadingPaymentAccounts, setLoadingPaymentAccounts] = useState(false);
 
@@ -125,7 +125,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     setRefreshing(true);
     try {
       resetForm();
-      
+
       await Promise.all([
         loadPaymentTypes(),
         loadPaymentAccounts()
@@ -206,9 +206,9 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   };
 
   const handleDateConfirm = (params: any) => {
-    const year          = params.date.getFullYear();
-    const month         = String(params.date.getMonth() + 1).padStart(2, '0');
-    const day           = String(params.date.getDate()).padStart(2, '0');
+    const year = params.date.getFullYear();
+    const month = String(params.date.getMonth() + 1).padStart(2, '0');
+    const day = String(params.date.getDate()).padStart(2, '0');
     const formattedDate = `${year}-${month}-${day}`;
 
     setFormData(prev => ({ ...prev, date: formattedDate }));
@@ -282,7 +282,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Tambah Pembayaran" />
+          <Appbar.Content title="Tambah Transaksi" titleStyle={{ fontSize: 16 }} />
         </Appbar.Header>
 
         <KeyboardAvoidingView
@@ -303,7 +303,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
             }
           >
             <Text style={styles.description}>
-              Tambah catatan pembayaran baru. Isi informasi yang diperlukan di bawah ini.
+              Tambah catatan transaksi baru. Isi informasi yang diperlukan di bawah ini.
             </Text>
 
             <TextInput
@@ -334,12 +334,12 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               editable={!formData.has_items}
             />
             {errors.name && <HelperText type="error" style={styles.helperText}>{errors.name}</HelperText>}
-            
+
             <TouchableOpacity onPress={() => setDatePickerVisible(true)} activeOpacity={0.7}>
               <TextInput
                 label="Tanggal *"
                 value={formData.date}
-                onChangeText={() => {}}
+                onChangeText={() => { }}
                 mode="outlined"
                 outlineColor="#e5e7eb"
                 activeOutlineColor="#6366f1"
@@ -363,7 +363,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
             />
 
             <Select
-              label="Akun Pembayaran"
+              label="Akun Transaksi"
               value={formData.payment_account_id}
               onValueChange={handlePaymentAccountChange}
               options={paymentAccounts}
@@ -374,7 +374,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
             />
 
             <Select
-              label="Ke Akun Pembayaran"
+              label="Ke Akun Transaksi"
               value={formData.payment_account_to_id}
               onValueChange={handlePaymentAccountToChange}
               options={paymentAccounts}
@@ -387,12 +387,14 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
 
             {/* Collapsible Options Section */}
             <List.Accordion
-              title="Opsi Pembayaran"
+              title="Opsi Transaksi"
               description="Pengaturan tambahan"
               left={props => <List.Icon {...props} icon="tune" />}
               expanded={optionsExpanded}
               onPress={() => setOptionsExpanded(!optionsExpanded)}
               style={styles.accordion}
+              titleStyle={styles.accordionTitle}
+              descriptionStyle={styles.accordionDescription}
             >
               <List.Item
                 title="Memiliki Item"
@@ -406,6 +408,8 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
                   />
                 )}
                 style={styles.accordionItem}
+                titleStyle={styles.accordionItemTitle}
+                descriptionStyle={styles.accordionItemDescription}
               />
 
               <List.Item
@@ -420,11 +424,13 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
                   />
                 )}
                 style={styles.accordionItem}
+                titleStyle={styles.accordionItemTitle}
+                descriptionStyle={styles.accordionItemDescription}
               />
 
               <List.Item
                 title="Terjadwal"
-                description="Atur pembayaran terjadwal"
+                description="Atur transaksi terjadwal"
                 left={props => <List.Icon {...props} icon="calendar-clock" />}
                 right={() => (
                   <Switch
@@ -434,15 +440,17 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
                   />
                 )}
                 style={styles.accordionItem}
+                titleStyle={styles.accordionItemTitle}
+                descriptionStyle={styles.accordionItemDescription}
               />
             </List.Accordion>
 
 
             <FormButton
-              title="Tambah Pembayaran"
+              title="Simpan Transaksi"
               onPress={handleSubmit}
               loading={loading}
-              icon="cash-plus"
+              icon="content-save"
               style={styles.addButton}
             />
 
@@ -462,17 +470,17 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
       </View>
 
       <DatePickerModal
-          visible={datePickerVisible}
-          onDismiss={handleDateDismiss}
-          onConfirm={handleDateConfirm}
-          date={formData.date ? new Date(formData.date) : new Date()}
-          mode="single"
-          saveLabel="Simpan"
-          label="Pilih tanggal"
-          animationType="slide"
-          presentationStyle="pageSheet"
-          locale="en"
-        />
+        visible={datePickerVisible}
+        onDismiss={handleDateDismiss}
+        onConfirm={handleDateConfirm}
+        date={formData.date ? new Date(formData.date) : new Date()}
+        mode="single"
+        saveLabel="Simpan"
+        label="Pilih tanggal"
+        animationType="slide"
+        presentationStyle="pageSheet"
+        locale="en"
+      />
 
       <Notification
         visible={!!notification}
