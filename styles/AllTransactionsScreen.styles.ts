@@ -4,8 +4,12 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9fafb',
-    justifyContent: 'center',
-    alignItems: 'center',
+  },
+
+  scrollContent: {
+    paddingHorizontal: 12,
+    paddingVertical: 16,
+    paddingBottom: 32,
   },
 
   transactionsSection: {
@@ -41,12 +45,12 @@ export const styles = StyleSheet.create({
   },
 
   transactionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 12,
   },
 
   transactionInfo: {
@@ -55,15 +59,15 @@ export const styles = StyleSheet.create({
   },
 
   transactionTitle: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
     color: '#1f2937',
-    marginBottom: 4,
+    marginBottom: 2,
     flexShrink: 1,
   },
 
   transactionDate: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#6b7280',
   },
 
@@ -73,13 +77,13 @@ export const styles = StyleSheet.create({
   },
 
   transactionAmount: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
   },
 
-  
+
   emptySubtext: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#9ca3af',
     textAlign: 'center',
   },
@@ -92,7 +96,7 @@ export const styles = StyleSheet.create({
   },
 
   loadingMoreText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#6b7280',
     fontWeight: '500',
   },
@@ -103,20 +107,19 @@ export const styles = StyleSheet.create({
   },
 
   endOfListText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#9ca3af',
     fontStyle: 'italic',
   },
 
   loadMoreButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#f3f4f6',
     borderRadius: 50,
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#6366f1',
+    borderWidth: 0,
   },
 
   transactionCardTouchable: {
@@ -147,7 +150,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: 10,
   },
 
   transactionAmountContainer: {

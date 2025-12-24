@@ -148,16 +148,16 @@ export const TransactionsSkeleton: React.FC<TransactionsSkeletonProps> = ({ coun
               <View style={transactionsSkeletonStyles.transactionItem}>
                 <View style={transactionsSkeletonStyles.transactionLeft}>
                   <View style={transactionsSkeletonStyles.transactionIcon}>
-                    <Skeleton width={16} height={16} />
+                    <Skeleton width={14} height={14} />
                   </View>
                   <View style={transactionsSkeletonStyles.transactionInfo}>
-                    <Skeleton width={120} height={16} style={{ marginBottom: 4 }} />
-                    <Skeleton width={60} height={12} />
+                    <Skeleton width={100} height={13} style={{ marginBottom: 2 }} />
+                    <Skeleton width={50} height={11} />
                   </View>
                 </View>
                 <View style={transactionsSkeletonStyles.transactionRight}>
                   <View style={transactionsSkeletonStyles.transactionAmountContainer}>
-                    <Skeleton width={70} height={14} />
+                    <Skeleton width={60} height={13} />
                   </View>
                 </View>
               </View>
@@ -188,7 +188,7 @@ const transactionsSkeletonStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: 10,
   },
   transactionLeft: {
     flexDirection: 'row',
@@ -196,13 +196,13 @@ const transactionsSkeletonStyles = StyleSheet.create({
     flex: 1,
   },
   transactionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: '#e5e7eb',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 12,
   },
   transactionInfo: {
     flex: 1,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { View, ScrollView, Text, RefreshControl, ActivityIndicator, StatusBar, TouchableOpacity, Modal, Pressable, TextInput } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { PaperProvider, Card, FAB, Divider } from 'react-native-paper'
+import { PaperProvider, Card, FAB, Divider, Appbar } from 'react-native-paper'
 import { Ionicons } from '@expo/vector-icons'
 import { Theme } from '@/constants/colors'
 import { Notification } from '@/components'
@@ -330,10 +330,20 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
 
   return (
     <PaperProvider theme={Theme}>
-      <SafeAreaView style={commonStyles.container} edges={['top', 'left', 'right']}>
-        <StatusBar {...statusBarConfig} />
+      <View style={styles.container}>
+        <Appbar.Header>
+          <Appbar.Content title="Transaksi" titleStyle={{ fontSize: 16, fontWeight: 'bold' }} />
+          <Appbar.Action icon="magnify" onPress={toggleSearchVisible} color={searchQuery.trim() ? '#f59e0b' : undefined} />
+          <Appbar.Action icon="filter-variant" onPress={() => setFilterVisible(true)} color={(() => {
+            const hasActiveFilters = !!(activeFilters.dateFrom || activeFilters.dateTo ||
+              (activeFilters.transactionType && activeFilters.transactionType !== '') ||
+              (activeFilters.accountId && activeFilters.accountId !== ''))
+            return hasActiveFilters ? '#f59e0b' : undefined
+          })()} />
+          <Appbar.Action icon="file-document-outline" onPress={() => navigation.navigate('Reports')} />
+        </Appbar.Header>
         <ScrollView
-          contentContainerStyle={getScrollContainerStyle(insets)}
+          contentContainerStyle={styles.scrollContent}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
@@ -344,98 +354,6 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           }}
           scrollEventThrottle={400}
         >
-          <View style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 24
-          }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="receipt" size={24} color="#6366f1" style={{ marginRight: 12 }} />
-              <Text style={commonStyles.headerTitle}>Transaksi</Text>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              {/* Search Icon */}
-              <TouchableOpacity
-                style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 40,
-                  height: 40,
-                  borderRadius: 20,
-                  backgroundColor: searchQuery.trim() ? '#f59e0b' : '#f3f4f6',
-                  shadowColor: searchQuery.trim() ? '#f59e0b' : 'transparent',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: searchQuery.trim() ? 0.2 : 0,
-                  shadowRadius: 4,
-                  elevation: searchQuery.trim() ? 3 : 0
-                }}
-                onPress={toggleSearchVisible}
-                activeOpacity={0.8}
-              >
-                <Ionicons
-                  name="search"
-                  size={18}
-                  color={searchQuery.trim() ? '#ffffff' : '#6b7280'}
-                />
-              </TouchableOpacity>
-
-              {/* Filter Icon */}
-              {(() => {
-                const hasActiveFilters = !!(activeFilters.dateFrom || activeFilters.dateTo ||
-                  (activeFilters.transactionType && activeFilters.transactionType !== '') ||
-                  (activeFilters.accountId && activeFilters.accountId !== ''))
-
-                return (
-                  <TouchableOpacity
-                    style={{
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: 40,
-                      height: 40,
-                      borderRadius: 20,
-                      backgroundColor: hasActiveFilters ? '#f59e0b' : '#f3f4f6',
-                      shadowColor: hasActiveFilters ? '#f59e0b' : 'transparent',
-                      shadowOffset: { width: 0, height: 2 },
-                      shadowOpacity: hasActiveFilters ? 0.2 : 0,
-                      shadowRadius: 4,
-                      elevation: hasActiveFilters ? 3 : 0
-                    }}
-                    onPress={() => setFilterVisible(true)}
-                    activeOpacity={0.8}
-                  >
-                    <Ionicons
-                      name="filter"
-                      size={18}
-                      color={hasActiveFilters ? '#ffffff' : '#6b7280'}
-                    />
-                  </TouchableOpacity>
-                )
-              })()}
-
-              {/* Reports Icon */}
-              <TouchableOpacity
-                style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 40,
-                  height: 40,
-                  borderRadius: 20,
-                  backgroundColor: '#f3f4f6',
-                  shadowColor: 'transparent',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0,
-                  shadowRadius: 4,
-                  elevation: 0
-                }}
-                onPress={() => navigation.navigate('Reports')}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="document-text" size={18} color="#6b7280" />
-              </TouchableOpacity>
-            </View>
-          </View>
-
           {/* Expandable Search Bar */}
           {searchVisible && (
             <View style={{
@@ -455,12 +373,12 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
               shadowRadius: 2,
             }}>
               <TouchableOpacity onPress={handleSearch} style={{ marginRight: 12 }}>
-                <Ionicons name="search" size={20} color={searchQuery.trim() ? '#6366f1' : '#6b7280'} />
+                <Ionicons name="search" size={18} color={searchQuery.trim() ? '#6366f1' : '#6b7280'} />
               </TouchableOpacity>
               <TextInput
                 style={{
                   flex: 1,
-                  fontSize: 14,
+                  fontSize: 13,
                   color: '#111827',
                   paddingVertical: 8,
                 }}
@@ -474,7 +392,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
               />
               {searchQuery.trim() !== '' && (
                 <TouchableOpacity onPress={handleClearSearch} style={{ padding: 2, marginLeft: 4 }}>
-                  <Ionicons name="close-circle" size={20} color="#9ca3af" />
+                  <Ionicons name="close-circle" size={18} color="#9ca3af" />
                 </TouchableOpacity>
               )}
             </View>
@@ -506,7 +424,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                                   ]}>
                                     <Ionicons
                                       name={getTransactionIcon(transaction.type_id.toString()) as any}
-                                      size={16}
+                                      size={14}
                                       color="white"
                                     />
                                   </View>
@@ -531,7 +449,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                                       {transaction.has_items && (
                                         <Ionicons
                                           name="list-outline"
-                                          size={14}
+                                          size={12}
                                           color="#6b7280"
                                           style={styles.transactionItemsIcon}
                                         />
@@ -539,7 +457,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                                       {transaction.is_scheduled && (
                                         <Ionicons
                                           name="time-outline"
-                                          size={14}
+                                          size={12}
                                           color="#6b7280"
                                           style={styles.transactionScheduledIcon}
                                         />
@@ -563,7 +481,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
 
             {loadingMore && (
               <View style={styles.loadingMoreContent}>
-                <ActivityIndicator size={30} color="#6366f1" />
+                <ActivityIndicator size={24} color="#6366f1" />
               </View>
             )}
 
@@ -581,14 +499,14 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                   style={styles.loadMoreButton}
                   onPress={handleLoadMore}
                 >
-                  <Ionicons name="chevron-down" size={16} color="#6366f1" />
+                  <Ionicons name="chevron-down" size={14} color="#6b7280" />
                 </TouchableOpacity>
               </View>
             ) : null
             }
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
 
       <Modal
         visible={actionSheetVisible}
@@ -604,70 +522,70 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           />
 
           <View style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 }}>
-            <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
+            <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 12 }}>
               Kelola Transaksi
             </Text>
 
             <View style={{ paddingHorizontal: 20 }}>
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                 onPress={() => handleActionSelect('view_details')}
               >
-                <Ionicons name="eye-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Lihat Detail</Text>
+                <Ionicons name="eye-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>Lihat Detail</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                 onPress={() => handleActionSelect('edit_payment')}
               >
-                <Ionicons name="create-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Edit Pembayaran</Text>
+                <Ionicons name="create-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>Edit Pembayaran</Text>
               </TouchableOpacity>
 
 
               {selectedTransaction?.has_items && (
                 <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                   onPress={() => handleActionSelect('view_items')}
                 >
-                  <Ionicons name="list-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
-                  <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Lihat Item</Text>
+                  <Ionicons name="list-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
+                  <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>Lihat Item</Text>
                 </TouchableOpacity>
               )}
 
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                 onPress={() => handleActionSelect('view_attachment')}
               >
-                <Ionicons name="attach-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Lihat Lampiran</Text>
+                <Ionicons name="attach-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>Lihat Lampiran</Text>
               </TouchableOpacity>
 
               {selectedTransaction?.is_draft && (
                 <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                   onPress={openDraftActionSheet}
                 >
-                  <Ionicons name="document-text-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
-                  <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Kelola Draft</Text>
+                  <Ionicons name="document-text-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
+                  <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>Kelola Draft</Text>
                 </TouchableOpacity>
               )}
 
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                 onPress={() => handleActionSelect('delete_payment')}
               >
-                <Ionicons name="trash-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Hapus Pembayaran</Text>
+                <Ionicons name="trash-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>Hapus Pembayaran</Text>
               </TouchableOpacity>
             </View>
 
             <TouchableOpacity
-              style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 12, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
+              style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 10, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
               onPress={closeActionSheet}
             >
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#6366f1' }}>Batal</Text>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#6366f1' }}>Batal</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -696,36 +614,36 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           />
 
           <View style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 }}>
-            <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
+            <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 12 }}>
               Kelola Draft Transaksi
             </Text>
 
             <View style={{ paddingHorizontal: 20 }}>
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                 onPress={() => handleManageDraft('approve')}
                 disabled={managingDraft}
               >
-                <Ionicons name="checkmark-circle-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Setujui Draft</Text>
+                <Ionicons name="checkmark-circle-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>Setujui Draft</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                 onPress={() => handleManageDraft('reject')}
                 disabled={managingDraft}
               >
-                <Ionicons name="close-circle-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Tolak Draft</Text>
+                <Ionicons name="close-circle-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
+                <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>Tolak Draft</Text>
               </TouchableOpacity>
             </View>
 
             <TouchableOpacity
-              style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 12, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
+              style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 10, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
               onPress={closeDraftActionSheet}
               disabled={managingDraft}
             >
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#6366f1' }}>Batal</Text>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#6366f1' }}>Batal</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
