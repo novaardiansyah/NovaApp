@@ -176,7 +176,7 @@ const Select: React.FC<SelectProps> = ({
                           <Ionicons name="checkmark" size={16} color="#1e40af" style={{ marginRight: 12 }} />
                         )}
                         <Text style={{
-                          fontSize: 13,
+                          fontSize: 14,
                           color: isSelected ? '#1e40af' : '#111827',
                           fontWeight: isSelected ? '600' : '400',
                           flex: 1,

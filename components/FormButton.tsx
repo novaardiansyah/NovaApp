@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.text.tertiary,
   },
   buttonLabel: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
   },
   primaryLabel: {
