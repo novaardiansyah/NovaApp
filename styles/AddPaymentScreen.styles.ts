@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { typography } from './common.styles';
 
 export const styles = StyleSheet.create({
   container: {
@@ -16,7 +17,7 @@ export const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   description: {
-    fontSize: 14,
+    fontSize: typography.label.large,
     color: '#6b7280',
     marginBottom: 16,
     lineHeight: 22,
@@ -27,7 +28,7 @@ export const styles = StyleSheet.create({
   input: {
     backgroundColor: '#ffffff',
     marginBottom: 16,
-    fontSize: 14,
+    fontSize: typography.label.large,
   },
   helperText: {
     marginTop: -16,
@@ -35,7 +36,7 @@ export const styles = StyleSheet.create({
     marginBottom: 8
   },
   inputLabel: {
-    fontSize: 14,
+    fontSize: typography.label.large,
     fontWeight: '500',
     color: '#374151',
     marginBottom: 12,
@@ -51,7 +52,7 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    fontSize: 14,
+    fontSize: typography.label.large,
     paddingVertical: 0,
     paddingRight: 8,
   },
@@ -71,15 +72,15 @@ export const styles = StyleSheet.create({
     marginRight: -16,
   },
   accordionTitle: {
-    fontSize: 14,
+    fontSize: typography.label.large,
   },
   accordionDescription: {
-    fontSize: 12,
+    fontSize: typography.label.small,
   },
   accordionItemTitle: {
-    fontSize: 14,
+    fontSize: typography.label.large,
   },
   accordionItemDescription: {
-    fontSize: 12,
+    fontSize: typography.label.small,
   },
 });

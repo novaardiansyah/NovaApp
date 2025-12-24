@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { typography } from './common.styles';
 
 export const paymentItemsStyles = StyleSheet.create({
   // Header Styles
@@ -64,30 +65,30 @@ export const paymentItemsStyles = StyleSheet.create({
   },
 
   summaryTitle: {
-    fontSize: 14,
+    fontSize: typography.label.large,
     fontWeight: '600',
     color: '#374151',
   },
 
   summarySubtitle: {
-    fontSize: 11,
+    fontSize: typography.body.secondary,
     color: '#6b7280',
     marginTop: 2,
   },
 
   summaryTotalLabel: {
-    fontSize: 12,
+    fontSize: typography.label.small,
     color: '#6b7280',
   },
 
   summaryTotalAmount: {
-    fontSize: 16,
+    fontSize: typography.heading.medium,
     fontWeight: '700',
     color: '#6366f1',
   },
 
   summaryCode: {
-    fontSize: 12,
+    fontSize: typography.label.small,
     color: '#9ca3af',
     fontWeight: '500',
     marginTop: 2,
@@ -164,7 +165,7 @@ export const paymentItemsStyles = StyleSheet.create({
   },
 
   itemName: {
-    fontSize: 13,
+    fontSize: typography.body.primary,
     fontWeight: '500',
     color: '#1f2937',
     marginBottom: 2,
@@ -177,7 +178,7 @@ export const paymentItemsStyles = StyleSheet.create({
   },
 
   itemQuantity: {
-    fontSize: 11,
+    fontSize: typography.body.secondary,
     color: '#6b7280',
   },
 
@@ -186,13 +187,13 @@ export const paymentItemsStyles = StyleSheet.create({
   },
 
   itemTotal: {
-    fontSize: 13,
+    fontSize: typography.body.primary,
     fontWeight: '600',
     color: '#6366f1',
   },
 
   itemPrice: {
-    fontSize: 11,
+    fontSize: typography.body.secondary,
     color: '#6b7280',
     marginTop: 2,
   },
@@ -207,7 +208,7 @@ export const paymentItemsStyles = StyleSheet.create({
   },
 
   itemTypeText: {
-    fontSize: 9,
+    fontSize: typography.body.tertiary,
     fontWeight: '600',
     textTransform: 'uppercase',
   },
@@ -258,7 +259,7 @@ export const paymentItemsStyles = StyleSheet.create({
     textAlign: 'center',
     padding: 16,
     color: '#6b7280',
-    fontSize: 13,
+    fontSize: typography.body.primary,
   },
 
   actionSheetContent: {
@@ -321,7 +322,7 @@ export const paymentItemsStyles = StyleSheet.create({
   },
 
   endOfListText: {
-    fontSize: 13,
+    fontSize: typography.body.primary,
     color: '#9ca3af',
     fontStyle: 'italic',
     textAlign: 'center',

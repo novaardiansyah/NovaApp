@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Theme } from '@/constants/colors';
 import { FormButton, Select, Notification } from '@/components';
 import { styles } from '@/styles/AddPaymentScreen.styles';
+import { typography } from '@/styles';
 import paymentService, { PaymentData } from '@/services/paymentService';
 import { formatAmount } from '@/utils/transactionUtils';
 
@@ -282,7 +283,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Tambah Transaksi" titleStyle={{ fontSize: 16 }} />
+          <Appbar.Content title="Tambah Transaksi" titleStyle={typography.appbar.titleNormal} />
         </Appbar.Header>
 
         <KeyboardAvoidingView

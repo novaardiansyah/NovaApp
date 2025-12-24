@@ -10,7 +10,7 @@ import TransactionFilter, { FilterOptions } from '@/components/TransactionFilter
 import EmptyTransactionsCard from '@/components/EmptyTransactionsCard'
 import { useAuth } from '@/contexts/AuthContext'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles'
+import { commonStyles, getScrollContainerStyle, statusBarConfig, typography } from '@/styles'
 import { styles } from '@/styles/AllTransactionsScreen.styles'
 import { getTransactionColor, getTransactionIcon } from '@/utils/transactionUtils'
 import transactionService from '@/services/transactionService'
@@ -332,7 +332,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
     <PaperProvider theme={Theme}>
       <View style={styles.container}>
         <Appbar.Header>
-          <Appbar.Content title="Transaksi" titleStyle={{ fontSize: 16, fontWeight: 'bold' }} />
+          <Appbar.Content title="Transaksi" titleStyle={typography.appbar.titleBold} />
           <Appbar.Action icon="magnify" onPress={toggleSearchVisible} color={searchQuery.trim() ? '#f59e0b' : undefined} />
           <Appbar.Action icon="filter-variant" onPress={() => setFilterVisible(true)} color={(() => {
             const hasActiveFilters = !!(activeFilters.dateFrom || activeFilters.dateTo ||

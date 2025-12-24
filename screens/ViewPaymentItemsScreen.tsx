@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card, FAB, Appbar } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
-import { commonStyles, formatCurrency, getScrollContainerStyle } from '@/styles';
+import { commonStyles, formatCurrency, getScrollContainerStyle, typography } from '@/styles';
 import { paymentItemsStyles as styles } from '@/styles/ViewPaymentItemsStyles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
@@ -248,7 +248,7 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
       <View style={commonStyles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Item Transaksi" titleStyle={{ fontSize: 16 }} />
+          <Appbar.Content title="Item Transaksi" titleStyle={typography.appbar.titleNormal} />
         </Appbar.Header>
 
         {/* Items List */}

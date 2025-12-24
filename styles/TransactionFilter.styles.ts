@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { typography } from './common.styles';
 
 export const styles = StyleSheet.create({
   container: {
@@ -20,7 +21,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#f9fafb',
   },
   title: {
-    fontSize: 16,
+    fontSize: typography.heading.medium,
     fontWeight: '600',
     color: '#111827',
   },
@@ -31,7 +32,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#f3f4f6',
   },
   resetText: {
-    fontSize: 13,
+    fontSize: typography.body.primary,
     fontWeight: '500',
     color: '#6366f1',
   },
@@ -46,13 +47,13 @@ export const styles = StyleSheet.create({
   input: {
     backgroundColor: '#ffffff',
     marginBottom: 8,
-    fontSize: 14,
+    fontSize: typography.label.large,
   },
   section: {
     paddingBottom: 12,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: typography.label.large,
     fontWeight: '600',
     color: '#111827',
     marginBottom: 8,
@@ -83,12 +84,12 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   inputLabel: {
-    fontSize: 12,
+    fontSize: typography.label.small,
     color: '#6b7280',
     marginBottom: 4,
   },
   inputValue: {
-    fontSize: 14,
+    fontSize: typography.label.large,
     fontWeight: '500',
     color: '#111827',
   },
@@ -106,12 +107,12 @@ export const styles = StyleSheet.create({
     marginLeft: 12,
   },
   dateLabel: {
-    fontSize: 12,
+    fontSize: typography.label.small,
     color: '#6b7280',
     marginBottom: 4,
   },
   dateText: {
-    fontSize: 14,
+    fontSize: typography.label.large,
     fontWeight: '500',
     color: '#111827',
   },
@@ -137,7 +138,7 @@ export const styles = StyleSheet.create({
   },
   optionText: {
     marginLeft: 8,
-    fontSize: 13,
+    fontSize: typography.body.primary,
     fontWeight: '500',
     color: '#6b7280',
   },
@@ -172,7 +173,7 @@ export const styles = StyleSheet.create({
     elevation: 0,
   },
   applyButtonText: {
-    fontSize: 14,
+    fontSize: typography.label.large,
     fontWeight: '600',
     color: '#ffffff',
   },

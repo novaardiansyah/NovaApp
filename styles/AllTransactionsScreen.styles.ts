@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { typography } from './common.styles';
 
 export const styles = StyleSheet.create({
   container: {
@@ -59,7 +60,7 @@ export const styles = StyleSheet.create({
   },
 
   transactionTitle: {
-    fontSize: 13,
+    fontSize: typography.body.primary,
     fontWeight: '500',
     color: '#1f2937',
     marginBottom: 2,
@@ -67,7 +68,7 @@ export const styles = StyleSheet.create({
   },
 
   transactionDate: {
-    fontSize: 11,
+    fontSize: typography.body.secondary,
     color: '#6b7280',
   },
 
@@ -77,13 +78,13 @@ export const styles = StyleSheet.create({
   },
 
   transactionAmount: {
-    fontSize: 13,
+    fontSize: typography.body.primary,
     fontWeight: '600',
   },
 
 
   emptySubtext: {
-    fontSize: 13,
+    fontSize: typography.body.primary,
     color: '#9ca3af',
     textAlign: 'center',
   },
@@ -96,7 +97,7 @@ export const styles = StyleSheet.create({
   },
 
   loadingMoreText: {
-    fontSize: 13,
+    fontSize: typography.body.primary,
     color: '#6b7280',
     fontWeight: '500',
   },
@@ -107,7 +108,7 @@ export const styles = StyleSheet.create({
   },
 
   endOfListText: {
-    fontSize: 13,
+    fontSize: typography.body.primary,
     color: '#9ca3af',
     fontStyle: 'italic',
   },

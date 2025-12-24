@@ -1,5 +1,32 @@
 import { StyleSheet, Platform } from 'react-native';
 
+export const typography = {
+  appbar: {
+    title: 16,
+    titleBold: { fontSize: 16, fontWeight: 'bold' as const },
+    titleNormal: { fontSize: 16 },
+  },
+  body: {
+    primary: 13,
+    secondary: 11,
+    tertiary: 9,
+  },
+  heading: {
+    large: 18,
+    medium: 16,
+    small: 14,
+  },
+  label: {
+    large: 14,
+    medium: 13,
+    small: 12,
+  },
+  modal: {
+    title: 12,
+    text: 14,
+  },
+};
+
 export const commonStyles = StyleSheet.create({
   container: {
     flex: 1,
