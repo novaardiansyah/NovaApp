@@ -43,7 +43,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     payment_account_id: '',
     payment_account_to_id: '',
     has_items: false,
-    has_charge: false,
+    is_draft: false,
     is_scheduled: false,
   };
 
@@ -185,7 +185,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     }
   };
 
-  const handleToggleChange = (field: 'has_items' | 'has_charge' | 'is_scheduled', value: boolean) => {
+  const handleToggleChange = (field: 'has_items' | 'is_draft' | 'is_scheduled', value: boolean) => {
     if (field === 'has_items' && value) {
       setIsTransferOrWithdrawal(false)
 
@@ -244,7 +244,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
         payment_account_id: parseInt(formData.payment_account_id) || 1,
         payment_account_to_id,
         has_items: formData.has_items,
-        has_charge: formData.has_charge,
+        is_draft: formData.is_draft,
         is_scheduled: formData.is_scheduled,
       };
 
@@ -407,19 +407,19 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
                     color="#6366f1"
                   />
                 )}
-                style={styles.accordionItem}
+                style={styles.accordionItemFirst}
                 titleStyle={styles.accordionItemTitle}
                 descriptionStyle={styles.accordionItemDescription}
               />
 
               <List.Item
-                title="Memiliki Biaya"
-                description="Sudah dikenakan biaya"
-                left={props => <List.Icon {...props} icon="cash-plus" />}
+                title="Simpan sebagai draft"
+                description="Transaksi belum final"
+                left={props => <List.Icon {...props} icon="file-document-edit-outline" />}
                 right={() => (
                   <Switch
-                    value={formData.has_charge}
-                    onValueChange={(value) => handleToggleChange('has_charge', value)}
+                    value={formData.is_draft}
+                    onValueChange={(value) => handleToggleChange('is_draft', value)}
                     color="#6366f1"
                   />
                 )}

@@ -26,7 +26,7 @@ export interface PaymentData {
   payment_account_id: number;
   payment_account_to_id: number|null;
   has_items: boolean;
-  has_charge: boolean;
+  is_draft: boolean;
   is_scheduled: boolean;
 }
 

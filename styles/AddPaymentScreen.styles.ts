@@ -52,11 +52,23 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e5e7eb',
     fontSize: 13,
+    paddingVertical: 0,
+    paddingRight: 8,
   },
   accordionItem: {
     backgroundColor: '#f8fafc',
     paddingHorizontal: 0,
     paddingVertical: 4,
+    marginHorizontal: -8,
+    marginRight: -16,
+  },
+  accordionItemFirst: {
+    backgroundColor: '#f8fafc',
+    paddingHorizontal: 0,
+    paddingVertical: 4,
+    marginTop: 8,
+    marginHorizontal: -8,
+    marginRight: -16,
   },
   accordionTitle: {
     fontSize: 13,
