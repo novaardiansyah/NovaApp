@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#f9fafb',
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#111827',
   },
@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#f3f4f6',
   },
   resetText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
     color: '#6366f1',
   },
@@ -46,12 +46,13 @@ export const styles = StyleSheet.create({
   input: {
     backgroundColor: '#ffffff',
     marginBottom: 8,
+    fontSize: 14,
   },
   section: {
     paddingBottom: 12,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#111827',
     marginBottom: 8,
@@ -87,7 +88,7 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
   },
   inputValue: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
     color: '#111827',
   },
@@ -110,7 +111,7 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
   },
   dateText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
     color: '#111827',
   },
@@ -136,7 +137,7 @@ export const styles = StyleSheet.create({
   },
   optionText: {
     marginLeft: 8,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
     color: '#6b7280',
   },
@@ -171,7 +172,7 @@ export const styles = StyleSheet.create({
     elevation: 0,
   },
   applyButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#ffffff',
   },

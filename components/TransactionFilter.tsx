@@ -180,7 +180,7 @@ const TransactionFilter: React.FC<TransactionFilterProps> = ({
         <SafeAreaView style={styles.container}>
           <View style={styles.header}>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Ionicons name="close" size={24} color="#6b7280" />
+              <Ionicons name="close" size={20} color="#6b7280" />
             </TouchableOpacity>
             <Text style={styles.title}>Filter Transaksi</Text>
             <TouchableOpacity
@@ -203,7 +203,7 @@ const TransactionFilter: React.FC<TransactionFilterProps> = ({
                 <TextInput
                   label="Tanggal Mulai"
                   value={filters.dateFrom || ''}
-                  onChangeText={() => {}}
+                  onChangeText={() => { }}
                   mode="outlined"
                   outlineColor="#e5e7eb"
                   activeOutlineColor="#6366f1"
@@ -218,7 +218,7 @@ const TransactionFilter: React.FC<TransactionFilterProps> = ({
                 <TextInput
                   label="Tanggal Selesai"
                   value={filters.dateTo || ''}
-                  onChangeText={() => {}}
+                  onChangeText={() => { }}
                   mode="outlined"
                   outlineColor="#e5e7eb"
                   activeOutlineColor="#6366f1"
