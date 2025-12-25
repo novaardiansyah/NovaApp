@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native'
+import { typography } from './common.styles'
 
 export const styles = StyleSheet.create({
   fab: {
@@ -24,7 +25,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   overviewTitle: {
-    fontSize: 16,
+    fontSize: typography.heading.medium,
     fontWeight: '600',
     color: '#1f2937',
     marginBottom: 16,
@@ -44,12 +45,13 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: typography.label.small,
     color: '#6b7280',
     textAlign: 'center',
   },
   goalsList: {
     marginBottom: 24,
+    marginTop: 12,
   },
   goalCard: {
     backgroundColor: '#ffffff',
@@ -79,13 +81,13 @@ export const styles = StyleSheet.create({
     flexShrink: 1,
   },
   goalName: {
-    fontSize: 16,
+    fontSize: typography.heading.medium,
     fontWeight: '600',
     color: '#1f2937',
     marginBottom: 4,
   },
   goalDescription: {
-    fontSize: 14,
+    fontSize: typography.label.large,
     color: '#6b7280',
     marginBottom: 8,
   },
@@ -94,12 +96,12 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   goalDateText: {
-    fontSize: 12,
+    fontSize: typography.label.small,
     color: '#9ca3af',
     marginLeft: 4,
   },
   goalAmount: {
-    fontSize: 14,
+    fontSize: typography.label.large,
     fontWeight: '700',
     color: '#6366f1',
     textAlign: 'right',
@@ -115,12 +117,12 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   progressText: {
-    fontSize: 14,
+    fontSize: typography.label.large,
     fontWeight: '500',
     color: '#1f2937',
   },
   progressPercentage: {
-    fontSize: 14,
+    fontSize: typography.label.large,
     fontWeight: '600',
     color: '#6366f1',
   },
@@ -160,7 +162,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#ef4444',
   },
   statusText: {
-    fontSize: 12,
+    fontSize: typography.label.small,
     fontWeight: '500',
   },
   actionButton: {
@@ -170,20 +172,20 @@ export const styles = StyleSheet.create({
     borderRadius: 6,
   },
   actionButtonText: {
-    fontSize: 12,
+    fontSize: typography.label.small,
     fontWeight: '500',
     color: '#6366f1',
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: typography.heading.large,
     fontWeight: '600',
     color: '#1f2937',
     marginBottom: 12,
   },
-    loadingText: {
+  loadingText: {
     textAlign: 'center',
     color: '#6b7280',
-    fontSize: 14,
+    fontSize: typography.label.large,
     paddingVertical: 20,
   },
 })

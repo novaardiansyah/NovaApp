@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity, Modal, StyleSheet } from 'react-native';
+import { View, ScrollView, Text, RefreshControl, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Card, FAB } from 'react-native-paper';
+import { PaperProvider, Card, FAB, Appbar } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { commonStyles, getScrollContainerStyle, statusBarConfig } from '@/styles';
+import { commonStyles, getScrollContainerStyle, typography } from '@/styles';
 import { styles } from '@/styles/GoalsScreen.styles';
 import PaymentGoalsService, { PaymentGoalsOverview, PaymentGoal } from '@/services/paymentGoalsService';
 import { GoalsScreenSkeleton } from '@/components/skeleton';
@@ -158,10 +158,12 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
 
   return (
     <PaperProvider theme={Theme}>
-      <SafeAreaView style={commonStyles.container} edges={['top', 'left', 'right']}>
-        <StatusBar {...statusBarConfig} />
+      <View style={commonStyles.container}>
+        <Appbar.Header>
+          <Appbar.Content title="Tujuan Keuangan" titleStyle={typography.appbar.titleBold} />
+        </Appbar.Header>
         <ScrollView
-          contentContainerStyle={getScrollContainerStyle(insets)}
+          contentContainerStyle={[getScrollContainerStyle(insets), { paddingTop: 0 }]}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -171,11 +173,6 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
             />
           }
         >
-          {/* Header */}
-          <View style={commonStyles.header}>
-            <Ionicons name="diamond" size={24} color="#6366f1" style={commonStyles.headerIcon} />
-            <Text style={commonStyles.headerTitle}>Tujuan Keuangan</Text>
-          </View>
 
           {/* Goals List */}
           <View style={styles.goalsList}>
@@ -291,7 +288,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
             />
 
             <View style={actionStyles.actionSheet}>
-              <Text style={actionStyles.actionSheetTitle}>Tujuan Actions</Text>
+              <Text style={actionStyles.actionSheetTitle}>Aksi Tujuan</Text>
 
               <View style={actionStyles.actionSheetContent}>
                 <TouchableOpacity
@@ -327,7 +324,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
           type="success"
           duration={2000}
         />
-      </SafeAreaView>
+      </View>
     </PaperProvider>
   );
 };
@@ -354,7 +351,7 @@ const actionStyles = StyleSheet.create({
     textAlign: 'center',
     padding: 16,
     color: '#6b7280',
-    fontSize: 13,
+    fontSize: typography.body.primary,
   },
 
   actionSheetContent: {
@@ -376,7 +373,7 @@ const actionStyles = StyleSheet.create({
   },
 
   actionText: {
-    fontSize: 16,
+    fontSize: typography.label.large,
     fontWeight: '500',
     color: '#111827',
   },
@@ -393,7 +390,7 @@ const actionStyles = StyleSheet.create({
   },
 
   cancelButtonText: {
-    fontSize: 16,
+    fontSize: typography.label.large,
     fontWeight: '600',
     color: '#6366f1',
   },
