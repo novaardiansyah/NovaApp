@@ -407,10 +407,10 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
               </View>
 
               <TouchableOpacity
-                style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 12, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
+                style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 10, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
                 onPress={closeActionSheet}
               >
-                <Text style={{ fontSize: 16, fontWeight: '600', color: '#6366f1' }}>Batal</Text>
+                <Text style={{ fontSize: typography.label.large, fontWeight: '600', color: '#6366f1' }}>Batal</Text>
               </TouchableOpacity>
             </View>
           </SafeAreaView>
@@ -431,33 +431,33 @@ const ViewPaymentItemsScreen: React.FC<ViewPaymentItemsScreenProps> = ({ navigat
             />
 
             <View style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 }}>
-              <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
+              <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: typography.modal.title }}>
                 Aksi Transaksi
               </Text>
 
               <View style={{ paddingHorizontal: 20 }}>
                 <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                   onPress={() => handleFabActionSelect('view_attachment')}
                 >
-                  <Ionicons name="attach-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
-                  <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Lihat Lampiran</Text>
+                  <Ionicons name="attach-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
+                  <Text style={{ fontSize: typography.label.large, fontWeight: '500', color: '#111827' }}>Lihat Lampiran</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
                   onPress={() => handleFabActionSelect('add_item')}
                 >
-                  <Ionicons name="add-circle-outline" size={24} color="#6366f1" style={{ marginRight: 16 }} />
-                  <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>Tambah Item</Text>
+                  <Ionicons name="add-circle-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
+                  <Text style={{ fontSize: typography.label.large, fontWeight: '500', color: '#111827' }}>Tambah Item</Text>
                 </TouchableOpacity>
               </View>
 
               <TouchableOpacity
-                style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 12, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
+                style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 10, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
                 onPress={closeFabActionSheet}
               >
-                <Text style={{ fontSize: 16, fontWeight: '600', color: '#6366f1' }}>Batal</Text>
+                <Text style={{ fontSize: typography.label.large, fontWeight: '600', color: '#6366f1' }}>Batal</Text>
               </TouchableOpacity>
             </View>
           </SafeAreaView>

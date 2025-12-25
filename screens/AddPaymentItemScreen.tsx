@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { View, ScrollView, Text, KeyboardAvoidingView, Platform, Alert, RefreshControl, Modal, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Card, TextInput, Button } from 'react-native-paper';
+import { PaperProvider, Card, TextInput, Button, Appbar } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { FormButton, Notification, SearchResultsSkeleton } from '@/components';
-import { commonStyles } from '@/styles';
+import { commonStyles, typography } from '@/styles';
 import { styles } from '@/styles/AddPaymentItemScreen.styles';
 import { useAuth } from '@/contexts/AuthContext';
 import paymentService, { SearchItem, AttachMultipleItemsData } from '@/services/paymentService';
@@ -259,21 +259,14 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
 
   return (
     <PaperProvider theme={Theme}>
-      <SafeAreaView style={commonStyles.container} edges={['top', 'left', 'right']}>
+      <View style={commonStyles.container}>
+        <Appbar.Header>
+          <Appbar.BackAction onPress={() => navigation?.navigate('TransactionsMain', { refresh: Date.now() })} />
+          <Appbar.Content title="Tambah produk / layanan" titleStyle={typography.appbar.titleNormal} />
+          <Appbar.Action icon="magnify" onPress={() => setShowSearchModal(true)} />
+        </Appbar.Header>
+
         <View style={styles.container}>
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.headerLeft}>
-              <Ionicons name="document-text-outline" size={24} color="#6366f1" style={styles.headerIcon} />
-              <Text style={styles.headerTitle}>Tambah produk / layanan</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.searchButton}
-              onPress={() => setShowSearchModal(true)}
-            >
-              <Ionicons name="search" size={20} color="#6366f1" />
-            </TouchableOpacity>
-          </View>
 
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -380,8 +373,8 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                 title="Simpan"
                 onPress={savePaymentItems}
                 loading={loading}
-                icon="cash-plus"
-                style={styles.saveButton}
+                icon="content-save"
+                style={styles.addButton}
               />
 
               <FormButton
@@ -396,7 +389,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
             </ScrollView>
           </KeyboardAvoidingView>
         </View>
-      </SafeAreaView>
+      </View>
 
       {/* Search Modal */}
       <Modal

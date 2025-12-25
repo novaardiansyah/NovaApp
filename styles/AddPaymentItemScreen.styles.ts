@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { typography } from './common.styles';
 
 export const styles = StyleSheet.create({
   container: {
@@ -16,14 +17,13 @@ export const styles = StyleSheet.create({
 
   scrollContent: {
     padding: 16,
-    // paddingBottom: 70,
   },
 
   description: {
-    fontSize: 16,
+    fontSize: typography.label.large,
     color: '#6b7280',
     marginBottom: 12,
-    lineHeight: 24,
+    lineHeight: 22,
   },
 
   header: {
@@ -41,7 +41,7 @@ export const styles = StyleSheet.create({
   },
 
   headerTitle: {
-    fontSize: 18,
+    fontSize: typography.heading.medium,
     fontWeight: '600',
     color: '#1f2937',
   },
@@ -73,7 +73,7 @@ export const styles = StyleSheet.create({
   },
 
   itemNumber: {
-    fontSize: 12,
+    fontSize: typography.label.small,
     fontWeight: '600',
     color: '#374151',
   },
@@ -81,6 +81,7 @@ export const styles = StyleSheet.create({
   input: {
     backgroundColor: '#ffffff',
     marginBottom: 12,
+    fontSize: typography.label.large,
   },
 
   addItemButton: {
@@ -92,6 +93,7 @@ export const styles = StyleSheet.create({
   addItemButtonText: {
     color: '#6366f1',
     fontWeight: '500',
+    fontSize: typography.label.large,
   },
 
   totalCard: {
@@ -114,20 +116,19 @@ export const styles = StyleSheet.create({
   },
 
   totalLabel: {
-    fontSize: 16,
+    fontSize: typography.label.large,
     fontWeight: '600',
     color: '#374151',
   },
 
   totalAmount: {
-    fontSize: 18,
+    fontSize: typography.heading.medium,
     fontWeight: '700',
     color: '#6366f1',
   },
 
-  saveButton: {
+  addButton: {
     marginTop: 20,
-    borderRadius: 8,
   },
 
   cancelButton: {
@@ -194,7 +195,7 @@ export const styles = StyleSheet.create({
 
   loadingText: {
     marginTop: 12,
-    fontSize: 16,
+    fontSize: typography.label.large,
     color: '#6b7280',
   },
 
@@ -212,7 +213,6 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    // Ensure clean borders
     borderWidth: 0,
   },
 
@@ -228,7 +228,7 @@ export const styles = StyleSheet.create({
   },
 
   searchResultName: {
-    fontSize: 14,
+    fontSize: typography.body.primary,
     fontWeight: '600',
     color: '#1f2937',
     flex: 1,
@@ -243,7 +243,7 @@ export const styles = StyleSheet.create({
   },
 
   searchResultCode: {
-    fontSize: 11,
+    fontSize: typography.body.secondary,
     color: '#6b7280',
     fontStyle: 'italic',
     backgroundColor: '#f9fafb',
@@ -253,7 +253,7 @@ export const styles = StyleSheet.create({
   },
 
   searchResultPrice: {
-    fontSize: 14,
+    fontSize: typography.body.primary,
     fontWeight: '700',
     color: '#059669',
   },
@@ -269,7 +269,7 @@ export const styles = StyleSheet.create({
   },
 
   searchResultTypeText: {
-    fontSize: 10,
+    fontSize: typography.body.tertiary,
     fontWeight: '600',
     color: '#4338ca',
     textTransform: 'uppercase',
@@ -292,7 +292,7 @@ export const styles = StyleSheet.create({
   },
 
   emptyText: {
-    fontSize: 18,
+    fontSize: typography.heading.medium,
     fontWeight: '500',
     color: '#374151',
     marginTop: 16,
@@ -300,13 +300,12 @@ export const styles = StyleSheet.create({
   },
 
   emptySubtext: {
-    fontSize: 14,
+    fontSize: typography.label.large,
     color: '#6b7280',
     textAlign: 'center',
     lineHeight: 20,
   },
 
-  // Search Button Container
   searchButtonContainer: {
     padding: 16,
     backgroundColor: '#ffffff',
@@ -318,7 +317,6 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
   },
 
-  // Search Results Header
   searchResultsHeader: {
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -328,12 +326,11 @@ export const styles = StyleSheet.create({
   },
 
   searchResultsText: {
-    fontSize: 14,
+    fontSize: typography.label.large,
     color: '#6b7280',
     fontWeight: '500',
   },
 
-  // Searched Item Indicator
   itemHeaderLeft: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -351,30 +348,25 @@ export const styles = StyleSheet.create({
   },
 
   searchedText: {
-    fontSize: 9,
+    fontSize: typography.body.tertiary,
     fontWeight: '600',
     color: '#6d28d9',
     textTransform: 'uppercase',
   },
 
-  
   searchResultItemDisabled: {
     opacity: 0.8,
     backgroundColor: '#f3f4f6',
   },
 
   addedIcon: {
-    // Remove absolute positioning to prevent shadow artifacts
-    // Icon is now positioned within the searchResultActions container
   },
 
-  // Selection styles
   searchResultItemSelected: {
     backgroundColor: '#f0f9ff',
     borderColor: '#3b82f6',
     borderWidth: 2,
-    borderRadius: 12, // Explicitly match base borderRadius
-    // Use higher elevation but no colored shadow to prevent artifacts
+    borderRadius: 12,
     elevation: 4,
   },
 
@@ -389,10 +381,8 @@ export const styles = StyleSheet.create({
   },
 
   selectedIcon: {
-    // Remove marginLeft since icon is now positioned at top right
   },
 
-  // Add Selected Items Button Container
   addSelectedItemsContainer: {
     position: 'absolute',
     bottom: 0,
@@ -402,7 +392,7 @@ export const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#f3f4f6',
     padding: 16,
-    paddingBottom: 48, // Extra padding to avoid Android navigation bar
+    paddingBottom: 48,
   },
 
   addSelectedItemsButton: {
@@ -411,7 +401,7 @@ export const styles = StyleSheet.create({
   },
 
   addSelectedItemsButtonText: {
-    fontSize: 16,
+    fontSize: typography.label.large,
     fontWeight: '600',
   },
 });

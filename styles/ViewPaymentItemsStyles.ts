@@ -259,7 +259,7 @@ export const paymentItemsStyles = StyleSheet.create({
     textAlign: 'center',
     padding: 16,
     color: '#6b7280',
-    fontSize: typography.body.primary,
+    fontSize: typography.modal.title,
   },
 
   actionSheetContent: {
@@ -269,7 +269,7 @@ export const paymentItemsStyles = StyleSheet.create({
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 12,
     backgroundColor: '#f9fafb',
@@ -281,7 +281,7 @@ export const paymentItemsStyles = StyleSheet.create({
   },
 
   actionText: {
-    fontSize: 16,
+    fontSize: typography.label.large,
     fontWeight: '500',
     color: '#111827',
   },
