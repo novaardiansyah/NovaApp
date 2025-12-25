@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { typography } from './common.styles';
 
 export const styles = StyleSheet.create({
   container: {
@@ -12,7 +13,6 @@ export const styles = StyleSheet.create({
     minHeight: '100%',
   },
 
-  // Welcome Section
   welcomeSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
     marginBottom: 24,
   },
   welcomeText: {
-    fontSize: 16,
+    fontSize: typography.heading.medium,
     color: '#6b7280',
     marginBottom: 4,
   },
@@ -33,9 +33,8 @@ export const styles = StyleSheet.create({
     backgroundColor: '#6366f1',
   },
 
-  // Balance Card
   balanceCard: {
-    marginBottom: 24,
+    marginBottom: 32,
     borderRadius: 16,
     backgroundColor: 'transparent',
     shadowColor: '#000',
@@ -55,7 +54,7 @@ export const styles = StyleSheet.create({
     padding: 16,
   },
   balanceLabel: {
-    fontSize: 14,
+    fontSize: typography.label.large,
     color: '#ffffff',
     marginBottom: 8,
   },
@@ -77,19 +76,19 @@ export const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   incomeText: {
-    fontSize: 16,
+    fontSize: typography.heading.medium,
     fontWeight: '600',
     color: '#d1fae5',
     marginBottom: 4,
   },
   expenseText: {
-    fontSize: 16,
+    fontSize: typography.heading.medium,
     fontWeight: '600',
     color: '#fee2e2',
     marginBottom: 4,
   },
   balanceItemLabel: {
-    fontSize: 12,
+    fontSize: typography.label.small,
     color: '#9ca3af',
   },
 
@@ -98,7 +97,7 @@ export const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: typography.heading.large,
     fontWeight: '600',
     color: '#1f2937',
     marginBottom: 16,
@@ -118,13 +117,13 @@ export const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   actionText: {
-    fontSize: 14,
+    fontSize: typography.label.large,
     fontWeight: '500',
     color: '#1f2937',
     marginTop: 8,
   },
 
-  
+
   // Loading & Empty States
   loginButton: {
     marginTop: 16,
@@ -133,7 +132,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     padding: 20,
     color: '#6b7280',
-    fontSize: 14,
+    fontSize: typography.label.large,
   },
   });
 

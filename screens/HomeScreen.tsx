@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import TransactionService from '@/services/transactionService';
 import { styles as homeStyles } from '@/styles/HomeScreen.styles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
+import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig, typography } from '@/styles';
 
 interface HomeScreenProps {
   navigation: any;
@@ -144,22 +144,22 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
                 style={homeStyles.gradientBackground}
               >
                 <Card.Content style={homeStyles.balanceCardContent}>
-                  <Text style={homeStyles.balanceLabel}>Total Saldo Tersisa</Text>
+                  <Text style={[homeStyles.balanceLabel, { fontSize: typography.label.large }]}>Total Saldo Tersisa</Text>
                   <Text style={homeStyles.balanceAmount}>
                     {formatCurrency(financialData.total_after_scheduled)}
                   </Text>
                   <View style={homeStyles.balanceRow}>
                     <View style={homeStyles.balanceItem}>
-                      <Text style={homeStyles.incomeText}>
+                      <Text style={[homeStyles.incomeText, { fontSize: typography.heading.medium }]}>
                         {formatCurrency(financialData.income)}
                       </Text>
-                      <Text style={homeStyles.balanceItemLabel}>Pemasukan</Text>
+                      <Text style={[homeStyles.balanceItemLabel, { fontSize: typography.label.small }]}>Pemasukan</Text>
                     </View>
                     <View style={homeStyles.balanceItemRight}>
-                      <Text style={homeStyles.expenseText}>
+                      <Text style={[homeStyles.expenseText, { fontSize: typography.heading.medium }]}>
                         {formatCurrency(financialData.expenses)}
                       </Text>
-                      <Text style={homeStyles.balanceItemLabel}>Pengeluaran</Text>
+                      <Text style={[homeStyles.balanceItemLabel, { fontSize: typography.label.small }]}>Pengeluaran</Text>
                     </View>
                   </View>
                 </Card.Content>

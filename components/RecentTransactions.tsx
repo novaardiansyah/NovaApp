@@ -7,6 +7,7 @@ import EmptyTransactionsCard from './EmptyTransactionsCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { getTransactionColor, getTransactionIcon } from '@/utils/transactionUtils';
 import transactionService from '@/services/transactionService';
+import { typography } from '@/styles';
 
 interface RecentTransactionsProps {
   limit?: number;
@@ -214,12 +215,12 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: typography.heading.large,
     fontWeight: '600',
     color: '#1f2937',
   },
   seeAllText: {
-    fontSize: 14,
+    fontSize: typography.label.large,
     color: '#6366f1',
     fontWeight: '500',
   },
@@ -267,13 +268,13 @@ const styles = StyleSheet.create({
     maxWidth: '60%',
   },
   transactionName: {
-    fontSize: 14,
+    fontSize: typography.body.primary,
     fontWeight: '500',
     color: '#1f2937',
     marginBottom: 4,
   },
   transactionDate: {
-    fontSize: 12,
+    fontSize: typography.body.secondary,
     color: '#6b7280',
   },
   transactionRight: {
@@ -294,7 +295,7 @@ const styles = StyleSheet.create({
   transactionScheduledIcon: {
   },
   transactionAmount: {
-    fontSize: 14,
+    fontSize: typography.body.primary,
     fontWeight: '600',
   },
   transactionDivider: {
