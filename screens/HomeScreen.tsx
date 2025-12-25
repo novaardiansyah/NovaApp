@@ -126,7 +126,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
           <View style={commonStyles.welcomeSection}>
             <View>
               <Text style={commonStyles.welcomeText}>Selamat datang kembali,</Text>
-              <Text style={commonStyles.userName}>{user?.name || 'Pengguna'}</Text>
+              <Text style={[commonStyles.userName, { marginBottom: 0 }]}>{user?.name || 'Pengguna'}</Text>
             </View>
             {user?.avatar_url ? (
               <Avatar.Image size={48} source={{ uri: user.avatar_url }} style={commonStyles.avatar} />

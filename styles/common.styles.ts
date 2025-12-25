@@ -98,6 +98,7 @@ export const commonStyles = StyleSheet.create({
     backgroundColor: '#4338ca',
     borderRadius: 16,
     marginBottom: 24,
+    marginTop: 12
   },
 
   totalBalanceContent: {
