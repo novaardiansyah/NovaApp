@@ -169,12 +169,12 @@ export const commonStyles = StyleSheet.create({
     color: '#6b7280',
   },
 
-  // Welcome section styles
   welcomeSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,
+    marginTop: 12
   },
 
   welcomeText: {

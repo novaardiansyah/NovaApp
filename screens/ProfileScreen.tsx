@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Alert, Linking, Text, Image, StatusBar } from 'react-native';
+import { View, ScrollView, Alert, Linking, Text, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Button, List, Avatar, Switch, ActivityIndicator } from 'react-native-paper';
 import Constants from 'expo-constants';
 import * as WebBrowser from 'expo-web-browser';
 import * as Updates from 'expo-updates';
 import { Theme } from '@/constants/colors';
-import { AppCopyright } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getScrollContainerStyle, statusBarConfig } from '@/styles';
+import { getScrollContainerStyle, typography } from '@/styles';
+import { styles } from '@/styles/ProfileScreen.styles';
 
 interface ProfileScreenProps {
   navigation: any;
@@ -154,11 +154,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
   return (
     <PaperProvider theme={Theme}>
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-        <StatusBar {...statusBarConfig} />
+      <View style={styles.container}>
         <ScrollView
           contentContainerStyle={getScrollContainerStyle(insets)}>
-          {/* Profile Info */}
           <View style={styles.profileSection}>
             {user?.avatar_url ? (
               <Image
@@ -175,21 +173,24 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             </View>
           </View>
 
-          {/* Settings */}
           <View style={styles.settingsSection}>
             <List.Section>
-              <List.Subheader>Informasi Akun</List.Subheader>
+              <List.Subheader style={styles.listSubheader}>Informasi Akun</List.Subheader>
 
               <List.Item
                 title="Edit Profil"
+                titleStyle={styles.listItemTitle}
                 description="Perbarui informasi profil Anda"
+                descriptionStyle={styles.listItemDescription}
                 left={props => <List.Icon {...props} icon="account-edit" />}
                 onPress={() => navigation.navigate('UpdateProfile')}
               />
 
               <List.Item
                 title="Ganti Kata Sandi"
+                titleStyle={styles.listItemTitle}
                 description="Perubah kata sandi akun Anda"
+                descriptionStyle={styles.listItemDescription}
                 left={props => <List.Icon {...props} icon="lock-reset" />}
                 onPress={() => navigation.navigate('ChangePassword')}
               />
@@ -198,11 +199,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             <View style={styles.divider} />
 
             <List.Section>
-              <List.Subheader>Pengaturan Umum</List.Subheader>
+              <List.Subheader style={styles.listSubheader}>Pengaturan Umum</List.Subheader>
 
               <List.Item
                 title="Terima Notifikasi"
+                titleStyle={styles.listItemTitle}
                 description="Notifikasi aplikasi Anda"
+                descriptionStyle={styles.listItemDescription}
                 left={props => <List.Icon {...props} icon="bell" />}
                 right={() => (
                   <Switch
@@ -215,7 +218,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
               <List.Item
                 title="Bahasa"
+                titleStyle={styles.listItemTitle}
                 description="Indonesia"
+                descriptionStyle={styles.listItemDescription}
                 left={props => <List.Icon {...props} icon="translate" />}
                 onPress={() => { }}
               />
@@ -224,25 +229,31 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             <View style={styles.divider} />
 
             <List.Section>
-              <List.Subheader>Tentang Aplikasi</List.Subheader>
+              <List.Subheader style={styles.listSubheader}>Tentang Aplikasi</List.Subheader>
 
               <List.Item
                 title="Kebijakan Privasi"
+                titleStyle={styles.listItemTitle}
                 description="Lihat kebijakan privasi kami"
+                descriptionStyle={styles.listItemDescription}
                 left={props => <List.Icon {...props} icon="shield-account" />}
                 onPress={handlePrivacyPolicy}
               />
 
               <List.Item
                 title="Syarat dan Ketentuan"
+                titleStyle={styles.listItemTitle}
                 description="Lihat syarat dan ketentuan kami"
+                descriptionStyle={styles.listItemDescription}
                 left={props => <List.Icon {...props} icon="file-document" />}
                 onPress={handleTermsOfService}
               />
 
               <List.Item
                 title="Periksa Pembaruan"
+                titleStyle={styles.listItemTitle}
                 description="Periksa pembaruan konten terbaru"
+                descriptionStyle={styles.listItemDescription}
                 left={props => <List.Icon {...props} icon="update" />}
                 right={() => isCheckingUpdate ? (
                   <ActivityIndicator size="small" color="#6366f1" style={{ marginRight: 8 }} />
@@ -253,98 +264,36 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
               <List.Item
                 title="Versi Aplikasi"
+                titleStyle={styles.listItemTitle}
                 description={Constants.expoConfig?.version || '-'}
+                descriptionStyle={styles.listItemDescription}
                 left={props => <List.Icon {...props} icon="information" />}
+              />
+
+              <List.Item
+                title="Hak Cipta"
+                titleStyle={styles.listItemTitle}
+                description={`© ${new Date().getFullYear()} Nova Ardiansyah`}
+                descriptionStyle={styles.listItemDescription}
+                left={props => <List.Icon {...props} icon="copyright" />}
               />
             </List.Section>
           </View>
 
-          {/* Logout Button */}
-          <View style={styles.logoutSection}>
-            <Button
-              mode="contained"
-              icon="logout"
-              onPress={handleLogout}
-              style={styles.logoutButton}
-              buttonColor="#ef4444"
-              labelStyle={styles.logoutButtonLabel}
-            >
-              Keluar
-            </Button>
-          </View>
-
-          <AppCopyright />
+          <Button
+            mode="contained"
+            icon="logout"
+            onPress={handleLogout}
+            style={styles.logoutButton}
+            buttonColor="#ef4444"
+            labelStyle={styles.logoutButtonLabel}
+          >
+            Keluar
+          </Button>
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </PaperProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9fafb',
-  },
-  profileSection: {
-    padding: 32,
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    marginBottom: 16,
-  },
-  avatarImage: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    marginBottom: 16,
-  },
-  avatar: {
-    backgroundColor: '#6366f1',
-    marginBottom: 16,
-  },
-  profileInfo: {
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  userName: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1f2937',
-    marginBottom: 4,
-  },
-  userEmail: {
-    fontSize: 16,
-    color: '#6b7280',
-    marginBottom: 2,
-  },
-  userId: {
-    fontSize: 14,
-    color: '#9ca3af',
-    fontWeight: '500',
-  },
-  settingsSection: {
-    paddingVertical: 8,
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    marginBottom: 16,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#e5e7eb',
-    marginVertical: 8,
-  },
-  logoutSection: {
-    padding: 24,
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    marginBottom: 16,
-  },
-  logoutButton: {
-    marginBottom: 8,
-  },
-  logoutButtonLabel: {
-    color: '#ffffff',
-  },
-});
 
 export default ProfileScreen;
