@@ -16,9 +16,9 @@
       "buildNumber": "1.0.1",
       "bundleIdentifier": "com.novaardiansyah.NovaApp"
     },
-    "version": "2.8.5",
+    "version": "2.8.6",
     "android": {
-      "versionCode": 30,
+      "versionCode": 31,
       "runtimeVersion": {
         "policy": "appVersion"
       },
