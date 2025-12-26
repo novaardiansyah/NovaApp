@@ -193,8 +193,106 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     margin: 16,
     right: 0,
-    bottom: 0,
+    bottom: -6,
     backgroundColor: '#6366f1',
     borderRadius: 30,
+  },
+
+  searchBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+
+  searchIconButton: {
+    marginRight: 12,
+  },
+
+  searchInput: {
+    flex: 1,
+    fontSize: typography.body.primary,
+    color: '#111827',
+    paddingVertical: 8,
+  },
+
+  searchClearButton: {
+    padding: 2,
+    marginLeft: 4,
+  },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+
+  modalBackdrop: {
+    flex: 1,
+  },
+
+  modalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 20,
+  },
+
+  modalTitle: {
+    textAlign: 'center',
+    padding: 16,
+    color: '#6b7280',
+    fontSize: typography.body.secondary,
+  },
+
+  modalActionsContainer: {
+    paddingHorizontal: 20,
+  },
+
+  modalActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: '#f9fafb',
+    marginBottom: 8,
+  },
+
+  modalActionIcon: {
+    marginRight: 16,
+  },
+
+  modalActionText: {
+    fontSize: typography.body.primary,
+    fontWeight: '500',
+    color: '#111827',
+  },
+
+  modalCancelButton: {
+    marginHorizontal: 20,
+    marginTop: 8,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#6366f1',
+    alignItems: 'center',
+  },
+
+  modalCancelText: {
+    fontSize: typography.body.primary,
+    fontWeight: '600',
+    color: '#6366f1',
   },
 });

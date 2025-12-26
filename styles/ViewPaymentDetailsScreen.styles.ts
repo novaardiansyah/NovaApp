@@ -204,7 +204,7 @@ export const styles = StyleSheet.create({
     marginRight: 16,
   },
   modalActionText: {
-    fontSize: typography.label.large,
+    fontSize: typography.body.primary,
     fontWeight: '500',
     color: '#111827',
   },
@@ -219,7 +219,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalCancelText: {
-    fontSize: typography.label.large,
+    fontSize: typography.body.primary,
     fontWeight: '600',
     color: '#6366f1',
   },

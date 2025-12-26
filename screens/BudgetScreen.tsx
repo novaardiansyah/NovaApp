@@ -236,14 +236,14 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
             />
 
             <View style={styles.actionSheet}>
-              <Text style={styles.actionSheetTitle}>Aksi Akun</Text>
+              <Text style={styles.actionSheetTitle}>Aksi Kelola Akun</Text>
 
               <View style={styles.actionSheetContent}>
                 <TouchableOpacity
                   style={styles.actionButton}
                   onPress={() => handleActionSelect('audit')}
                 >
-                  <Ionicons name="resize-outline" size={24} color="#ef4444" style={styles.actionIcon} />
+                  <Ionicons name="resize-outline" size={20} color="#6366f1" style={styles.actionIcon} />
                   <Text style={styles.actionText}>Audit Saldo</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -253,8 +253,8 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
                 >
                   <Ionicons
                     name="trash-outline"
-                    size={24}
-                    color="#ef4444"
+                    size={20}
+                    color="#6366f1"
                     style={styles.actionIcon}
                   />
                   <Text style={styles.actionText}>

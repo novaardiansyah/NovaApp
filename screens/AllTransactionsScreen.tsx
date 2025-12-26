@@ -164,7 +164,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
           to: Math.max(0, prev.to - 1)
         } : null)
 
-        setNotification('Pembayaran berhasil dihapus!')
+        setNotification('Transaksi telah berhasil dihapus!')
       },
       setDeleting,
     })
@@ -356,32 +356,12 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
         >
           {/* Expandable Search Bar */}
           {searchVisible && (
-            <View style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: '#ffffff',
-              borderRadius: 12,
-              paddingHorizontal: 16,
-              paddingVertical: 8,
-              marginBottom: 16,
-              borderWidth: 1,
-              borderColor: '#e5e7eb',
-              elevation: 2,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.1,
-              shadowRadius: 2,
-            }}>
-              <TouchableOpacity onPress={handleSearch} style={{ marginRight: 12 }}>
+            <View style={styles.searchBarContainer}>
+              <TouchableOpacity onPress={handleSearch} style={styles.searchIconButton}>
                 <Ionicons name="search" size={18} color={searchQuery.trim() ? '#6366f1' : '#6b7280'} />
               </TouchableOpacity>
               <TextInput
-                style={{
-                  flex: 1,
-                  fontSize: 13,
-                  color: '#111827',
-                  paddingVertical: 8,
-                }}
+                style={styles.searchInput}
                 placeholder="Cari transaksi..."
                 placeholderTextColor="#9ca3af"
                 value={searchQuery}
@@ -391,7 +371,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
                 autoFocus
               />
               {searchQuery.trim() !== '' && (
-                <TouchableOpacity onPress={handleClearSearch} style={{ padding: 2, marginLeft: 4 }}>
+                <TouchableOpacity onPress={handleClearSearch} style={styles.searchClearButton}>
                   <Ionicons name="close-circle" size={18} color="#9ca3af" />
                 </TouchableOpacity>
               )}
@@ -514,78 +494,78 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
         animationType="slide"
         onRequestClose={closeActionSheet}
       >
-        <SafeAreaView style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+        <SafeAreaView style={styles.modalOverlay}>
           <TouchableOpacity
-            style={{ flex: 1 }}
+            style={styles.modalBackdrop}
             activeOpacity={1}
             onPress={closeActionSheet}
           />
 
-          <View style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 }}>
-            <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 12 }}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
               Kelola Transaksi
             </Text>
 
-            <View style={{ paddingHorizontal: 20 }}>
+            <View style={styles.modalActionsContainer}>
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                style={styles.modalActionButton}
                 onPress={() => handleActionSelect('view_details')}
               >
-                <Ionicons name="eye-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>Lihat Detail</Text>
+                <Ionicons name="eye-outline" size={20} color="#6366f1" style={styles.modalActionIcon} />
+                <Text style={styles.modalActionText}>Lihat Detail</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                style={styles.modalActionButton}
                 onPress={() => handleActionSelect('edit_payment')}
               >
-                <Ionicons name="create-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>Edit Pembayaran</Text>
+                <Ionicons name="create-outline" size={20} color="#6366f1" style={styles.modalActionIcon} />
+                <Text style={styles.modalActionText}>Edit Transaksi</Text>
               </TouchableOpacity>
 
 
               {selectedTransaction?.has_items && (
                 <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                  style={styles.modalActionButton}
                   onPress={() => handleActionSelect('view_items')}
                 >
-                  <Ionicons name="list-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
-                  <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>Lihat Item</Text>
+                  <Ionicons name="list-outline" size={20} color="#6366f1" style={styles.modalActionIcon} />
+                  <Text style={styles.modalActionText}>Lihat Item</Text>
                 </TouchableOpacity>
               )}
 
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                style={styles.modalActionButton}
                 onPress={() => handleActionSelect('view_attachment')}
               >
-                <Ionicons name="attach-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>Lihat Lampiran</Text>
+                <Ionicons name="attach-outline" size={20} color="#6366f1" style={styles.modalActionIcon} />
+                <Text style={styles.modalActionText}>Lihat Lampiran</Text>
               </TouchableOpacity>
 
               {selectedTransaction?.is_draft && (
                 <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                  style={styles.modalActionButton}
                   onPress={openDraftActionSheet}
                 >
-                  <Ionicons name="document-text-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
-                  <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>Kelola Draft</Text>
+                  <Ionicons name="document-text-outline" size={20} color="#6366f1" style={styles.modalActionIcon} />
+                  <Text style={styles.modalActionText}>Kelola Draft</Text>
                 </TouchableOpacity>
               )}
 
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                style={styles.modalActionButton}
                 onPress={() => handleActionSelect('delete_payment')}
               >
-                <Ionicons name="trash-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>Hapus Pembayaran</Text>
+                <Ionicons name="trash-outline" size={20} color="#6366f1" style={styles.modalActionIcon} />
+                <Text style={styles.modalActionText}>Hapus Transaksi</Text>
               </TouchableOpacity>
             </View>
 
             <TouchableOpacity
-              style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 10, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
+              style={styles.modalCancelButton}
               onPress={closeActionSheet}
             >
-              <Text style={{ fontSize: 14, fontWeight: '600', color: '#6366f1' }}>Batal</Text>
+              <Text style={styles.modalCancelText}>Batal</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -594,9 +574,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
       <FAB
         icon="plus"
         color="#ffffff"
-        style={[styles.fab, {
-          bottom: -6
-        }]}
+        style={styles.fab}
         onPress={() => navigation.navigate('AddPayment')}
       />
 
@@ -606,44 +584,44 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
         animationType="slide"
         onRequestClose={closeDraftActionSheet}
       >
-        <SafeAreaView style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+        <SafeAreaView style={styles.modalOverlay}>
           <TouchableOpacity
-            style={{ flex: 1 }}
+            style={styles.modalBackdrop}
             activeOpacity={1}
             onPress={closeDraftActionSheet}
           />
 
-          <View style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 }}>
-            <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 12 }}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
               Kelola Draft Transaksi
             </Text>
 
-            <View style={{ paddingHorizontal: 20 }}>
+            <View style={styles.modalActionsContainer}>
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                style={styles.modalActionButton}
                 onPress={() => handleManageDraft('approve')}
                 disabled={managingDraft}
               >
-                <Ionicons name="checkmark-circle-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>Setujui Draft</Text>
+                <Ionicons name="checkmark-circle-outline" size={20} color="#6366f1" style={styles.modalActionIcon} />
+                <Text style={styles.modalActionText}>Setujui Draft</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#f9fafb', marginBottom: 8 }}
+                style={styles.modalActionButton}
                 onPress={() => handleManageDraft('reject')}
                 disabled={managingDraft}
               >
-                <Ionicons name="close-circle-outline" size={20} color="#6366f1" style={{ marginRight: 16 }} />
-                <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>Tolak Draft</Text>
+                <Ionicons name="close-circle-outline" size={20} color="#6366f1" style={styles.modalActionIcon} />
+                <Text style={styles.modalActionText}>Tolak Draft</Text>
               </TouchableOpacity>
             </View>
 
             <TouchableOpacity
-              style={{ marginHorizontal: 20, marginTop: 8, paddingVertical: 10, borderRadius: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6366f1', alignItems: 'center' }}
+              style={styles.modalCancelButton}
               onPress={closeDraftActionSheet}
               disabled={managingDraft}
             >
-              <Text style={{ fontSize: 14, fontWeight: '600', color: '#6366f1' }}>Batal</Text>
+              <Text style={styles.modalCancelText}>Batal</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>

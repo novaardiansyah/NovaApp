@@ -109,14 +109,14 @@ export const styles = StyleSheet.create({
     marginRight: 16,
   },
   actionText: {
-    fontSize: typography.label.large,
+    fontSize: typography.body.primary,
     fontWeight: '500',
     color: '#111827',
   },
   cancelButton: {
     marginHorizontal: 20,
     marginTop: 8,
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderRadius: 12,
     backgroundColor: 'transparent',
     borderWidth: 1,
@@ -124,7 +124,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelButtonText: {
-    fontSize: typography.label.large,
+    fontSize: typography.body.primary,
     fontWeight: '600',
     color: '#6366f1',
   },
