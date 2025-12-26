@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Theme } from '@/constants/colors';
 import { FormButton, Select, Notification } from '@/components';
 import { styles } from '@/styles/EditPaymentScreen.styles';
+import { typography } from '@/styles';
 import paymentService from '@/services/paymentService';
 import { formatAmount } from '@/utils/transactionUtils';
 
@@ -121,12 +122,15 @@ const EditPaymentScreen: React.FC<EditPaymentScreenProps> = ({ navigation, route
     amount: '',
     type_id: '',
     date: new Date().toISOString().split('T')[0],
+    payment_account_id: '',
   };
 
   const initialErrors = {
     name: '',
     amount: '',
     date: '',
+    type_id: '',
+    payment_account_id: '',
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -166,6 +170,7 @@ const EditPaymentScreen: React.FC<EditPaymentScreenProps> = ({ navigation, route
           amount: payment.amount?.toString() || '',
           type_id: payment.type_id?.toString() || '',
           date: payment.date || new Date().toISOString().split('T')[0],
+          payment_account_id: payment.account?.id?.toString() || '',
         });
 
         if (payment.account?.name) {
@@ -261,6 +266,20 @@ const EditPaymentScreen: React.FC<EditPaymentScreenProps> = ({ navigation, route
     setDatePickerVisible(false);
   };
 
+  const handlePaymentTypeChange = (typeId: string) => {
+    setFormData(prev => ({ ...prev, type_id: typeId }));
+    if (errors.type_id) {
+      setErrors(prev => ({ ...prev, type_id: '' }));
+    }
+  };
+
+  const handlePaymentAccountChange = (accountId: string) => {
+    setFormData(prev => ({ ...prev, payment_account_id: accountId }));
+    if (errors.payment_account_id) {
+      setErrors(prev => ({ ...prev, payment_account_id: '' }));
+    }
+  };
+
   const handleSubmit = async () => {
     if (!token) {
       Alert.alert('Error', 'Authentication token not found. Please login again.');
@@ -271,7 +290,7 @@ const EditPaymentScreen: React.FC<EditPaymentScreenProps> = ({ navigation, route
       return;
     }
 
-    if (!paymentAccountId) {
+    if (!formData.payment_account_id) {
       Alert.alert('Error', 'Payment account not found. Please try again.');
       return;
     }
@@ -283,7 +302,7 @@ const EditPaymentScreen: React.FC<EditPaymentScreenProps> = ({ navigation, route
         name: formData.name.trim(),
         date: formData.date,
         type_id: parseInt(formData.type_id) || 1,
-        payment_account_id: paymentAccountId,
+        payment_account_id: parseInt(formData.payment_account_id),
         payment_account_to_id: paymentAccountToId,
       };
 
@@ -330,7 +349,7 @@ const EditPaymentScreen: React.FC<EditPaymentScreenProps> = ({ navigation, route
         <View style={styles.container}>
           <Appbar.Header>
             <Appbar.BackAction onPress={() => navigation.goBack()} />
-            <Appbar.Content title="Edit Pembayaran" />
+            <Appbar.Content title="Edit Pembayaran" titleStyle={typography.appbar.titleNormal} />
           </Appbar.Header>
           <ScrollView
             style={styles.scrollView}
@@ -349,7 +368,7 @@ const EditPaymentScreen: React.FC<EditPaymentScreenProps> = ({ navigation, route
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Edit Pembayaran" />
+          <Appbar.Content title="Edit Pembayaran" titleStyle={typography.appbar.titleNormal} />
         </Appbar.Header>
 
         <KeyboardAvoidingView
@@ -413,26 +432,26 @@ const EditPaymentScreen: React.FC<EditPaymentScreenProps> = ({ navigation, route
             </TouchableOpacity>
             {errors.date && <HelperText type="error" style={styles.helperText}>{errors.date}</HelperText>}
 
-            <TextInput
+            <Select
               label="Kategori"
-              value={getCategoryName()}
-              mode="outlined"
-              outlineColor="#d1d5db"
-              activeOutlineColor="#d1d5db"
-              style={styles.inputDisabled}
-              editable={false}
-              textColor="#6b7280"
+              value={formData.type_id}
+              onValueChange={handlePaymentTypeChange}
+              options={paymentTypes}
+              loading={loadingPaymentTypes}
+              error={errors.type_id}
+              style={styles.input}
+              errorStyle={styles.helperText}
             />
 
-            <TextInput
+            <Select
               label="Akun Pembayaran"
-              value={getAccountName()}
-              mode="outlined"
-              outlineColor="#d1d5db"
-              activeOutlineColor="#d1d5db"
-              style={styles.inputDisabled}
-              editable={false}
-              textColor="#6b7280"
+              value={formData.payment_account_id}
+              onValueChange={handlePaymentAccountChange}
+              options={paymentAccounts}
+              loading={loadingPaymentAccounts}
+              error={errors.payment_account_id}
+              style={styles.input}
+              errorStyle={styles.helperText}
             />
 
             <FormButton

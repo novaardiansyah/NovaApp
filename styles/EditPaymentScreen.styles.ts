@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { typography } from './common.styles';
 
 export const styles = StyleSheet.create({
   container: {
@@ -16,10 +17,10 @@ export const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   description: {
-    fontSize: 16,
+    fontSize: typography.label.large,
     color: '#6b7280',
     marginBottom: 16,
-    lineHeight: 24,
+    lineHeight: 22,
   },
   inputGroup: {
     marginBottom: 20,
@@ -27,10 +28,12 @@ export const styles = StyleSheet.create({
   input: {
     backgroundColor: '#ffffff',
     marginBottom: 16,
+    fontSize: typography.label.large,
   },
   inputDisabled: {
     backgroundColor: '#f3f4f6',
     marginBottom: 16,
+    fontSize: typography.label.large,
   },
   helperText: {
     marginTop: -16,
@@ -38,7 +41,7 @@ export const styles = StyleSheet.create({
     marginBottom: 8
   },
   inputLabel: {
-    fontSize: 16,
+    fontSize: typography.label.large,
     fontWeight: '500',
     color: '#374151',
     marginBottom: 12,
@@ -50,7 +53,7 @@ export const styles = StyleSheet.create({
     marginTop: 20
   },
   disabledLabel: {
-    fontSize: 12,
+    fontSize: typography.label.small,
     color: '#9ca3af',
     marginTop: -12,
     marginBottom: 16,
