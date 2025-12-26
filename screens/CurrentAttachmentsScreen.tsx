@@ -41,7 +41,6 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
         setCurrentAttachments(attachments);
       } else {
         setCurrentAttachments([]);
-        console.error('Failed to load attachments:', response.message);
       }
     } catch (error) {
       console.error('Error loading current attachments:', error);
@@ -151,7 +150,7 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
                 <Card.Content style={styles.emptyCardContent}>
                   <Ionicons name="attach-outline" size={48} color="#9ca3af" />
                   <Text style={styles.emptyText}>Belum ada lampiran</Text>
-                  <Text style={styles.emptySubtext}>Tambahkan lampiran pertama untuk pembayaran ini</Text>
+                  <Text style={styles.emptySubtext}>Tambahkan lampiran pertama untuk transaksi ini melalui tombol di bawah</Text>
                 </Card.Content>
               </Card>
             ) : (

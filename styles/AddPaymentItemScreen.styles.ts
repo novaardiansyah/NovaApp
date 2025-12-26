@@ -172,6 +172,7 @@ export const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     backgroundColor: '#ffffff',
+    fontSize: typography.label.large,
   },
 
   clearButton: {
@@ -315,6 +316,10 @@ export const styles = StyleSheet.create({
 
   searchActionButton: {
     borderRadius: 8,
+  },
+
+  searchActionButtonText: {
+    fontSize: typography.label.large,
   },
 
   searchResultsHeader: {

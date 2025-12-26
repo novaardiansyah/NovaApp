@@ -408,7 +408,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
             <View style={styles.searchModalHeader}>
               <View style={styles.searchInputContainer}>
                 <TextInput
-                  placeholder="Cari item..."
+                  placeholder="Cari produk / layanan..."
                   value={searchQuery}
                   onChangeText={setSearchQuery}
                   mode="outlined"
@@ -447,6 +447,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                   buttonColor="#6366f1"
                   textColor="#ffffff"
                   icon={() => <Ionicons name="search" size={18} color="#ffffff" />}
+                  labelStyle={styles.searchActionButtonText}
                 >
                   Cari Item
                 </Button>
