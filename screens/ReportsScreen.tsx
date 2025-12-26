@@ -3,10 +3,11 @@ import { View, ScrollView, Text, RefreshControl, TouchableOpacity, Modal } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card, Divider, FAB, Appbar } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import { PieChart } from 'react-native-gifted-charts';
 import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { commonStyles, formatCurrency, typography } from '@/styles';
-import { ReportsPeriodSkeleton, ReportsSummarySkeleton, FormButton } from '@/components';
+import { ReportsPeriodSkeleton, ReportsSummarySkeleton, ReportsListSkeleton, FormButton } from '@/components';
 import { styles } from '@/styles/ReportScreen.styles'
 import PaymentService, { PaymentSummaryData } from '@/services/paymentService';
 
@@ -57,12 +58,9 @@ interface SummaryData {
 }
 
 const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
-  const { isAuthenticated, user, token } = useAuth()
+  const { isAuthenticated, token } = useAuth()
   const [refreshing, setRefreshing] = useState(false)
   const [periodModalVisible, setPeriodModalVisible] = useState(false)
-  const [emailModalVisible, setEmailModalVisible] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [notification, setNotification] = useState<string | null>(null)
   const [summaryData, setSummaryData] = useState<SummaryData>({
     monthly: null,
     weekly: null,
@@ -71,28 +69,10 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
   const [isDataLoading, setIsDataLoading] = useState(false)
   const [isMonthlyLoading, setIsMonthlyLoading] = useState(false)
 
-  const initialFormData = {
-    email: '',
+  const [formData, setFormData] = useState({
     periode: '',
     periodeStr: ''
-  };
-
-  const initialErrors = {
-    email: '',
-    periode: '',
-    periodeStr: ''
-  }
-
-  const [formData, setFormData] = useState(initialFormData)
-  const [errors, setErrors] = useState(initialErrors)
-
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-
-    if (errors[field as keyof typeof errors]) {
-      setErrors(prev => ({ ...prev, [field as keyof typeof errors]: '' }));
-    }
-  };
+  })
 
   const formatMonthYear = (monthYear: string) => {
     const [year, month] = monthYear.split('-');
@@ -162,19 +142,16 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
       const today = new Date();
       const todayStr = today.toISOString().split('T')[0];
 
-      // Get 7 days ago
       const sevenDaysAgo = new Date(today);
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
 
-      // Get month start and end based on selected month
       const [selectedYear, selectedMonthNum] = selectedMonth.split('-');
       const monthStart = new Date(parseInt(selectedYear), parseInt(selectedMonthNum) - 1, 1);
       const monthEnd = new Date(parseInt(selectedYear), parseInt(selectedMonthNum), 0);
       const monthStartStr = monthStart.toISOString().split('T')[0];
       const monthEndStr = monthEnd.toISOString().split('T')[0];
 
-      // Fetch all summaries in parallel
       const [dailyData, weeklyData, monthlyData] = await Promise.all([
         fetchPaymentSummary(todayStr, todayStr),
         fetchPaymentSummary(sevenDaysAgoStr, todayStr),
@@ -192,8 +169,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
   };
 
   const convertPaymentSummaryToMonthlyData = (summary: PaymentSummaryData): MonthlyData => {
-    const total = summary.income + summary.expenses + summary.transfer + summary.withdrawal;
-
     return {
       income: summary.income,
       expenses: summary.expenses,
@@ -299,7 +274,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     saveSelectedMonth(monthYear)
     setSelectedMonth(monthYear)
 
-    // Fetch data for selected month
     if (token) {
       const [year, month] = monthYear.split('-');
       const monthStart = new Date(parseInt(year), parseInt(month) - 1, 1);
@@ -316,13 +290,6 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
     }
 
     setIsMonthlyLoading(false)
-  };
-
-  const handleExportReport = () => {
-    setEmailModalVisible(true);
-    if (user?.email) {
-      setFormData(prev => ({ ...prev, email: user.email }))
-    }
   };
 
   const currentMonthData: MonthlyData = summaryData.monthly ? convertPaymentSummaryToMonthlyData(summaryData.monthly) : {
@@ -396,29 +363,39 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
             {!isMonthlyLoading ? (
               <Card style={styles.summaryCard}>
                 <Card.Content style={styles.summaryContent}>
-                  {currentMonthData.financialItems.map((item, index) => (
-                    <View key={item.id}>
-                      <View style={styles.financialItem}>
-                        <View style={styles.financialLeft}>
-                          <View style={[styles.financialIcon, { backgroundColor: item.color }]}>
-                            <Ionicons name={item.icon as any} size={16} color="white" />
-                          </View>
-                          <View style={styles.financialInfo}>
-                            <Text style={styles.financialName}>{item.name}</Text>
-                            <Text style={styles.financialAmount}>
-                              {formatCurrency(item.amount)}
-                            </Text>
-                          </View>
+                  <View style={styles.chartContainer}>
+                    <PieChart
+                      data={currentMonthData.financialItems.map(item => ({
+                        value: item.percentage > 0 ? item.percentage : 0,
+                        color: item.color,
+                        text: `${item.percentage}%`,
+                      }))}
+                      donut
+                      radius={80}
+                      innerRadius={55}
+                      innerCircleColor={'#ffffff'}
+                      centerLabelComponent={() => (
+                        <View style={styles.chartCenter}>
+                          <Text style={styles.chartCenterLabel}>Total</Text>
+                          <Text style={styles.chartCenterValue}>
+                            {formatCurrency(currentMonthData.balance)}
+                          </Text>
                         </View>
-                        <View style={styles.financialRight}>
-                          <Text style={styles.financialPercentage}>{item.percentage}%</Text>
-                        </View>
-                      </View>
-                      {index < currentMonthData.financialItems.length - 1 && (
-                        <Divider style={styles.financialDivider} />
                       )}
-                    </View>
-                  ))}
+                    />
+                  </View>
+                  <View style={styles.chartLegend}>
+                    {currentMonthData.financialItems.map((item) => (
+                      <View key={item.id} style={styles.legendItem}>
+                        <View style={[styles.legendDot, { backgroundColor: item.color }]} />
+                        <View style={styles.legendTextContainer}>
+                          <Text style={styles.legendLabel}>{item.name}</Text>
+                          <Text style={styles.legendValue}>{formatCurrency(item.amount)}</Text>
+                        </View>
+                        <Text style={styles.legendPercentage}>{item.percentage}%</Text>
+                      </View>
+                    ))}
+                  </View>
                 </Card.Content>
               </Card>
             ) : (
@@ -508,7 +485,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
                 </Card.Content>
               </Card>
             ) : (
-              <ReportsSummarySkeleton style={styles.dailyCard} />
+              <ReportsListSkeleton style={styles.dailyCard} />
             )}
           </View>
 
@@ -594,7 +571,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
                 </Card.Content>
               </Card>
             ) : (
-              <ReportsSummarySkeleton style={styles.weeklyCard} />
+              <ReportsListSkeleton style={styles.weeklyCard} />
             )}
           </View>
 

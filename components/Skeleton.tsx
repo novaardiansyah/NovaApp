@@ -334,19 +334,44 @@ export const ReportsSummarySkeleton: React.FC<ReportsSummarySkeletonProps> = ({ 
   return (
     <Card style={[style, { borderRadius: 12, backgroundColor: '#ffffff', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 }]}>
       <Card.Content style={{ paddingVertical: 8 }}>
-        {Array.from({ length: 4 }).map((_, index) => (
+        <View style={{ alignItems: 'center', paddingVertical: 16 }}>
+          <Skeleton width={160} height={160} style={{ borderRadius: 80 }} />
+        </View>
+        <View style={{ marginTop: 16 }}>
+          {Array.from({ length: 4 }).map((_, index) => (
+            <View key={index} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: index < 3 ? 1 : 0, borderBottomColor: '#f3f4f6' }}>
+              <Skeleton width={10} height={10} style={{ borderRadius: 5, marginRight: 12 }} />
+              <View style={{ flex: 1 }}>
+                <Skeleton width={80} height={13} style={{ marginBottom: 2 }} />
+                <Skeleton width={100} height={11} />
+              </View>
+              <Skeleton width={40} height={13} />
+            </View>
+          ))}
+        </View>
+      </Card.Content>
+    </Card>
+  );
+};
+
+interface ReportsListSkeletonProps {
+  style?: object;
+}
+
+export const ReportsListSkeleton: React.FC<ReportsListSkeletonProps> = ({ style }) => {
+  return (
+    <Card style={[style, { borderRadius: 12, backgroundColor: '#ffffff', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 }]}>
+      <Card.Content style={{ paddingVertical: 8 }}>
+        {Array.from({ length: 5 }).map((_, index) => (
           <View key={index}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                <Skeleton width={40} height={40} style={{ borderRadius: 20, marginRight: 16 }} />
-                <View style={{ flex: 1 }}>
-                  <Skeleton width={80} height={14} style={{ marginBottom: 4 }} />
-                  <Skeleton width={100} height={12} />
-                </View>
+                <Skeleton width={22} height={22} style={{ borderRadius: 11, marginRight: 12 }} />
+                <Skeleton width={80} height={13} />
               </View>
-              <Skeleton width={40} height={14} />
+              <Skeleton width={80} height={13} />
             </View>
-            {index < 3 && <Divider style={{ marginVertical: 0 }} />}
+            {index < 4 && <Divider style={{ marginVertical: 0 }} />}
           </View>
         ))}
       </Card.Content>

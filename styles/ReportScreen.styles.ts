@@ -293,4 +293,55 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#6366f1',
   },
+  chartContainer: {
+    alignItems: 'center',
+    paddingVertical: 16,
+  },
+  chartCenter: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chartCenterLabel: {
+    fontSize: typography.body.secondary,
+    color: '#6b7280',
+  },
+  chartCenterValue: {
+    fontSize: typography.body.primary,
+    fontWeight: '600',
+    color: '#1f2937',
+  },
+  chartLegend: {
+    marginTop: 16,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  legendDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 12,
+  },
+  legendTextContainer: {
+    flex: 1,
+  },
+  legendLabel: {
+    fontSize: typography.body.primary,
+    fontWeight: '500',
+    color: '#1f2937',
+  },
+  legendValue: {
+    fontSize: typography.body.secondary,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  legendPercentage: {
+    fontSize: typography.body.primary,
+    fontWeight: '600',
+    color: '#1f2937',
+  },
 })
