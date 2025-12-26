@@ -361,11 +361,12 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
           animationType="slide"
           onRequestClose={() => setShowPeriodeModal(false)}
         >
-          <TouchableOpacity
-            style={styles.modalOverlay}
-            activeOpacity={1}
-            onPress={() => setShowPeriodeModal(false)}
-          >
+          <View style={styles.modalOverlay}>
+            <TouchableOpacity
+              style={styles.modalBackdrop}
+              activeOpacity={1}
+              onPress={() => setShowPeriodeModal(false)}
+            />
             <View style={styles.modalContainer}>
               <Text style={styles.modalTitle}>Pilih Periode</Text>
               <ScrollView style={styles.modalScrollView}>
@@ -403,7 +404,7 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
                 <Text style={styles.modalCancelText}>Batal</Text>
               </TouchableOpacity>
             </View>
-          </TouchableOpacity>
+          </View>
         </Modal>
 
         {/* Date Picker Modals - using react-native-paper-dates like AddPaymentScreen */}
