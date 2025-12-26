@@ -6,8 +6,7 @@ import { enGB } from 'react-native-paper-dates';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { commonStyles } from '@/styles';
+import { commonStyles, typography } from '@/styles';
 import { FormButton, Notification } from '@/components';
 import { styles } from '../styles/GenerateReportScreen.styles';
 import PaymentService from '@/services/paymentService';
@@ -27,13 +26,12 @@ interface ReportTypeOption {
 }
 
 const reportTypeOptions: ReportTypeOption[] = [
-  { value: 'monthly', label: 'Monthly Report (Email)', description: 'Laporan bulanan dikirim ke email' },
-  { value: 'daily', label: 'Daily Report (Email)', description: 'Laporan harian dikirim ke email' },
-  { value: 'date_range', label: 'Custom Date Range (PDF)', description: 'Laporan rentang tanggal sebagai PDF' },
+  { value: 'monthly', label: 'Laporan Bulanan (Email)', description: 'Laporan bulanan dikirim ke email' },
+  { value: 'daily', label: 'Laporan Harian (Email)', description: 'Laporan harian dikirim ke email' },
+  { value: 'date_range', label: 'Rentang Tanggal (PDF)', description: 'Laporan rentang tanggal sebagai PDF' },
 ];
 
 const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation }) => {
-  const insets = useSafeAreaInsets();
   const { isAuthenticated, token } = useAuth();
 
   const [reportType, setReportType] = useState<ReportType>('monthly');
@@ -184,7 +182,7 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
         {/* Header - same style as AddPaymentScreen */}
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Kelola Laporan Keuangan" />
+          <Appbar.Content title="Kelola Laporan Keuangan" titleStyle={typography.appbar.titleNormal} />
         </Appbar.Header>
 
         <ScrollView
@@ -335,7 +333,7 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
                   <View style={styles.modalOptionContent}>
                     <Ionicons
                       name={reportType === option.value ? 'checkmark-circle' : 'radio-button-off'}
-                      size={24}
+                      size={20}
                       color={reportType === option.value ? '#6366f1' : '#9ca3af'}
                       style={styles.modalOptionIcon}
                     />
@@ -346,13 +344,12 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
                   </View>
                 </TouchableOpacity>
               ))}
-              <FormButton
-                title="Batal"
-                variant="outline"
+              <TouchableOpacity
+                style={styles.modalCancelButtonTouchable}
                 onPress={() => setShowReportTypeModal(false)}
-                fullWidth
-                style={styles.modalCancelButton}
-              />
+              >
+                <Text style={styles.modalCancelText}>Batal</Text>
+              </TouchableOpacity>
             </View>
           </TouchableOpacity>
         </Modal>
@@ -390,7 +387,7 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
                     <View style={styles.modalOptionContent}>
                       <Ionicons
                         name={selectedPeriode === option.value ? 'checkmark-circle' : 'radio-button-off'}
-                        size={24}
+                        size={20}
                         color={selectedPeriode === option.value ? '#6366f1' : '#9ca3af'}
                         style={styles.modalOptionIcon}
                       />
@@ -399,13 +396,12 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
                   </TouchableOpacity>
                 ))}
               </ScrollView>
-              <FormButton
-                title="Batal"
-                variant="outline"
+              <TouchableOpacity
+                style={styles.modalCancelButtonTouchable}
                 onPress={() => setShowPeriodeModal(false)}
-                fullWidth
-                style={styles.modalCancelButton}
-              />
+              >
+                <Text style={styles.modalCancelText}>Batal</Text>
+              </TouchableOpacity>
             </View>
           </TouchableOpacity>
         </Modal>

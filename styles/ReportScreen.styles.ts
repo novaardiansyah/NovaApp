@@ -1,9 +1,15 @@
 import { StyleSheet } from 'react-native'
+import { typography } from './common.styles';
 
 export const styles = StyleSheet.create({
   input: {
     backgroundColor: '#ffffff',
     marginBottom: 16
+  },
+  scrollContent: {
+    paddingHorizontal: 12,
+    paddingVertical: 16,
+    paddingBottom: 32,
   },
   periodCard: {
     backgroundColor: '#ffffff',
@@ -28,7 +34,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   periodText: {
-    fontSize: 16,
+    fontSize: typography.body.primary,
     fontWeight: '500',
     color: '#1f2937',
     marginLeft: 8,
@@ -55,13 +61,13 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: typography.heading.small,
     fontWeight: '600',
     color: '#1f2937',
     marginBottom: 12,
   },
   seeAllText: {
-    fontSize: 14,
+    fontSize: typography.body.primary,
     color: '#6366f1',
     fontWeight: '500',
   },
@@ -95,25 +101,25 @@ export const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   dailyIconContainer: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     backgroundColor: '#10b981',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   dailyLabel: {
-    fontSize: 14,
+    fontSize: typography.body.primary,
     fontWeight: '500',
     color: '#1f2937',
   },
   dailyAmount: {
-    fontSize: 14,
+    fontSize: typography.body.primary,
     fontWeight: '500',
   },
   dailyBalance: {
-    fontSize: 16,
+    fontSize: typography.body.primary,
     fontWeight: '600',
   },
   dailyDivider: {
@@ -149,25 +155,25 @@ export const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   weeklyIconContainer: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     backgroundColor: '#10b981',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   weeklyLabel: {
-    fontSize: 14,
+    fontSize: typography.body.primary,
     fontWeight: '500',
     color: '#1f2937',
   },
   weeklyAmount: {
-    fontSize: 14,
+    fontSize: typography.body.primary,
     fontWeight: '500',
   },
   weeklyBalance: {
-    fontSize: 16,
+    fontSize: typography.body.primary,
     fontWeight: '600',
   },
   weeklyDivider: {
@@ -196,20 +202,20 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   financialName: {
-    fontSize: 14,
+    fontSize: typography.body.primary,
     fontWeight: '500',
     color: '#1f2937',
     marginBottom: 4,
   },
   financialAmount: {
-    fontSize: 12,
+    fontSize: typography.body.secondary,
     color: '#6b7280',
   },
   financialRight: {
     alignItems: 'flex-end',
   },
   financialPercentage: {
-    fontSize: 14,
+    fontSize: typography.body.primary,
     fontWeight: '600',
     color: '#1f2937',
   },
@@ -228,5 +234,63 @@ export const styles = StyleSheet.create({
     marginTop: -16,
     marginLeft: -6,
     marginBottom: 6
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalBackdrop: {
+    flex: 1,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 20,
+  },
+  modalTitle: {
+    textAlign: 'center',
+    padding: 16,
+    color: '#6b7280',
+    fontSize: typography.body.secondary,
+  },
+  modalActionsContainer: {
+    paddingHorizontal: 20,
+  },
+  modalActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: '#f9fafb',
+    marginBottom: 8,
+  },
+  modalActionButtonSelected: {
+    backgroundColor: '#f0f9ff',
+  },
+  modalActionIcon: {
+    marginRight: 16,
+  },
+  modalActionText: {
+    fontSize: typography.body.primary,
+    fontWeight: '500',
+    color: '#111827',
+  },
+  modalCancelButton: {
+    marginHorizontal: 20,
+    marginTop: 8,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#6366f1',
+    alignItems: 'center',
+  },
+  modalCancelText: {
+    fontSize: typography.body.primary,
+    fontWeight: '600',
+    color: '#6366f1',
   },
 })

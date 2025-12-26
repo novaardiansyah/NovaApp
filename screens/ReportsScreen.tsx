@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, RefreshControl, StatusBar, TouchableOpacity, Modal } from 'react-native';
+import { View, ScrollView, Text, RefreshControl, TouchableOpacity, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PaperProvider, Card, Divider, FAB } from 'react-native-paper';
+import { PaperProvider, Card, Divider, FAB, Appbar } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { commonStyles, formatCurrency, getScrollContainerStyle, statusBarConfig } from '@/styles';
+import { commonStyles, formatCurrency, typography } from '@/styles';
 import { ReportsPeriodSkeleton, ReportsSummarySkeleton, FormButton } from '@/components';
 import { styles } from '@/styles/ReportScreen.styles'
 import PaymentService, { PaymentSummaryData } from '@/services/paymentService';
@@ -58,7 +57,6 @@ interface SummaryData {
 }
 
 const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
-  const insets = useSafeAreaInsets()
   const { isAuthenticated, user, token } = useAuth()
   const [refreshing, setRefreshing] = useState(false)
   const [periodModalVisible, setPeriodModalVisible] = useState(false)
@@ -98,7 +96,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
   const formatMonthYear = (monthYear: string) => {
     const [year, month] = monthYear.split('-');
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     return `${monthNames[parseInt(month) - 1]} ${year}`;
   };
 
@@ -205,7 +203,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
       financialItems: [
         {
           id: 1,
-          name: 'Income',
+          name: 'Pemasukan',
           amount: summary.income,
           percentage: summary.percents.income,
           color: '#10b981',
@@ -213,7 +211,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
         },
         {
           id: 2,
-          name: 'Expenses',
+          name: 'Pengeluaran',
           amount: summary.expenses,
           percentage: summary.percents.expenses,
           color: '#ef4444',
@@ -221,7 +219,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
         },
         {
           id: 3,
-          name: 'Transfers',
+          name: 'Transfer',
           amount: summary.transfer,
           percentage: summary.percents.transfer,
           color: '#3b82f6',
@@ -229,7 +227,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
         },
         {
           id: 4,
-          name: 'Withdrawals',
+          name: 'Penarikan',
           amount: summary.withdrawal,
           percentage: summary.percents.withdrawal,
           color: '#f59e0b',
@@ -265,7 +263,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
     return [
       {
-        week: 'Last 7 Days',
+        week: '7 Hari Terakhir',
         income,
         expenses,
         transfers,
@@ -363,18 +361,17 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
   return (
     <PaperProvider theme={Theme}>
-      <SafeAreaView style={commonStyles.container} edges={['top', 'left', 'right']}>
-        <StatusBar {...statusBarConfig} />
+      <View style={commonStyles.container}>
+        <Appbar.Header>
+          <Appbar.BackAction onPress={() => navigation.goBack()} />
+          <Appbar.Content title="Laporan Keuangan" titleStyle={typography.appbar.titleNormal} />
+        </Appbar.Header>
         <ScrollView
-          contentContainerStyle={getScrollContainerStyle(insets)}
+          contentContainerStyle={styles.scrollContent}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
         >
-          <View style={commonStyles.header}>
-            <Ionicons name="document-text" size={24} color="#6366f1" style={commonStyles.headerIcon} />
-            <Text style={commonStyles.headerTitle}>Laporan Keuangan</Text>
-          </View>
 
           {!isMonthlyLoading ? (
             <Card style={styles.periodCard}>
@@ -384,10 +381,10 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
                   onPress={() => setPeriodModalVisible(true)}
                 >
                   <View style={styles.periodInfo}>
-                    <Ionicons name="calendar" size={20} color="#6366f1" />
+                    <Ionicons name="calendar" size={18} color="#6366f1" />
                     <Text style={styles.periodText}>{formatMonthYear(selectedMonth)}</Text>
                   </View>
-                  <Ionicons name="chevron-down" size={20} color="#9ca3af" />
+                  <Ionicons name="chevron-down" size={18} color="#9ca3af" />
                 </TouchableOpacity>
               </Card.Content>
             </Card>
@@ -439,9 +436,9 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
                       <View style={styles.dailyItem}>
                         <View style={styles.dailyLeft}>
                           <View style={styles.dailyIconContainer}>
-                            <Ionicons name="arrow-down" size={16} color="white" />
+                            <Ionicons name="arrow-down" size={14} color="white" />
                           </View>
-                          <Text style={styles.dailyLabel}>Income</Text>
+                          <Text style={styles.dailyLabel}>Pemasukan</Text>
                         </View>
                         <View style={styles.dailyRight}>
                           <Text style={[styles.dailyAmount, { color: '#10b981' }]}>
@@ -454,9 +451,9 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
                       <View style={styles.dailyItem}>
                         <View style={styles.dailyLeft}>
                           <View style={[styles.dailyIconContainer, { backgroundColor: '#ef4444' }]}>
-                            <Ionicons name="arrow-up" size={16} color="white" />
+                            <Ionicons name="arrow-up" size={14} color="white" />
                           </View>
-                          <Text style={styles.dailyLabel}>Expenses</Text>
+                          <Text style={styles.dailyLabel}>Pengeluaran</Text>
                         </View>
                         <View style={styles.dailyRight}>
                           <Text style={[styles.dailyAmount, { color: '#ef4444' }]}>
@@ -469,9 +466,9 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
                       <View style={styles.dailyItem}>
                         <View style={styles.dailyLeft}>
                           <View style={[styles.dailyIconContainer, { backgroundColor: '#3b82f6' }]}>
-                            <Ionicons name="swap-horizontal-outline" size={16} color="white" />
+                            <Ionicons name="swap-horizontal-outline" size={14} color="white" />
                           </View>
-                          <Text style={styles.dailyLabel}>Transfers</Text>
+                          <Text style={styles.dailyLabel}>Transfer</Text>
                         </View>
                         <View style={styles.dailyRight}>
                           <Text style={[styles.dailyAmount, { color: '#3b82f6' }]}>
@@ -484,9 +481,9 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
                       <View style={styles.dailyItem}>
                         <View style={styles.dailyLeft}>
                           <View style={[styles.dailyIconContainer, { backgroundColor: '#f59e0b' }]}>
-                            <Ionicons name="arrow-down-circle-outline" size={16} color="white" />
+                            <Ionicons name="arrow-down-circle-outline" size={14} color="white" />
                           </View>
-                          <Text style={styles.dailyLabel}>Withdrawals</Text>
+                          <Text style={styles.dailyLabel}>Penarikan</Text>
                         </View>
                         <View style={styles.dailyRight}>
                           <Text style={[styles.dailyAmount, { color: '#f59e0b' }]}>
@@ -498,7 +495,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
                       <View style={styles.dailyItem}>
                         <View style={styles.dailyLeft}>
-                          <Text style={styles.dailyLabel}>Balance</Text>
+                          <Text style={styles.dailyLabel}>Saldo</Text>
                         </View>
                         <View style={styles.dailyRight}>
                           <Text style={[styles.dailyBalance, day.balance >= 0 ? { color: '#10b981' } : { color: '#ef4444' }]}>
@@ -525,9 +522,9 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
                       <View style={styles.weeklyItem}>
                         <View style={styles.weeklyLeft}>
                           <View style={styles.weeklyIconContainer}>
-                            <Ionicons name="arrow-down" size={16} color="white" />
+                            <Ionicons name="arrow-down" size={14} color="white" />
                           </View>
-                          <Text style={styles.weeklyLabel}>Income</Text>
+                          <Text style={styles.weeklyLabel}>Pemasukan</Text>
                         </View>
                         <View style={styles.weeklyRight}>
                           <Text style={[styles.weeklyAmount, { color: '#10b981' }]}>
@@ -540,9 +537,9 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
                       <View style={styles.weeklyItem}>
                         <View style={styles.weeklyLeft}>
                           <View style={[styles.weeklyIconContainer, { backgroundColor: '#ef4444' }]}>
-                            <Ionicons name="arrow-up" size={16} color="white" />
+                            <Ionicons name="arrow-up" size={14} color="white" />
                           </View>
-                          <Text style={styles.weeklyLabel}>Expenses</Text>
+                          <Text style={styles.weeklyLabel}>Pengeluaran</Text>
                         </View>
                         <View style={styles.weeklyRight}>
                           <Text style={[styles.weeklyAmount, { color: '#ef4444' }]}>
@@ -555,9 +552,9 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
                       <View style={styles.weeklyItem}>
                         <View style={styles.weeklyLeft}>
                           <View style={[styles.weeklyIconContainer, { backgroundColor: '#3b82f6' }]}>
-                            <Ionicons name="swap-horizontal-outline" size={16} color="white" />
+                            <Ionicons name="swap-horizontal-outline" size={14} color="white" />
                           </View>
-                          <Text style={styles.weeklyLabel}>Transfers</Text>
+                          <Text style={styles.weeklyLabel}>Transfer</Text>
                         </View>
                         <View style={styles.weeklyRight}>
                           <Text style={[styles.weeklyAmount, { color: '#3b82f6' }]}>
@@ -570,9 +567,9 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
                       <View style={styles.weeklyItem}>
                         <View style={styles.weeklyLeft}>
                           <View style={[styles.weeklyIconContainer, { backgroundColor: '#f59e0b' }]}>
-                            <Ionicons name="arrow-down-circle-outline" size={16} color="white" />
+                            <Ionicons name="arrow-down-circle-outline" size={14} color="white" />
                           </View>
-                          <Text style={styles.weeklyLabel}>Withdrawals</Text>
+                          <Text style={styles.weeklyLabel}>Penarikan</Text>
                         </View>
                         <View style={styles.weeklyRight}>
                           <Text style={[styles.weeklyAmount, { color: '#f59e0b' }]}>
@@ -584,7 +581,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
                       <View style={styles.weeklyItem}>
                         <View style={styles.weeklyLeft}>
-                          <Text style={styles.weeklyLabel}>Balance</Text>
+                          <Text style={styles.weeklyLabel}>Saldo</Text>
                         </View>
                         <View style={styles.weeklyRight}>
                           <Text style={[styles.weeklyBalance, week.balance >= 0 ? { color: '#10b981' } : { color: '#ef4444' }]}>
@@ -603,7 +600,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
 
 
         </ScrollView>
-      </SafeAreaView>
+      </View>
 
       <FAB
         icon="file-document-outline"
@@ -620,40 +617,37 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({ navigation }) => {
         animationType="slide"
         onRequestClose={() => setPeriodModalVisible(false)}
       >
-        <SafeAreaView style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+        <SafeAreaView style={styles.modalOverlay}>
           <TouchableOpacity
-            style={{ flex: 1 }}
+            style={styles.modalBackdrop}
             activeOpacity={1}
             onPress={() => setPeriodModalVisible(false)}
           />
 
-          <View style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 }}>
-            <Text style={{ textAlign: 'center', padding: 16, color: '#6b7280', fontSize: 13 }}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
               Pilih Bulan
             </Text>
 
-            <View style={{ paddingHorizontal: 20 }}>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: '#6b7280', marginBottom: 12, marginLeft: 4 }}>Pilih Bulan</Text>
+            <View style={styles.modalActionsContainer}>
               {getMonthOptions().map((monthYear) => (
                 <TouchableOpacity
                   key={monthYear}
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: selectedMonth === monthYear ? '#f0f9ff' : '#f9fafb', marginBottom: 8 }}
+                  style={[styles.modalActionButton, selectedMonth === monthYear && styles.modalActionButtonSelected]}
                   onPress={() => handleMonthSelect(monthYear)}
                 >
-                  <Ionicons name={selectedMonth === monthYear ? 'checkmark-circle' : 'radio-button-off'} size={24} color={selectedMonth === monthYear ? '#3b82f6' : '#9ca3af'} style={{ marginRight: 16 }} />
-                  <Text style={{ fontSize: 16, fontWeight: '500', color: '#111827' }}>{formatMonthYear(monthYear)}</Text>
+                  <Ionicons name={selectedMonth === monthYear ? 'checkmark-circle' : 'radio-button-off'} size={20} color={selectedMonth === monthYear ? '#3b82f6' : '#9ca3af'} style={styles.modalActionIcon} />
+                  <Text style={styles.modalActionText}>{formatMonthYear(monthYear)}</Text>
                 </TouchableOpacity>
               ))}
             </View>
 
-            <View style={{ paddingHorizontal: 20, marginTop: 14 }}>
-              <FormButton
-                title="Batal"
-                variant="outline"
-                fullWidth
-                onPress={() => setPeriodModalVisible(false)}
-              />
-            </View>
+            <TouchableOpacity
+              style={styles.modalCancelButton}
+              onPress={() => setPeriodModalVisible(false)}
+            >
+              <Text style={styles.modalCancelText}>Batal</Text>
+            </TouchableOpacity>
           </View>
         </SafeAreaView>
       </Modal>

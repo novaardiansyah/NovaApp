@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { typography } from './common.styles';
 
 export const styles = StyleSheet.create({
   container: {
@@ -13,7 +14,7 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionLabel: {
-    fontSize: 14,
+    fontSize: typography.body.primary,
     fontWeight: '600',
     color: '#374151',
     marginBottom: 8,
@@ -43,12 +44,12 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   selectorTitle: {
-    fontSize: 16,
+    fontSize: typography.body.primary,
     fontWeight: '500',
     color: '#1f2937',
   },
   selectorDescription: {
-    fontSize: 12,
+    fontSize: typography.body.secondary,
     color: '#6b7280',
     marginTop: 2,
   },
@@ -70,7 +71,7 @@ export const styles = StyleSheet.create({
   infoText: {
     flex: 1,
     marginLeft: 12,
-    fontSize: 14,
+    fontSize: typography.body.primary,
     color: '#6b7280',
     lineHeight: 20,
   },
@@ -88,13 +89,13 @@ export const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    paddingBottom: 32,
+    paddingBottom: 48,
     maxHeight: '70%',
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: typography.body.secondary,
     fontWeight: '600',
-    color: '#1f2937',
+    color: '#6b7280',
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -127,17 +128,31 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   modalOptionText: {
-    fontSize: 16,
+    fontSize: typography.body.primary,
     fontWeight: '500',
     color: '#1f2937',
   },
   modalOptionDescription: {
-    fontSize: 12,
+    fontSize: typography.body.secondary,
     color: '#6b7280',
     marginTop: 2,
   },
   modalCancelButton: {
     marginTop: 12,
+  },
+  modalCancelButtonTouchable: {
+    marginTop: 8,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#6366f1',
+    alignItems: 'center',
+  },
+  modalCancelText: {
+    fontSize: typography.body.primary,
+    fontWeight: '600',
+    color: '#6366f1',
   },
   cancelButton: {
     marginTop: -10,
