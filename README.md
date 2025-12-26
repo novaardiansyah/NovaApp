@@ -77,6 +77,16 @@ Exciting news! This project is grooving to the rhythm of the [MIT License](LICEN
 
 Feel free to use, modify, and share it with the world. Just remember to keep the original license intact. Let's spread the joy of coding together! 🚀
 
+## Legal 📄
+
+We are committed to maintaining the privacy and security of your data within the application. For detailed information regarding our practices, please review the documents below:
+
+- [Terms of Service](https://novaardiansyah.my.id/live/nova-app/terms-of-service)
+- [Privacy Policy](https://novaardiansyah.my.id/live/nova-app/privacy-policy)
+
+
+
+
 ---
 
 **Happy coding and collaborating!**
