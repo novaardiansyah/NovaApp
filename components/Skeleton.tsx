@@ -652,20 +652,20 @@ interface AuditFormSkeletonProps {
 export const AuditFormSkeleton: React.FC<AuditFormSkeletonProps> = ({ style }) => {
   return (
     <View style={style}>
-      <Skeleton width={150} height={24} style={{ marginBottom: 16, marginTop: -12 }} />
+      <Skeleton width={120} height={14} style={{ marginBottom: 16 }} />
 
       <Skeleton width="100%" height={56} style={{ marginBottom: 16 }} />
       <Skeleton width="100%" height={56} style={{ marginBottom: 16 }} />
 
       <Card style={{ backgroundColor: '#ffffff', borderRadius: 12, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, marginBottom: 16 }}>
-        <Card.Content style={{ paddingVertical: 20, paddingHorizontal: 16 }}>
+        <Card.Content style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <Skeleton width={80} height={16} />
-            <Skeleton width={100} height={18} />
+            <Skeleton width={60} height={14} />
+            <Skeleton width={80} height={14} />
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Skeleton width={60} height={16} />
-            <Skeleton width={80} height={18} />
+            <Skeleton width={50} height={14} />
+            <Skeleton width={60} height={12} />
           </View>
         </Card.Content>
       </Card>

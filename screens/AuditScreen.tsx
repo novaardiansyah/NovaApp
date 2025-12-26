@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, RefreshControl, Alert, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, ScrollView, Text, RefreshControl, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { PaperProvider, Appbar, Card, TextInput, HelperText } from 'react-native-paper';
 import { FormButton, Notification } from '@/components';
-import { AuditAccountCardSkeleton, AuditFormSkeleton } from '@/components';
+import { AuditFormSkeleton } from '@/components';
 import { Theme } from '@/constants/colors';
-import { formatCurrency } from '@/styles';
+import { formatCurrency, typography } from '@/styles';
+import { styles } from '@/styles/AuditScreen.styles';
 import { formatAmount } from '@/utils/transactionUtils';
 import { useAuth } from '@/contexts/AuthContext';
 import PaymentService, { PaymentAccount } from '@/services/paymentService';
@@ -41,7 +42,6 @@ const AuditScreen: React.FC<AuditScreenProps> = ({ navigation, route }) => {
   const [formData, setFormData] = useState(initialFormData)
   const [errors, setErrors] = useState(initialErrors)
 
-  // Fetch account data on component mount
   useEffect(() => {
     if (accountId && token) {
       fetchAccountData();
@@ -55,7 +55,7 @@ const AuditScreen: React.FC<AuditScreenProps> = ({ navigation, route }) => {
   const checkDiffDeposit = () => {
     const current = formData.currentValue || 0;
     const deposit = formData.deposit || 0;
-    const diff    = deposit - current;
+    const diff = deposit - current;
 
     setDiffDepositValue(diff.toString());
   }
@@ -77,7 +77,7 @@ const AuditScreen: React.FC<AuditScreenProps> = ({ navigation, route }) => {
 
       if (response.success && response.data) {
         const { deposit } = response.data
-        
+
         setAccountData(response.data);
         setFormData(prev => ({ ...prev, deposit, currentValue: deposit }))
       } else {
@@ -100,7 +100,6 @@ const AuditScreen: React.FC<AuditScreenProps> = ({ navigation, route }) => {
   const handleSaveAudit = async () => {
     if (!token || !accountId || submitting) return;
 
-    // Validate deposit value
     const depositValue = parseFloat(formData.deposit.toString());
     if (isNaN(depositValue) || depositValue < 0) {
       setErrors(prev => ({ ...prev, deposit: 'Please enter a valid deposit amount' }));
@@ -141,7 +140,7 @@ const AuditScreen: React.FC<AuditScreenProps> = ({ navigation, route }) => {
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation?.goBack()} />
-          <Appbar.Content title="Audit Deposit" />
+          <Appbar.Content title="Audit Saldo" titleStyle={typography.appbar.titleNormal} />
         </Appbar.Header>
 
         <KeyboardAvoidingView
@@ -159,110 +158,90 @@ const AuditScreen: React.FC<AuditScreenProps> = ({ navigation, route }) => {
                 tintColor="#6366f1"
               />
             }
-        >
-          <View style={styles.contentSection}>
-            {/* Account Info Card */}
-            {loading ? (
-              <AuditAccountCardSkeleton />
-            ) : accountData ? (
-              <Card style={styles.accountCard}>
-                <Card.Content style={styles.accountCardContent}>
-                  <View style={styles.accountInfo}>
-                    <View style={styles.accountInfoLeft}>
-                      <Text style={styles.accountName}>{accountData.name || 'Account Name'}</Text>
-                      <Text style={styles.accountLabel}>Account ID: {accountData.id || 'N/A'}</Text>
-                    </View>
-                    <View style={styles.accountInfoRight}>
-                      <Text style={styles.accountStatus}>Active</Text>
-                    </View>
-                  </View>
-                </Card.Content>
-              </Card>
-            ) : null}
+          >
+            <View style={styles.contentSection}>
+              {loading ? (
+                <AuditFormSkeleton />
+              ) : accountData ? (
+                <>
+                  <Text style={styles.description}>
+                    Sesuaikan saldo akun dengan saldo aktual. Masukkan nominal saldo yang benar di bawah ini.
+                  </Text>
 
-            {/* Audit Form */}
-            {loading ? (
-              <AuditFormSkeleton />
-            ) : accountData ? (
-              <>
-                <Text style={styles.formTitle}>Audit Information</Text>
+                  <TextInput
+                    label="Saldo Saat Ini"
+                    value={formatCurrency(formData.currentValue)}
+                    editable={false}
+                    mode="outlined"
+                    outlineColor="#e5e7eb"
+                    activeOutlineColor="#6366f1"
+                    style={styles.input}
+                    contentStyle={styles.inputContent}
+                    textColor="#6b7280"
+                    left={<TextInput.Icon icon="lock" color="#9ca3af" />}
+                  />
 
-                {/* Current Deposit */}
-                <TextInput
-                  label="Current Deposit"
-                  value={formatCurrency(formData.currentValue)}
-                  editable={false}
-                  mode="outlined"
-                  outlineColor="#e5e7eb"
-                  activeOutlineColor="#6366f1"
-                  style={styles.input}
-                  textColor="#6b7280"
-                  left={<TextInput.Icon icon="lock" color="#9ca3af" />}
-                />
+                  <TextInput
+                    label={'Saldo aktual (Rp' + (formData.deposit ? ` ${formatAmount(formData.deposit.toString())}` : '') + ')'}
+                    value={formData.deposit === 0 ? '' : formData.deposit.toString()}
+                    onChangeText={(value) => handleInputChange('deposit', value)}
+                    placeholder="Masukkan nominal saldo"
+                    mode="outlined"
+                    outlineColor="#e5e7eb"
+                    activeOutlineColor="#6366f1"
+                    style={styles.input}
+                    contentStyle={styles.inputContent}
+                    keyboardType="numeric"
+                    left={<TextInput.Icon icon="wallet-outline" color="#9ca3af" />}
+                  />
+                  {errors.deposit && <HelperText type="error" style={styles.helperText}>{errors.deposit}</HelperText>}
 
-                {/* Deposit */}
-                <TextInput
-                  label={'Deposit (Rp' + (formData.deposit ? ` ${formatAmount(formData.deposit.toString())}` : '') + ')'}
-                  value={formData.deposit === 0 ? '' : formData.deposit.toString()}
-                  onChangeText={(value) => handleInputChange('deposit', value)}
-                  placeholder="Enter deposit amount"
-                  mode="outlined"
-                  outlineColor="#e5e7eb"
-                  activeOutlineColor="#6366f1"
-                  style={styles.input}
-                  keyboardType="numeric"
-                  left={<TextInput.Icon icon="wallet-outline" color="#9ca3af" />}
-                />
-                {errors.deposit && <HelperText type="error" style={styles.helperText}>{errors.deposit}</HelperText>}
+                  <Card style={styles.summaryCard}>
+                    <Card.Content style={styles.summaryContent}>
+                      <View style={styles.summaryRow}>
+                        <Text style={styles.summaryLabel}>Selisih:</Text>
+                        <Text style={[
+                          styles.summaryValue,
+                          parseFloat(diffDepositValue) >= 0
+                            ? { color: '#059669' }
+                            : { color: '#dc2626' }
+                        ]}>
+                          {formatCurrency(parseFloat(diffDepositValue))}
+                        </Text>
+                      </View>
+                      <View style={styles.summaryRow}>
+                        <Text style={styles.summaryLabel}>Status:</Text>
+                        <Text style={[
+                          styles.summaryStatus,
+                          parseFloat(diffDepositValue) >= 0
+                            ? { color: '#059669', backgroundColor: '#dcfce7' }
+                            : { color: '#dc2626', backgroundColor: '#fee2e2' }
+                        ]}>
+                          {parseFloat(diffDepositValue) >= 0 ? 'Surplus' : 'Defisit'}
+                        </Text>
+                      </View>
+                    </Card.Content>
+                  </Card>
 
-                {/* Summary */}
-                <Card style={styles.summaryCard}>
-                  <Card.Content style={styles.summaryContent}>
-                    <View style={styles.summaryRow}>
-                      <Text style={styles.summaryLabel}>Difference:</Text>
-                      <Text style={[
-                        styles.summaryValue,
-                        parseFloat(diffDepositValue) >= 0
-                          ? { color: '#059669' }
-                          : { color: '#dc2626' }
-                      ]}>
-                        {formatCurrency(parseFloat(diffDepositValue))}
-                      </Text>
-                    </View>
-                    <View style={styles.summaryRow}>
-                      <Text style={styles.summaryLabel}>Status:</Text>
-                      <Text style={[
-                        styles.summaryStatus,
-                        parseFloat(diffDepositValue) >= 0
-                          ? { color: '#059669', backgroundColor: '#dcfce7' }
-                          : { color: '#dc2626', backgroundColor: '#fee2e2' }
-                      ]}>
-                        {parseFloat(diffDepositValue) >= 0 ? 'Surplus' : 'Deficit'}
-                      </Text>
-                    </View>
-                  </Card.Content>
-                </Card>
+                  <FormButton
+                    title="Simpan Perubahan"
+                    onPress={handleSaveAudit}
+                    loading={submitting}
+                    icon="content-save"
+                    style={styles.saveButton}
+                  />
 
-                {/* Action Buttons */}
-                <FormButton
-                  title="Simpan"
-                  onPress={handleSaveAudit}
-                  loading={submitting}
-                  icon="content-save"
-                  style={styles.saveButton}
-                />
-
-                <FormButton
-                  title="Batal"
-                  onPress={() => navigation?.goBack()}
-                  variant="outline"
-                  loading={submitting}
-                  style={styles.cancelButton}
-                />
-              </>
-            ) : null}
-          </View>
-        </ScrollView>
+                  <FormButton
+                    title="Batal"
+                    onPress={() => navigation?.goBack()}
+                    variant="outline"
+                    loading={submitting}
+                    style={styles.cancelButton}
+                  />
+                </>
+              ) : null}
+            </View>
+          </ScrollView>
         </KeyboardAvoidingView>
       </View>
 
@@ -280,134 +259,5 @@ const AuditScreen: React.FC<AuditScreenProps> = ({ navigation, route }) => {
     </PaperProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9fafb',
-  },
-  keyboardAvoidingContainer: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 24,
-    paddingBottom: 20,
-  },
-  contentSection: {
-    gap: 24,
-  },
-  accountCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    marginBottom: 24,
-  },
-  accountCardContent: {
-    paddingVertical: 20,
-    paddingHorizontal: 16,
-  },
-  accountInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  accountInfoLeft: {
-    flex: 1,
-  },
-  accountName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: 4,
-  },
-  accountLabel: {
-    fontSize: 12,
-    color: '#6b7280',
-  },
-  accountInfoRight: {
-    alignItems: 'flex-end',
-  },
-  accountStatus: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#059669',
-    backgroundColor: '#dcfce7',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  formTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: 6,
-    marginTop: -12
-  },
-  input: {
-    backgroundColor: '#ffffff',
-  },
-  summaryCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  summaryContent: {
-    paddingVertical: 20,
-    paddingHorizontal: 16,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  summaryLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#6b7280',
-  },
-  summaryValue: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  summaryStatus: {
-    fontSize: 12,
-    fontWeight: '600',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  saveButton: {
-    marginTop: 12,
-    marginBottom: 0
-  },
-  cancelButton: {
-    marginTop: -10,
-  },
-  refreshOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#f9fafb',
-    zIndex: 1,
-    paddingTop: 48, // Account appbar height (24) + top padding (24)
-    paddingHorizontal: 24, // Match scrollContent padding
-    paddingBottom: 20, // Match scrollContent paddingBottom
-  },
-  helperText: {
-    marginTop: -24,
-    marginLeft: -6,
-    marginBottom: 0
-  },
-});
 
 export default AuditScreen;
