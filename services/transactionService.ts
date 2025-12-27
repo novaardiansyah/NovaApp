@@ -30,24 +30,24 @@ export interface FinancialData {
   };
 }
 
-export interface Pagination {
-  current_page: number;
-  from: number;
-  last_page: number;
+export interface Meta {
+  total_records: number;
+  items_on_page: number;
   per_page: number;
-  to: number;
-  total: number;
+  current_page: number;
+  total_pages: number;
+  has_more_pages: boolean;
 }
 
 export interface TransactionsResponse {
   success: boolean;
   data: Transaction[];
-  pagination: Pagination;
+  meta: Meta;
 }
 
 export interface TransactionParams {
   page?: number;
-  limit?: number;
+  per_page?: number;
   date_from?: string;
   date_to?: string;
   type?: string;
@@ -57,7 +57,7 @@ export interface TransactionParams {
 
 class TransactionService {
   async getTransactions(token: string, params: TransactionParams = {}): Promise<TransactionsResponse> {
-    const { page = 1, limit, date_from, date_to, type, account_id, search } = params;
+    const { page = 1, per_page, date_from, date_to, type, account_id, search } = params;
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -68,8 +68,8 @@ class TransactionService {
     const queryParams = new URLSearchParams();
     queryParams.append('page', page.toString());
 
-    if (limit) {
-      queryParams.append('limit', limit.toString());
+    if (per_page) {
+      queryParams.append('per_page', per_page.toString());
     }
 
     if (date_from) {
@@ -92,7 +92,7 @@ class TransactionService {
       queryParams.append('search', search);
     }
 
-    const url = `${APP_CONFIG.API_BASE_URL}/payments?${queryParams.toString()}`;
+    const url = `${APP_CONFIG.API_BASE_URL_GO}/payments?${queryParams.toString()}`;
 
     const response = await fetch(url, {
       method: 'GET',
@@ -107,9 +107,9 @@ class TransactionService {
     return data;
   }
 
-  async getRecentTransactions(token: string, limit: number = 5): Promise<Transaction[]> {
+  async getRecentTransactions(token: string, per_page: number = 5): Promise<Transaction[]> {
     try {
-      const response = await this.getTransactions(token, { page: 1, limit });
+      const response = await this.getTransactions(token, { page: 1, per_page });
 
       if (response.success) {
         return response.data;

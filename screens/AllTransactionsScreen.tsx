@@ -19,7 +19,7 @@ import { showDeletePaymentAlert } from '@/utils/paymentActions'
 
 type Transaction = import('@/services/transactionService').Transaction
 
-type Pagination = import('@/services/transactionService').Pagination
+type Meta = import('@/services/transactionService').Meta
 
 type ApiResponse = import('@/services/transactionService').TransactionsResponse
 
@@ -34,7 +34,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
-  const [pagination, setPagination] = useState<Pagination | null>(null)
+  const [pagination, setPagination] = useState<Meta | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
   const [actionSheetVisible, setActionSheetVisible] = useState(false)
@@ -65,14 +65,13 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
 
     try {
       const data: ApiResponse = await transactionService.getAllTransactions(token, page)
-
       if (data.success) {
         if (page === 1) {
           setTransactions(data.data)
         } else {
           setTransactions(prev => [...prev, ...data.data])
         }
-        setPagination(data.pagination)
+        setPagination(data.meta)
         setCurrentPage(page)
       }
     } catch (error) {
@@ -101,7 +100,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
   }
 
   const handleLoadMore = () => {
-    if (pagination && currentPage < pagination.last_page && !loading && !loadingMore) {
+    if (pagination && pagination.has_more_pages && !loading && !loadingMore) {
       const hasActiveFilters = !!(activeFilters.dateFrom || activeFilters.dateTo ||
         (activeFilters.transactionType && activeFilters.transactionType !== '') ||
         (activeFilters.accountId && activeFilters.accountId !== ''))
@@ -158,10 +157,10 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
       onSuccess: () => {
         setTransactions(prev => prev.filter(t => t.id !== transaction.id))
 
-        setPagination((prev: Pagination | null) => prev ? {
+        setPagination((prev: Meta | null) => prev ? {
           ...prev,
-          total: prev.total - 1,
-          to: Math.max(0, prev.to - 1)
+          total_records: prev.total_records - 1,
+          items_on_page: Math.max(0, prev.items_on_page - 1)
         } : null)
 
         setNotification('Transaksi telah berhasil dihapus!')
@@ -193,10 +192,10 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
       if (response.success) {
         if (action === 'reject') {
           setTransactions(prev => prev.filter(t => t.id !== selectedTransaction.id))
-          setPagination((prev: Pagination | null) => prev ? {
+          setPagination((prev: Meta | null) => prev ? {
             ...prev,
-            total: prev.total - 1,
-            to: Math.max(0, prev.to - 1)
+            total_records: prev.total_records - 1,
+            items_on_page: Math.max(0, prev.items_on_page - 1)
           } : null)
           setNotification('Draft berhasil ditolak!')
         } else {
@@ -304,7 +303,7 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
         } else {
           setTransactions(prev => [...prev, ...data.data])
         }
-        setPagination(data.pagination)
+        setPagination(data.meta)
         setCurrentPage(page)
       }
     } catch (error) {
@@ -465,15 +464,15 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
               </View>
             )}
 
-            {pagination && currentPage >= pagination.last_page && transactions.length > 0 ? (
+            {pagination && !pagination.has_more_pages && transactions.length > 0 ? (
               <View style={styles.endOfList}>
                 <Text style={styles.endOfListText}>
-                  Menampilkan {transactions.length} dari {pagination.total} transaksi
+                  Menampilkan {transactions.length} dari {pagination.total_records} transaksi
                 </Text>
               </View>
             ) : loadingMore ? (
               <></>
-            ) : transactions.length > 0 && pagination && currentPage < pagination.last_page ? (
+            ) : transactions.length > 0 && pagination && pagination.has_more_pages ? (
               <View style={styles.endOfList}>
                 <TouchableOpacity
                   style={styles.loadMoreButton}
