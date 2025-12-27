@@ -104,8 +104,8 @@ const AllTransactionsScreen: React.FC<AllTransactionsScreenProps> = ({ navigatio
       const hasActiveFilters = !!(activeFilters.dateFrom || activeFilters.dateTo ||
         (activeFilters.transactionType && activeFilters.transactionType !== '') ||
         (activeFilters.accountId && activeFilters.accountId !== ''))
-      if (hasActiveFilters) {
-        fetchTransactionsWithFilters(currentPage + 1, activeFilters)
+      if (hasActiveFilters || searchQuery.trim()) {
+        fetchTransactionsWithFilters(currentPage + 1, activeFilters, searchQuery)
       } else {
         fetchTransactions(currentPage + 1)
       }
