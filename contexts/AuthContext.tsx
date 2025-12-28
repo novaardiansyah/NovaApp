@@ -73,7 +73,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/login`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

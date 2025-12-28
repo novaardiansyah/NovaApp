@@ -198,7 +198,7 @@ class PushNotificationService {
           notification_token: tokenData.token,
         };
 
-        const response = await fetch(`${APP_CONFIG.API_BASE_URL}/notifications/settings`, {
+        const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/notifications/settings`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
