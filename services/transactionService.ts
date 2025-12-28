@@ -135,7 +135,7 @@ class TransactionService {
         'Authorization': `Bearer ${token}`,
       };
 
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/summary`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/payments/summary`, {
         method: 'GET',
         headers,
       });

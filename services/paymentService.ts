@@ -429,7 +429,7 @@ class PaymentService {
 
   async getPaymentSummary(token: string, startDate: string, endDate: string): Promise<ApiResponse<PaymentSummaryData>> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/summary?startDate=${startDate}&endDate=${endDate}`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/payments/summary?startDate=${startDate}&endDate=${endDate}`, {
         method: 'GET',
         headers: this.getHeaders(token),
       });
@@ -482,7 +482,7 @@ class PaymentService {
   // Attachment Management Methods
   async getPaymentAttachments(token: string, paymentId: number): Promise<AttachmentsResponse> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/attachments`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/payments/${paymentId}/attachments`, {
         method: 'GET',
         headers: this.getHeaders(token),
       });
