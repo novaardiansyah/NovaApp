@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Alert, KeyboardAvoidingView, Platform, ScrollView, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Alert, KeyboardAvoidingView, Platform, ScrollView, Text, Image, TouchableOpacity, Modal } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Appbar, Avatar, TextInput, HelperText } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
@@ -29,6 +30,7 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
   const [errors, setErrors] = useState(initialErrors);
   const [loading, setLoading] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
+  const [avatarActionVisible, setAvatarActionVisible] = useState(false);
 
   const validateFile = (asset: any): boolean => {
     const fileSize = asset.fileSize || asset.size;
@@ -68,6 +70,7 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
   };
 
   const pickImage = async () => {
+    setAvatarActionVisible(false);
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
@@ -109,6 +112,7 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
   };
 
   const takePhoto = async () => {
+    setAvatarActionVisible(false);
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
@@ -217,54 +221,26 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
             </Text>
 
             <View style={styles.avatarSection}>
-              <View>
-                {avatarPreview ? (
-                  <Image
-                    source={{ uri: avatarPreview }}
-                    style={styles.avatarImage}
-                  />
-                ) : (
-                  <Avatar.Icon size={80} icon="account" style={styles.avatarIcon} />
-                )}
-                {avatarLoading && (
-                  <View style={styles.avatarLoadingOverlay}>
-                    <Avatar.Icon size={24} icon="loading" style={styles.loadingIcon} />
-                  </View>
-                )}
-              </View>
+              <TouchableOpacity onPress={() => setAvatarActionVisible(true)} disabled={avatarLoading}>
+                <View>
+                  {avatarPreview ? (
+                    <Image
+                      source={{ uri: avatarPreview }}
+                      style={styles.avatarImage}
+                    />
+                  ) : (
+                    <Avatar.Icon size={80} icon="account" style={styles.avatarIcon} />
+                  )}
+                  {avatarLoading && (
+                    <View style={styles.avatarLoadingOverlay}>
+                      <Avatar.Icon size={24} icon="loading" style={styles.loadingIcon} />
+                    </View>
+                  )}
+                </View>
+              </TouchableOpacity>
               <Text style={styles.avatarChangeText}>
                 {selectedAvatarBase64 ? 'Avatar selected' : 'Avatar profil'}
               </Text>
-            </View>
-
-            <View style={{ marginBottom: 24 }}>
-              <Text style={styles.sectionTitle}>Ubah Avatar</Text>
-
-              <TouchableOpacity
-                style={styles.attachmentOption}
-                onPress={takePhoto}
-              >
-                <View style={[styles.optionIcon, { backgroundColor: '#3b82f6' }]}>
-                  <Ionicons name="camera" size={24} color="white" />
-                </View>
-                <View style={styles.optionTextContainer}>
-                  <Text style={styles.optionText}>Ambil Foto</Text>
-                  <Text style={styles.optionSubtext}>Gunakan kamera</Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.attachmentOption}
-                onPress={pickImage}
-              >
-                <View style={[styles.optionIcon, { backgroundColor: '#10b981' }]}>
-                  <Ionicons name="image" size={24} color="white" />
-                </View>
-                <View style={styles.optionTextContainer}>
-                  <Text style={styles.optionText}>Pilih dari Galeri</Text>
-                  <Text style={styles.optionSubtext}>JPG, PNG, GIF, WEBP (Maks 2MB)</Text>
-                </View>
-              </TouchableOpacity>
             </View>
 
             <TextInput
@@ -315,6 +291,52 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
           </ScrollView>
         </KeyboardAvoidingView>
       </View>
+
+      <Modal
+        visible={avatarActionVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setAvatarActionVisible(false)}
+      >
+        <SafeAreaView style={styles.modalOverlay}>
+          <TouchableOpacity
+            style={styles.modalBackdrop}
+            activeOpacity={1}
+            onPress={() => setAvatarActionVisible(false)}
+          />
+
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              Ubah Avatar Profil
+            </Text>
+
+            <View style={styles.modalActionsContainer}>
+              <TouchableOpacity
+                style={styles.modalActionButton}
+                onPress={takePhoto}
+              >
+                <Ionicons name="camera-outline" size={20} color="#6366f1" style={styles.modalActionIcon} />
+                <Text style={styles.modalActionText}>Ambil Foto</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.modalActionButton}
+                onPress={pickImage}
+              >
+                <Ionicons name="image-outline" size={20} color="#6366f1" style={styles.modalActionIcon} />
+                <Text style={styles.modalActionText}>Pilih dari Galeri</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={styles.modalCancelButton}
+              onPress={() => setAvatarActionVisible(false)}
+            >
+              <Text style={styles.modalCancelText}>Batal</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </Modal>
     </PaperProvider>
   );
 };

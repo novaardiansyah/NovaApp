@@ -102,4 +102,59 @@ export const styles = StyleSheet.create({
     fontSize: 11,
     color: '#6b7280',
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalBackdrop: {
+    flex: 1,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 20,
+  },
+  modalTitle: {
+    textAlign: 'center',
+    padding: 16,
+    color: '#6b7280',
+    fontSize: typography.body.secondary,
+  },
+  modalActionsContainer: {
+    paddingHorizontal: 20,
+  },
+  modalActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: '#f9fafb',
+    marginBottom: 8,
+  },
+  modalActionIcon: {
+    marginRight: 16,
+  },
+  modalActionText: {
+    fontSize: typography.body.primary,
+    fontWeight: '500',
+    color: '#111827',
+  },
+  modalCancelButton: {
+    marginHorizontal: 20,
+    marginTop: 8,
+    paddingVertical: 14,
+    borderRadius: 12,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#6366f1',
+    alignItems: 'center',
+  },
+  modalCancelText: {
+    fontSize: typography.body.primary,
+    fontWeight: '600',
+    color: '#6366f1',
+  },
 });
