@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { PaperProvider, Text, Appbar } from 'react-native-paper';
+import { View, Alert, KeyboardAvoidingView, Platform, ScrollView, Text } from 'react-native';
+import { PaperProvider, Appbar, TextInput, HelperText } from 'react-native-paper';
 import { useAuth } from '@/contexts/AuthContext';
 import { Theme } from '@/constants/colors';
-import { FormButton, FormInput } from '@/components';
+import { FormButton } from '@/components';
+import { typography } from '@/styles';
+import { styles } from '@/styles/ChangePasswordScreen.styles';
 import APP_CONFIG from '@/config/app';
 
 interface ChangePasswordScreenProps {
@@ -12,38 +14,30 @@ interface ChangePasswordScreenProps {
 
 const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navigation }) => {
   const { getAuthHeader, updateToken } = useAuth();
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formData, setFormData] = useState({
+    current_password: '',
+    new_password: '',
+    new_password_confirmation: '',
+  });
+
+  const initialErrors = {
+    current_password: '',
+    new_password: '',
+    new_password_confirmation: '',
+  };
+  const [errors, setErrors] = useState(initialErrors);
   const [loading, setLoading] = useState(false);
-  
-  const validateForm = () => {
-    if (!currentPassword.trim()) {
-      Alert.alert('Error', 'Current password is required');
-      return false;
+
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+
+    if (errors[field as keyof typeof errors]) {
+      setErrors(prev => ({ ...prev, [field as keyof typeof errors]: '' }));
     }
-    if (!newPassword.trim()) {
-      Alert.alert('Error', 'New password is required');
-      return false;
-    }
-    if (newPassword.length < 6) {
-      Alert.alert('Error', 'New password must be at least 6 characters long');
-      return false;
-    }
-    if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'New passwords do not match');
-      return false;
-    }
-    if (currentPassword === newPassword) {
-      Alert.alert('Error', 'New password must be different from current password');
-      return false;
-    }
-    return true;
   };
 
   const handleChangePassword = async () => {
     if (loading) return;
-    if (!validateForm()) return;
 
     setLoading(true);
     try {
@@ -51,16 +45,12 @@ const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navigation 
       const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/change-password`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({
-          current_password: currentPassword,
-          new_password: newPassword,
-          new_password_confirmation: confirmPassword,
-        }),
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (response.ok && data.success) {
         if (data.data?.token) {
           await updateToken(data.data.token);
         }
@@ -71,17 +61,25 @@ const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navigation 
             onPress: () => navigation.goBack(),
           },
         ]);
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
       } else {
-        Alert.alert('Error', data.message || 'Failed to change password');
+        setLoading(false);
+        if (data.errors) {
+          const newErrors = { ...errors };
+
+          Object.entries(data.errors).forEach(([field, messages]) => {
+            if (Array.isArray(messages) && messages.length > 0 && field in newErrors) {
+              newErrors[field as keyof typeof errors] = messages[0] as string;
+            }
+          });
+
+          setErrors(newErrors);
+        } else {
+          Alert.alert('Error', data.message || 'Failed to change password. Please try again.');
+        }
       }
     } catch (error) {
-      console.error('Change password error:', error);
-      Alert.alert('Error', 'Network error. Please try again.');
-    } finally {
       setLoading(false);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
     }
   };
 
@@ -90,7 +88,7 @@ const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navigation 
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Ganti Kata Sandi" />
+          <Appbar.Content title="Ganti Kata Sandi" titleStyle={typography.appbar.titleNormal} />
         </Appbar.Header>
 
         <KeyboardAvoidingView
@@ -103,38 +101,57 @@ const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navigation 
             showsVerticalScrollIndicator={false}
           >
             <Text style={styles.description}>
-              Silahkan masukkan kata sandi Anda saat ini dan pilih kata sandi baru. Pastikan kata sandi baru Anda minimal 6 karakter.
+              Silahkan masukkan kata sandi Anda saat ini dan buat kata sandi baru.
             </Text>
 
-            <FormInput
-              label="Kata sandi saat ini"
-              value={currentPassword}
-              onChangeText={setCurrentPassword}
+            <TextInput
+              label="Kata sandi saat ini *"
+              value={formData.current_password}
+              onChangeText={(value) => handleInputChange('current_password', value)}
+              mode="outlined"
+              outlineColor="#e5e7eb"
+              activeOutlineColor="#6366f1"
               secureTextEntry
-              leftIcon="lock"
+              style={{ backgroundColor: '#ffffff', marginBottom: 16, fontSize: typography.label.large }}
+              placeholder="Kata sandi saat ini"
+              left={<TextInput.Icon icon="lock" color="#9ca3af" />}
             />
+            {errors.current_password ? <HelperText type="error" style={{ marginTop: -16, marginLeft: -6, marginBottom: 8 }}>{errors.current_password}</HelperText> : null}
 
-            <FormInput
-              label="Kata sandi baru"
-              value={newPassword}
-              onChangeText={setNewPassword}
+            <TextInput
+              label="Kata sandi baru *"
+              value={formData.new_password}
+              onChangeText={(value) => handleInputChange('new_password', value)}
+              mode="outlined"
+              outlineColor="#e5e7eb"
+              activeOutlineColor="#6366f1"
               secureTextEntry
-              leftIcon="lock-plus"
+              style={{ backgroundColor: '#ffffff', marginBottom: 16, fontSize: typography.label.large }}
+              placeholder="Kata sandi baru"
+              left={<TextInput.Icon icon="lock-plus" color="#9ca3af" />}
             />
+            {errors.new_password ? <HelperText type="error" style={{ marginTop: -16, marginLeft: -6, marginBottom: 8 }}>{errors.new_password}</HelperText> : null}
 
-            <FormInput
-              label="Konfirmasi kata sandi baru"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
+            <TextInput
+              label="Konfirmasi kata sandi baru *"
+              value={formData.new_password_confirmation}
+              onChangeText={(value) => handleInputChange('new_password_confirmation', value)}
+              mode="outlined"
+              outlineColor="#e5e7eb"
+              activeOutlineColor="#6366f1"
               secureTextEntry
-              leftIcon="lock-check"
+              style={{ backgroundColor: '#ffffff', marginBottom: 16, fontSize: typography.label.large }}
+              placeholder="Konfirmasi kata sandi baru"
+              left={<TextInput.Icon icon="lock-check" color="#9ca3af" />}
             />
+            {errors.new_password_confirmation ? <HelperText type="error" style={{ marginTop: -16, marginLeft: -6, marginBottom: 8 }}>{errors.new_password_confirmation}</HelperText> : null}
 
             <FormButton
-              title="Ganti Kata Sandi"
+              title="Simpan perubahan"
               onPress={handleChangePassword}
               loading={loading}
-              icon="lock-check"
+              icon="content-save"
+              style={styles.addButton}
             />
 
             <FormButton
@@ -152,31 +169,5 @@ const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navigation 
     </PaperProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9fafb',
-  },
-  keyboardAvoidingContainer: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 100,
-  },
-  description: {
-    fontSize: 16,
-    color: '#6b7280',
-    marginBottom: 24,
-    lineHeight: 24,
-  },
-  cancelButton: {
-    marginTop: -10,
-  },
-});
 
 export default ChangePasswordScreen;
