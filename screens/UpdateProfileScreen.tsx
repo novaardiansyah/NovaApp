@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Alert, KeyboardAvoidingView, Platform, ScrollView, Text, Image, TouchableOpacity } from 'react-native';
 import { PaperProvider, Appbar, Avatar, TextInput, HelperText } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import { Theme } from '@/constants/colors';
 import { FormButton } from '@/components';
@@ -107,6 +108,46 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
     }
   };
 
+  const takePhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Please grant camera permissions to take a photo.');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const asset = result.assets[0];
+
+        if (!validateFile(asset)) {
+          return;
+        }
+
+        setAvatarLoading(true);
+
+        try {
+          const base64String = await convertImageToBase64(asset.uri);
+
+          setAvatarPreview(asset.uri);
+          setSelectedAvatarBase64(base64String);
+
+          Alert.alert('Success', 'Avatar selected! Click "Update Profile" to save changes.');
+        } catch (error) {
+        } finally {
+          setAvatarLoading(false);
+        }
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to take photo. Please try again.');
+    }
+  };
+
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
 
@@ -176,7 +217,7 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
             </Text>
 
             <View style={styles.avatarSection}>
-              <TouchableOpacity onPress={pickImage} disabled={avatarLoading}>
+              <View>
                 {avatarPreview ? (
                   <Image
                     source={{ uri: avatarPreview }}
@@ -190,14 +231,44 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
                     <Avatar.Icon size={24} icon="loading" style={styles.loadingIcon} />
                   </View>
                 )}
-              </TouchableOpacity>
+              </View>
               <Text style={styles.avatarChangeText}>
-                {selectedAvatarBase64 ? 'Avatar selected' : 'Tap to change avatar'}
+                {selectedAvatarBase64 ? 'Avatar selected' : 'Avatar profil'}
               </Text>
             </View>
 
+            <View style={{ marginBottom: 24 }}>
+              <Text style={styles.sectionTitle}>Ubah Avatar</Text>
+
+              <TouchableOpacity
+                style={styles.attachmentOption}
+                onPress={takePhoto}
+              >
+                <View style={[styles.optionIcon, { backgroundColor: '#3b82f6' }]}>
+                  <Ionicons name="camera" size={24} color="white" />
+                </View>
+                <View style={styles.optionTextContainer}>
+                  <Text style={styles.optionText}>Ambil Foto</Text>
+                  <Text style={styles.optionSubtext}>Gunakan kamera</Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.attachmentOption}
+                onPress={pickImage}
+              >
+                <View style={[styles.optionIcon, { backgroundColor: '#10b981' }]}>
+                  <Ionicons name="image" size={24} color="white" />
+                </View>
+                <View style={styles.optionTextContainer}>
+                  <Text style={styles.optionText}>Pilih dari Galeri</Text>
+                  <Text style={styles.optionSubtext}>JPG, PNG, GIF, WEBP (Maks 2MB)</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
             <TextInput
-              label="Name *"
+              label="Nama lengkap *"
               value={formData.name}
               onChangeText={(value) => handleInputChange('name', value)}
               mode="outlined"
