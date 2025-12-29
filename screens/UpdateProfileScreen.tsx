@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert, KeyboardAvoidingView, Platform, useWindowDimensions, ScrollView, Text, Image, TouchableOpacity } from 'react-native';
-import { PaperProvider, Appbar, Avatar, Button } from 'react-native-paper';
+import { View, Alert, KeyboardAvoidingView, Platform, ScrollView, Text, Image, TouchableOpacity } from 'react-native';
+import { PaperProvider, Appbar, Avatar, TextInput, HelperText } from 'react-native-paper';
 import { useAuth } from '@/contexts/AuthContext';
 import { Theme } from '@/constants/colors';
-import { FormButton, FormInput } from '@/components';
+import { FormButton } from '@/components';
 import * as ImagePicker from 'expo-image-picker';
+import { typography } from '@/styles';
+import { styles } from '@/styles/UpdateProfileScreen.styles';
 
 interface UpdateProfileScreenProps {
   navigation: any;
-}
-
-interface FormErrors {
-  name?: string;
-  email?: string;
 }
 
 const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation }) => {
@@ -23,19 +20,22 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
   });
   const [selectedAvatarBase64, setSelectedAvatarBase64] = useState<string | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar_url || null);
-  const [errors, setErrors] = useState<FormErrors>({});
+
+  const initialErrors = {
+    name: '',
+    email: '',
+  };
+  const [errors, setErrors] = useState(initialErrors);
   const [loading, setLoading] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
 
   const validateFile = (asset: any): boolean => {
-    // Check file size (2MB max)
     const fileSize = asset.fileSize || asset.size;
     if (fileSize && fileSize > 2 * 1024 * 1024) {
       Alert.alert('Error', 'File size must be less than 2MB');
       return false;
     }
 
-    // Check file type
     const mimeType = asset.mimeType || asset.type;
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (mimeType && !allowedTypes.includes(mimeType)) {
@@ -54,7 +54,6 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
         const reader = new FileReader();
         reader.onload = () => {
           const base64 = reader.result as string;
-          // Add data URL prefix if not present
           const base64WithPrefix = base64.startsWith('data:') ? base64 : `data:image/jpeg;base64,${base64.split(',')[1]}`;
           resolve(base64WithPrefix);
         };
@@ -69,14 +68,12 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
 
   const pickImage = async () => {
     try {
-      // Request permission
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert('Permission Required', 'Please grant camera roll permissions to upload avatar.');
         return;
       }
 
-      // Pick image
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: true,
@@ -87,7 +84,6 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
       if (!result.canceled && result.assets[0]) {
         const asset = result.assets[0];
 
-        // Validate file
         if (!validateFile(asset)) {
           return;
         }
@@ -95,7 +91,6 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
         setAvatarLoading(true);
 
         try {
-          // Convert image to base64
           const base64String = await convertImageToBase64(asset.uri);
 
           setAvatarPreview(asset.uri);
@@ -103,7 +98,6 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
 
           Alert.alert('Success', 'Avatar selected! Click "Update Profile" to save changes.');
         } catch (error) {
-          // Error already handled in convertImageToBase64
         } finally {
           setAvatarLoading(false);
         }
@@ -113,58 +107,24 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
     }
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
 
-    // Name validation
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    } else if (formData.name.trim().length < 3) {
-      newErrors.name = 'Name must be at least 3 characters';
+    if (errors[field as keyof typeof errors]) {
+      setErrors(prev => ({ ...prev, [field as keyof typeof errors]: '' }));
     }
-
-    // Email validation
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
     if (loading) return;
-    if (!validateForm()) return;
 
     setLoading(true);
     try {
-      // Only send fields that have changed
       const updateData: { name?: string; email?: string; avatar_base64?: string } = {};
 
-      if (formData.name !== user?.name) {
-        updateData.name = formData.name;
-      }
+      const response = await updateUser(updateData);
 
-      if (formData.email !== user?.email) {
-        updateData.email = formData.email;
-      }
-
-      if (selectedAvatarBase64) {
-        updateData.avatar_base64 = selectedAvatarBase64;
-      }
-
-      // Only make API call if there are changes
-      if (Object.keys(updateData).length === 0) {
-        Alert.alert('Info', 'No changes to update');
-        setLoading(false);
-        return;
-      }
-
-      const success = await updateUser(updateData);
-
-      if (success) {
+      if (response.success) {
         Alert.alert('Success', 'Profile updated successfully', [
           {
             text: 'OK',
@@ -172,12 +132,25 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
           },
         ]);
       } else {
-        Alert.alert('Error', 'Failed to update profile. Please try again.');
+        setLoading(false);
+
+        if (response.errors) {
+          const newErrors = { ...errors };
+
+          Object.entries(response.errors).forEach(([field, messages]) => {
+            if (Array.isArray(messages) && messages.length > 0 && field in newErrors) {
+              newErrors[field as keyof typeof errors] = messages[0] as string;
+            }
+          });
+
+          setErrors(newErrors);
+        } else {
+          Alert.alert('Error', response.message || 'Failed to update profile. Please try again.');
+        }
       }
     } catch (error) {
-      Alert.alert('Error', 'Network error. Please try again.');
-    } finally {
       setLoading(false);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
     }
   };
 
@@ -186,7 +159,7 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Edit Profil" />
+          <Appbar.Content title="Edit Profil" titleStyle={typography.appbar.titleNormal} />
         </Appbar.Header>
 
         <KeyboardAvoidingView
@@ -202,7 +175,6 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
               Perbarui informasi profil di bawah ini, pasikan data yang Anda masukkan sudah benar.
             </Text>
 
-            {/* Avatar Section */}
             <View style={styles.avatarSection}>
               <TouchableOpacity onPress={pickImage} disabled={avatarLoading}>
                 {avatarPreview ? (
@@ -224,29 +196,40 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
               </Text>
             </View>
 
-            <FormInput
-              label="Name"
+            <TextInput
+              label="Name *"
               value={formData.name}
-              onChangeText={(value) => setFormData(prev => ({ ...prev, name: value }))}
-              error={errors.name}
-              leftIcon="account"
-              required
+              onChangeText={(value) => handleInputChange('name', value)}
+              mode="outlined"
+              outlineColor="#e5e7eb"
+              activeOutlineColor="#6366f1"
+              style={{ backgroundColor: '#ffffff', marginBottom: 16, fontSize: typography.label.large }}
+              placeholder="Name"
+              left={<TextInput.Icon icon="account" color="#9ca3af" />}
             />
+            {errors.name ? <HelperText type="error" style={{ marginTop: -16, marginLeft: -6, marginBottom: 8 }}>{errors.name}</HelperText> : null}
 
-            <FormInput
-              label="Email"
+            <TextInput
+              label="Email *"
               value={formData.email}
-              onChangeText={(value) => setFormData(prev => ({ ...prev, email: value }))}
-              error={errors.email}
-              leftIcon="email"
-              required
+              onChangeText={(value) => handleInputChange('email', value)}
+              mode="outlined"
+              outlineColor="#e5e7eb"
+              activeOutlineColor="#6366f1"
+              style={{ backgroundColor: '#ffffff', marginBottom: 16, fontSize: typography.label.large }}
+              placeholder="Email"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              left={<TextInput.Icon icon="email" color="#9ca3af" />}
             />
+            {errors.email ? <HelperText type="error" style={{ marginTop: -16, marginLeft: -6, marginBottom: 8 }}>{errors.email}</HelperText> : null}
 
             <FormButton
-              title="Edit Profil"
+              title="Simpan Perubahan"
               onPress={handleSubmit}
               loading={loading}
-              icon="account-check"
+              icon="content-save"
+              style={styles.addButton}
             />
 
             <FormButton
@@ -264,68 +247,5 @@ const UpdateProfileScreen: React.FC<UpdateProfileScreenProps> = ({ navigation })
     </PaperProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9fafb',
-  },
-  keyboardAvoidingContainer: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 100,
-  },
-  description: {
-    fontSize: 16,
-    color: '#6b7280',
-    marginBottom: 24,
-    lineHeight: 24,
-  },
-  avatarSection: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  avatarImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-  },
-  avatarIcon: {
-    backgroundColor: '#6366f1',
-  },
-  avatarChangeText: {
-    fontSize: 14,
-    color: '#6366f1',
-    marginTop: 8,
-    fontWeight: '500',
-  },
-  avatarSizeText: {
-    fontSize: 12,
-    color: '#6b7280',
-    marginTop: 4,
-  },
-  avatarLoadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 40,
-  },
-  loadingIcon: {
-    backgroundColor: 'transparent',
-  },
-  cancelButton: {
-    marginTop: -10,
-  },
-});
 
 export default UpdateProfileScreen;

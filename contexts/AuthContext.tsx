@@ -23,7 +23,7 @@ interface AuthContextType {
   getAuthHeader: () => { Authorization: string } | {};
   fetchUser: () => Promise<boolean>;
   updateToken: (newToken: string) => Promise<void>;
-  updateUser: (userData: { name?: string; email?: string; avatar_base64?: string }) => Promise<boolean>;
+  updateUser: (userData: { name?: string; email?: string; avatar_base64?: string }) => Promise<any>;
   syncNotificationSettings: () => Promise<boolean>;
   toggleNotificationSettings: (enabled: boolean) => Promise<boolean>;
   validateToken: () => Promise<boolean>;
@@ -52,7 +52,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loadStoredAuth();
   }, []);
 
-  
+
   const loadStoredAuth = async () => {
     try {
       const storedToken = await AsyncStorage.getItem('auth_token');
@@ -179,9 +179,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const updateUser = async (userData: { name?: string; email?: string; avatar_base64?: string }): Promise<boolean> => {
+  const updateUser = async (userData: { name?: string; email?: string; avatar_base64?: string }): Promise<any> => {
     if (!token) {
-      return false;
+      return { success: false, message: 'Authentication token not found' };
     }
 
     try {
@@ -203,22 +203,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         body: JSON.stringify(requestBody),
       });
 
-      if (!response.ok) {
-        return false;
-      }
-
       const data = await response.json();
 
-      if (data.success) {
+      if (response.ok && data.success) {
         const updatedUser = data.data.user;
         await AsyncStorage.setItem('auth_user', JSON.stringify(updatedUser));
         setUser(updatedUser);
-        return true;
-      } else {
-        return false;
       }
+
+      return data;
     } catch (error) {
-      return false;
+      return { success: false, message: 'Network error. Please try again.' };
     }
   };
 
@@ -332,7 +327,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  
+
   const validateToken = async (): Promise<boolean> => {
     if (!token) return false;
 
