@@ -1,19 +1,10 @@
-import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  Image,
-  ActivityIndicator,
-  StatusBar,
-  Dimensions,
-  Alert,
-  ScrollView,
-} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Image, ActivityIndicator, StatusBar, Dimensions, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Appbar, FAB } from 'react-native-paper';
 import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
-import paymentService from '@/services/paymentService';
+import paymentService, { GalleryItem } from '@/services/paymentService';
 import { statusBarConfig, typography } from '@/styles';
 import { Notification } from '@/components';
 
@@ -26,19 +17,36 @@ const { height } = Dimensions.get('window');
 
 const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation, route }) => {
   const { token } = useAuth();
-  const {
-    imageUrl,
-    paymentId,
-    filepath
-  } = route.params;
+  const { groupCode } = route.params;
 
+  const [galleryItem, setGalleryItem] = useState<GalleryItem | null>(null);
+  const [loading, setLoading] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
 
+  useEffect(() => {
+    loadGallery();
+  }, [groupCode]);
+
+  const loadGallery = async () => {
+    if (!token || !groupCode || loading) return;
+
+    setLoading(true);
+    try {
+      const response = await paymentService.getGalleryByGroupCode(token, groupCode);
+      if (response.success && response.data && response.data.length > 0) {
+        setGalleryItem(response.data[0]);
+      }
+    } catch (error) {
+      Alert.alert('Kesalahan', 'Gagal memuat gambar');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDelete = async () => {
-    if (!token || !paymentId || !filepath) {
+    if (!token || !galleryItem || deleting) {
       return;
     }
 
@@ -56,7 +64,7 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
           onPress: async () => {
             setDeleting(true);
             try {
-              const response = await paymentService.deleteAttachmentByFilepath(token, paymentId, filepath);
+              const response = await paymentService.deleteAttachmentByFilepath(token, galleryItem.subject_id, galleryItem.file_name);
 
               if (response.success) {
                 setNotification('Lampiran berhasil dihapus');
@@ -74,6 +82,23 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
     );
   };
 
+  if (loading) {
+    return (
+      <PaperProvider theme={Theme}>
+        <SafeAreaView style={styles.container} edges={['left', 'right']}>
+          <StatusBar {...statusBarConfig} />
+          <Appbar.Header>
+            <Appbar.BackAction onPress={() => navigation.goBack()} />
+            <Appbar.Content title="Lihat Lampiran" titleStyle={typography.appbar.titleNormal} />
+          </Appbar.Header>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#6366f1" />
+          </View>
+        </SafeAreaView>
+      </PaperProvider>
+    );
+  }
+
   return (
     <PaperProvider theme={Theme}>
       <SafeAreaView style={styles.container} edges={['left', 'right']}>
@@ -88,34 +113,35 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
           contentContainerStyle={{ flexGrow: 1, paddingBottom: 80 }}
           showsVerticalScrollIndicator={false}
         >
-          {/* Image Display - Full Screen */}
           <View style={styles.imageContainer}>
             {imageLoading && (
               <View style={styles.imageLoadingContainer}>
                 <ActivityIndicator size="large" color="#6366f1" />
               </View>
             )}
-            <Image
-              source={{
-                uri: imageUrl,
-                headers: {
-                  'Cache-Control': 'no-cache'
-                }
-              }}
-              style={styles.image}
-              resizeMode="contain"
-              onLoad={() => {
-                setImageLoading(false);
-              }}
-              onError={(error) => {
-                setImageLoading(false);
-                Alert.alert('Kesalahan', 'Gagal memuat gambar. Silakan periksa koneksi Anda.');
-              }}
-            />
+            {galleryItem && (
+              <Image
+                source={{
+                  uri: galleryItem.url,
+                  headers: {
+                    'Cache-Control': 'no-cache'
+                  }
+                }}
+                style={styles.image}
+                resizeMode="contain"
+                onLoad={() => {
+                  setImageLoading(false);
+                }}
+                onError={() => {
+                  setImageLoading(false);
+                  Alert.alert('Kesalahan', 'Gagal memuat gambar. Silakan periksa koneksi Anda.');
+                }}
+              />
+            )}
           </View>
         </ScrollView>
 
-        {!deleting && !notification && (
+        {!deleting && !notification && galleryItem && (
           <FAB
             icon="trash-can-outline"
             color="#ffffff"
@@ -131,7 +157,7 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
         onDismiss={() => {
           setNotification(null);
           navigation.navigate('CurrentAttachments', {
-            paymentId: paymentId,
+            paymentId: galleryItem?.subject_id,
             refresh: true
           });
         }}
@@ -146,6 +172,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9fafb',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   imageContainer: {
     minHeight: height * 0.9,

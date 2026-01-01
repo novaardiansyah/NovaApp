@@ -150,6 +150,24 @@ export interface Attachment {
   updated_at: string;
 }
 
+export interface GalleryItem {
+  id: number;
+  user_id: number;
+  subject_id: number;
+  subject_type: string;
+  file_name: string;
+  url: string;
+  file_size: number;
+  is_private: boolean;
+  description: string;
+  size: string;
+  has_optimized: boolean;
+  group_code: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
 export interface DeleteItemResponse {
   success: boolean;
   message: string;
@@ -479,7 +497,7 @@ class PaymentService {
     }
   }
 
-  async getPaymentAttachments(token: string, paymentId: number): Promise<ApiResponse<any>> {
+  async getPaymentAttachments(token: string, paymentId: number): Promise<ApiResponse<GalleryItem[]>> {
     try {
       const response = await fetch(`${APP_CONFIG.API_CDN_URL}/galleries?subject_id=${paymentId}&subject_type=App%5CModels%5CPayment&size=small`, {
         method: 'GET',
@@ -490,6 +508,21 @@ class PaymentService {
       return data;
     } catch (error) {
       console.error('Error fetching payment attachments:', error);
+      throw error;
+    }
+  }
+
+  async getGalleryByGroupCode(token: string, groupCode: string, size: string = 'large'): Promise<ApiResponse<GalleryItem[]>> {
+    try {
+      const response = await fetch(`${APP_CONFIG.API_CDN_URL}/galleries/${groupCode}/?size=${size}`, {
+        method: 'GET',
+        headers: this.getHeaders(token),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching gallery by group code:', error);
       throw error;
     }
   }

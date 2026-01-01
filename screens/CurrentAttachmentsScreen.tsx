@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 import CurrentAttachmentsSkeleton from '@/components/CurrentAttachmentsSkeleton';
-import paymentService from '@/services/paymentService';
+import paymentService, { GalleryItem } from '@/services/paymentService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles, getScrollContainerStyle, statusBarConfig, typography } from '@/styles';
 import { styles } from '@/styles/CurrentAttachmentsScreen.styles';
@@ -33,11 +33,12 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
       const response = await paymentService.getPaymentAttachments(token, paymentId);
 
       if (response.success && response.data && Array.isArray(response.data)) {
-        const attachments = response.data.map((attachment: any) => ({
+        const attachments = response.data.map((attachment: GalleryItem) => ({
           id: attachment.id,
           url: attachment.url,
           file_size: attachment.file_size,
           filename: attachment.file_name,
+          group_code: attachment.group_code,
         }));
         setCurrentAttachments(attachments);
       } else {
@@ -69,8 +70,7 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
 
   const handleAttachmentPress = (attachment: any) => {
     navigation.navigate('ViewAttachment', {
-      imageUrl: attachment.url,
-      paymentId: paymentId,
+      groupCode: attachment.group_code,
     });
   };
 
