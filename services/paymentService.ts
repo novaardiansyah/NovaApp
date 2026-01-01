@@ -558,18 +558,17 @@ class PaymentService {
     }
   }
 
-  async deleteAttachmentByFilepath(token: string, paymentId: number, filepath: string): Promise<ApiResponse<any>> {
+  async deleteGalleryByGroupCode(token: string, groupCode: string): Promise<ApiResponse<any>> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/attachments`, {
+      const response = await fetch(`${APP_CONFIG.API_CDN_URL}/galleries/${groupCode}`, {
         method: 'DELETE',
         headers: this.getHeaders(token),
-        body: JSON.stringify({ filepath }),
       });
 
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error deleting attachment by filepath:', error);
+      console.error('Error deleting gallery by group code:', error);
       throw error;
     }
   }

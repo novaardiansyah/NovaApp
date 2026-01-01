@@ -34,7 +34,7 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
 
     setLoading(true);
     try {
-      const response = await paymentService.getGalleryByGroupCode(token, groupCode);
+      const response = await paymentService.getGalleryByGroupCode(token, groupCode, 'original');
       if (response.success && response.data && response.data.length > 0) {
         setGalleryItem(response.data[0]);
       }
@@ -64,7 +64,7 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
           onPress: async () => {
             setDeleting(true);
             try {
-              const response = await paymentService.deleteAttachmentByFilepath(token, galleryItem.subject_id, galleryItem.file_name);
+              const response = await paymentService.deleteGalleryByGroupCode(token, groupCode);
 
               if (response.success) {
                 setNotification('Lampiran berhasil dihapus');
