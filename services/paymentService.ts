@@ -479,10 +479,9 @@ class PaymentService {
     }
   }
 
-  // Attachment Management Methods
-  async getPaymentAttachments(token: string, paymentId: number): Promise<AttachmentsResponse> {
+  async getPaymentAttachments(token: string, paymentId: number): Promise<ApiResponse<any>> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/payments/${paymentId}/attachments`, {
+      const response = await fetch(`${APP_CONFIG.API_CDN_URL}/galleries?subject_id=${paymentId}&subject_type=App%5CModels%5CPayment&size=small`, {
         method: 'GET',
         headers: this.getHeaders(token),
       });

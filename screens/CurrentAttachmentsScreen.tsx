@@ -34,9 +34,10 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
 
       if (response.success && response.data && Array.isArray(response.data)) {
         const attachments = response.data.map((attachment: any) => ({
-          ...attachment,
-          mime_type: 'image/png',
-          filename: `image-${attachment.id}.${attachment.extension || 'png'}`
+          id: attachment.id,
+          url: attachment.url,
+          file_size: attachment.file_size,
+          filename: attachment.file_name,
         }));
         setCurrentAttachments(attachments);
       } else {
@@ -68,9 +69,8 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
 
   const handleAttachmentPress = (attachment: any) => {
     navigation.navigate('ViewAttachment', {
-      imageUrl: attachment?.original?.url || attachment.url,
+      imageUrl: attachment.url,
       paymentId: paymentId,
-      filepath: attachment.filepath
     });
   };
 
@@ -87,7 +87,7 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
             <View style={styles.attachmentLeft}>
               <View style={styles.attachmentIcon}>
                 <Image
-                  source={{ uri: attachment.file_url || attachment.url }}
+                  source={{ uri: attachment.url }}
                   style={styles.attachmentThumbnail}
                   resizeMode="cover"
                 />
@@ -97,7 +97,7 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
                   {attachment.filename}
                 </Text>
                 <Text style={styles.attachmentDetails}>
-                  {attachment.formatted_size || paymentService.formatFileSize(attachment.file_size)}
+                  {paymentService.formatFileSize(attachment.file_size)}
                 </Text>
               </View>
             </View>
