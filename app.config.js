@@ -12,7 +12,9 @@ export default ({ config }) => {
       privacyEmail: process.env.EXPO_PUBLIC_PRIVACY_EMAIL,
       supportEmail: process.env.EXPO_PUBLIC_SUPPORT_EMAIL,
       officeAddress: process.env.EXPO_PUBLIC_OFFICE_ADDRESS,
-      apiBaseUrlGo: process.env.EXPO_PUBLIC_API_BASE_URL_GO
+      apiBaseUrlGo: process.env.EXPO_PUBLIC_API_BASE_URL_GO,
+      apiCdn: process.env.EXPO_PUBLIC_CDN_API,
+      cdnUrl: process.env.EXPO_PUBLIC_CDN,
     }
   };
 };
