@@ -560,9 +560,9 @@ class PaymentService {
     }
   }
 
-  async deleteAttachment(token: string, paymentId: number, attachmentId: number): Promise<ApiResponse<any>> {
+  async deleteAttachment(token: string, groupCode: string): Promise<ApiResponse<any>> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/attachments/${attachmentId}`, {
+      const response = await fetch(`${APP_CONFIG.API_CDN_URL}/galleries/${groupCode}`, {
         method: 'DELETE',
         headers: this.getHeaders(token),
       });
@@ -575,20 +575,7 @@ class PaymentService {
     }
   }
 
-  async deleteGalleryByGroupCode(token: string, groupCode: string): Promise<ApiResponse<any>> {
-    try {
-      const response = await fetch(`${APP_CONFIG.API_CDN_URL}/galleries/${groupCode}`, {
-        method: 'DELETE',
-        headers: this.getHeaders(token),
-      });
 
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error deleting gallery by group code:', error);
-      throw error;
-    }
-  }
 
   async editPaymentItem(token: string, paymentId: number, pivotId: number, itemData: { quantity: number; price?: number }): Promise<ApiResponse<any>> {
     try {

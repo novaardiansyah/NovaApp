@@ -64,7 +64,7 @@ const ViewAttachmentScreen: React.FC<ViewAttachmentScreenProps> = ({ navigation,
           onPress: async () => {
             setDeleting(true);
             try {
-              const response = await paymentService.deleteGalleryByGroupCode(token, groupCode);
+              const response = await paymentService.deleteAttachment(token, groupCode);
 
               if (response.success) {
                 setNotification('Lampiran berhasil dihapus');
