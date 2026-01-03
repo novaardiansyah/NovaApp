@@ -30,7 +30,6 @@ interface AttachmentItem {
   name: string;
   size: number;
   type: string;
-  base64?: string;
   isUploading: boolean;
   uploadProgress: number;
   uploaded: boolean;
@@ -111,29 +110,15 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
     const newAttachment: AttachmentItem = {
       id: attachmentId,
       uri: asset.uri,
-      name: asset.name || `file_${attachmentId}`,
+      name: asset.fileName || asset.name || `file_${attachmentId}.jpg`,
       size: asset.fileSize || asset.size || 0,
-      type: asset.mimeType || asset.type || 'application/octet-stream',
+      type: asset.mimeType || asset.type || 'image/jpeg',
       isUploading: false,
       uploadProgress: 0,
       uploaded: false,
     };
 
     setSelectedAttachments(prev => [...prev, newAttachment]);
-
-    try {
-      const base64String = await paymentService.convertFileToBase64(asset.uri, newAttachment.type);
-      setSelectedAttachments(prev =>
-        prev.map(att =>
-          att.id === attachmentId ? { ...att, base64: base64String } : att
-        )
-      );
-    } catch (error) {
-      setSelectedAttachments(prev =>
-        prev.filter(att => att.id !== attachmentId)
-      );
-      Alert.alert('Kesalahan', 'Gagal memproses file. Silakan coba lagi.');
-    }
   };
 
   const removeAttachment = (id: string) => {
@@ -143,7 +128,7 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
   const uploadAttachments = async () => {
     if (!token || !paymentId || selectedAttachments.length === 0) return;
 
-    const readyToUpload = selectedAttachments.filter(att => att.base64 && !att.uploaded && !att.isUploading);
+    const readyToUpload = selectedAttachments.filter(att => !att.uploaded && !att.isUploading);
     if (readyToUpload.length === 0) {
       Alert.alert('Info', 'Tidak ada file untuk diunggah');
       return;
@@ -153,74 +138,71 @@ const AddAttachmentScreen: React.FC<AddAttachmentScreenProps> = ({ navigation, r
 
     setSelectedAttachments(prev =>
       prev.map(att =>
-        att.base64 && !att.uploaded && !att.isUploading
+        !att.uploaded && !att.isUploading
           ? { ...att, isUploading: true, uploadProgress: 0 }
           : att
       )
     );
 
-    try {
-      const attachmentBase64Array = readyToUpload.map(att => att.base64!);
+    let successCount = 0;
+    let failedCount = 0;
 
-      const response = await paymentService.uploadMultipleAttachments(token, paymentId, {
-        attachment_base64_array: attachmentBase64Array
-      });
+    for (const attachment of readyToUpload) {
+      try {
+        const response = await paymentService.uploadAttachment(token, paymentId, {
+          uri: attachment.uri,
+          name: attachment.name,
+          type: attachment.type,
+        });
 
-      if (response.success) {
-        setSelectedAttachments(prev =>
-          prev.map(att =>
-            att.base64 && !att.uploaded
-              ? { ...att, uploaded: true, isUploading: false, uploadProgress: 100 }
-              : att
-          )
-        );
-
-        const attachmentsCount = response.data?.attachments_count || readyToUpload.length;
-        Alert.alert(
-          'Unggah Selesai',
-          `Berhasil mengunggah ${attachmentsCount} file`,
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                setSelectedAttachments(prev => prev.filter(att => !att.uploaded));
-              },
-            },
-          ]
-        );
-      } else {
-        setSelectedAttachments(prev =>
-          prev.map(att =>
-            att.base64 && !att.uploaded
-              ? { ...att, isUploading: false, error: response.message || 'Upload failed' }
-              : att
-          )
-        );
-
-        let errorMessage = response.message || 'Gagal mengunggah lampiran';
-        if (response.errors) {
-          if (Array.isArray(response.errors)) {
-            errorMessage = response.errors.join(', ');
-          } else if (typeof response.errors === 'object') {
-            const errorMessages = Object.values(response.errors).flat();
-            errorMessage = errorMessages.join(', ');
-          }
+        if (response.success) {
+          successCount++;
+          setSelectedAttachments(prev =>
+            prev.map(att =>
+              att.id === attachment.id
+                ? { ...att, uploaded: true, isUploading: false, uploadProgress: 100 }
+                : att
+            )
+          );
+        } else {
+          failedCount++;
+          setSelectedAttachments(prev =>
+            prev.map(att =>
+              att.id === attachment.id
+                ? { ...att, isUploading: false, error: response.message || 'Upload failed' }
+                : att
+            )
+          );
         }
-
-        Alert.alert('Kesalahan', errorMessage);
+      } catch (error) {
+        failedCount++;
+        setSelectedAttachments(prev =>
+          prev.map(att =>
+            att.id === attachment.id
+              ? { ...att, isUploading: false, error: 'Kesalahan jaringan' }
+              : att
+          )
+        );
       }
-    } catch (error) {
-      setSelectedAttachments(prev =>
-        prev.map(att =>
-          att.base64 && !att.uploaded
-            ? { ...att, isUploading: false, error: 'Kesalahan jaringan' }
-            : att
-        )
-      );
+    }
 
-      Alert.alert('Kesalahan', 'Gagal mengunggah lampiran. Silakan periksa koneksi Anda dan coba lagi.');
-    } finally {
-      setLoading(false);
+    setLoading(false);
+
+    if (successCount > 0) {
+      Alert.alert(
+        'Unggah Selesai',
+        `Berhasil mengunggah ${successCount} file${failedCount > 0 ? `, ${failedCount} gagal` : ''}`,
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              setSelectedAttachments(prev => prev.filter(att => !att.uploaded));
+            },
+          },
+        ]
+      );
+    } else if (failedCount > 0) {
+      Alert.alert('Kesalahan', 'Gagal mengunggah lampiran. Silakan coba lagi.');
     }
   };
 

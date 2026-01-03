@@ -1,5 +1,4 @@
 import APP_CONFIG from '@/config/app';
-import { convertImageToBase64 } from '@/utils/imageUtils';
 
 export interface PaymentType {
   id: number;
@@ -179,8 +178,10 @@ export interface DeleteItemResponse {
 }
 
 
-export interface MultipleAttachmentData {
-  attachment_base64_array: string[];
+export interface UploadAttachmentData {
+  uri: string;
+  name: string;
+  type: string;
 }
 
 export interface AttachmentsResponse {
@@ -527,18 +528,34 @@ class PaymentService {
     }
   }
 
-  async uploadMultipleAttachments(token: string, paymentId: number, attachmentData: MultipleAttachmentData): Promise<AttachmentsResponse> {
+  async uploadAttachment(token: string, paymentId: number, attachmentData: UploadAttachmentData): Promise<ApiResponse<any>> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/attachments`, {
+      const formData = new FormData();
+      formData.append('file', {
+        uri: attachmentData.uri,
+        name: attachmentData.name,
+        type: attachmentData.type,
+      } as any);
+      formData.append('description', '');
+      formData.append('is_private', 'false');
+      formData.append('subject_id', paymentId.toString());
+      formData.append('subject_type', 'App\\Models\\Payment');
+      formData.append('dir', 'payment');
+
+      const response = await fetch(`${APP_CONFIG.API_CDN_URL}/galleries/upload`, {
         method: 'POST',
-        headers: this.getHeaders(token),
-        body: JSON.stringify(attachmentData),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
       });
 
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error uploading multiple attachments:', error);
+      console.error('Error uploading attachment:', error);
       throw error;
     }
   }
@@ -648,9 +665,6 @@ class PaymentService {
     return { isValid: true };
   }
 
-  convertFileToBase64 = async (uri: string, mimeType: string): Promise<string> => {
-    return convertImageToBase64(uri, mimeType);
-  }
 
   formatFileSize(bytes: number): string {
     if (bytes === 0) return '0 Bytes';
