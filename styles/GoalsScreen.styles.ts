@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   statValue: {
-    fontSize: 24,
+    fontSize: typography.heading.medium,
     fontWeight: '700',
     color: '#6366f1',
     marginBottom: 4,
@@ -81,13 +81,13 @@ export const styles = StyleSheet.create({
     flexShrink: 1,
   },
   goalName: {
-    fontSize: typography.heading.medium,
+    fontSize: typography.label.large,
     fontWeight: '600',
     color: '#1f2937',
     marginBottom: 4,
   },
   goalDescription: {
-    fontSize: typography.label.large,
+    fontSize: typography.body.primary,
     color: '#6b7280',
     marginBottom: 8,
   },
@@ -117,12 +117,12 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   progressText: {
-    fontSize: typography.label.large,
+    fontSize: typography.body.primary,
     fontWeight: '500',
     color: '#1f2937',
   },
   progressPercentage: {
-    fontSize: typography.label.large,
+    fontSize: typography.body.primary,
     fontWeight: '600',
     color: '#6366f1',
   },
@@ -177,7 +177,7 @@ export const styles = StyleSheet.create({
     color: '#6366f1',
   },
   sectionTitle: {
-    fontSize: typography.heading.large,
+    fontSize: typography.heading.medium,
     fontWeight: '600',
     color: '#1f2937',
     marginBottom: 12,
