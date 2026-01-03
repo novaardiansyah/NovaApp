@@ -258,7 +258,7 @@ class PaymentService {
 
   async getPaymentDetails(token: string, paymentId: number): Promise<ApiResponse<PaymentDetailsData>> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/payments/${paymentId}`, {
         method: 'GET',
         headers: this.getHeaders(token),
       });
