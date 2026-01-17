@@ -44,7 +44,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
     try {
       const response = await PaymentGoalsService.getPaymentGoals(token);
       if (response.success) {
-        setGoals(response.data.data);
+        setGoals(response.data);
       }
     } catch (error) {
       console.error('Error loading goals:', error);
