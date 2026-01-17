@@ -37,9 +37,10 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
   }, [isAuthenticated]);
 
   const loadGoals = async () => {
-    if (!isAuthenticated || !token) return;
+    if (loading || !isAuthenticated || !token) return;
 
     setLoading(true);
+
     try {
       const response = await PaymentGoalsService.getPaymentGoals(token);
       if (response.success) {
@@ -53,7 +54,7 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
   };
 
   const loadGoalsOverview = async () => {
-    if (!isAuthenticated || !token) return;
+    if (loading || !isAuthenticated || !token) return;
 
     try {
       const response = await PaymentGoalsService.getPaymentGoalsOverview(token);
@@ -117,7 +118,6 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                   if (response.success) {
                     setNotification(response.message || 'Tujuan keuangan berhasil dihapus!');
                   } else {
-                    // Handle specific error messages
                     if (response.message && response.message.includes('Cannot delete payment goal with existing funds')) {
                       Alert.alert(
                         'Tidak Dapat Dihapus',
@@ -131,7 +131,6 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                 } catch (error: any) {
                   console.error('Error deleting payment goal:', error);
 
-                  // Handle HTTP 422 Unprocessable Entity errors
                   if (error.status === 422 && error.message) {
                     Alert.alert(
                       'Tidak Dapat Dihapus',
@@ -217,9 +216,11 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
                         <View style={styles.goalHeader}>
                           <View style={styles.goalInfo}>
                             <Text style={styles.goalName}>{goal.name}</Text>
-                            <Text style={styles.goalDescription} numberOfLines={2}>
-                              {goal.description}
-                            </Text>
+                            {goal.description && (
+                              <Text style={styles.goalDescription} numberOfLines={2}>
+                                {goal.description}
+                              </Text>
+                            )}
                           </View>
                           <View style={styles.goalStatus}>
                             <View style={[

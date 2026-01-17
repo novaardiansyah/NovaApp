@@ -25,7 +25,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   overviewTitle: {
-    fontSize: typography.heading.medium,
+    fontSize: typography.heading.small,
     fontWeight: '600',
     color: '#1f2937',
     marginBottom: 16,
@@ -81,7 +81,7 @@ export const styles = StyleSheet.create({
     flexShrink: 1,
   },
   goalName: {
-    fontSize: typography.label.large,
+    fontSize: typography.label.small,
     fontWeight: '600',
     color: '#1f2937',
     marginBottom: 4,
@@ -177,7 +177,7 @@ export const styles = StyleSheet.create({
     color: '#6366f1',
   },
   sectionTitle: {
-    fontSize: typography.heading.medium,
+    fontSize: typography.heading.small,
     fontWeight: '600',
     color: '#1f2937',
     marginBottom: 12,
