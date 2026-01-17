@@ -168,6 +168,8 @@ const ViewPaymentDetailsScreen: React.FC<ViewPaymentDetailsScreenProps> = ({ nav
               {renderInfoRow('Jumlah', paymentData.formatted_amount, 'cash-outline', '#6366f1')}
               {renderInfoRow('Tanggal', paymentData.formatted_date, 'calendar-outline', '#6366f1')}
               {renderInfoRow('Tipe', paymentData.type === 'income' ? 'Pemasukan' : 'Pengeluaran', 'folder-outline', '#6366f1')}
+              {renderInfoRow('Akun', paymentData.account?.name || '-', 'wallet-outline', '#6366f1')}
+              {paymentData.account_to?.id && renderInfoRow('Akun Tujuan', paymentData.account_to.name || '-', 'arrow-forward-circle-outline', '#6366f1')}
               {renderInfoRow('Memiliki Item', paymentData.has_items ? 'Ya' : 'Tidak', 'list-outline', '#6366f1')}
               {renderInfoRow('Terjadwal', paymentData.is_scheduled ? 'Ya' : 'Tidak', 'newspaper-outline', '#6366f1')}
               {renderInfoRow('Draft', paymentData.is_draft ? 'Ya' : 'Tidak', 'document-text-outline', '#6366f1')}

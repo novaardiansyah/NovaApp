@@ -45,7 +45,7 @@ const CurrentAttachmentsScreen: React.FC<CurrentAttachmentsScreenProps> = ({ nav
         setCurrentAttachments([]);
       }
     } catch (error) {
-      console.error('Error loading current attachments:', error);
+      console.log('Error loading current attachments:', error);
       setCurrentAttachments([]);
     } finally {
       setLoading(false);
