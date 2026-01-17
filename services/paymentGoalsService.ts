@@ -71,7 +71,7 @@ class PaymentGoalsService {
 
   async getPaymentGoalsOverview(token: string): Promise<ApiResponse<PaymentGoalsOverview>> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payment-goals/overview`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/payment-goals/overview`, {
         method: 'GET',
         headers: this.getHeaders(token),
       });
