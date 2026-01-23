@@ -11,7 +11,7 @@ import { Theme } from '@/constants/colors';
 import { FormButton, Select, Notification } from '@/components';
 import { styles } from '@/styles/AddPaymentScreen.styles';
 import { typography } from '@/styles';
-import paymentService, { PaymentData } from '@/services/paymentService';
+import paymentService, { PaymentAccount, PaymentData } from '@/services/paymentService';
 import { formatAmount } from '@/utils/transactionUtils';
 
 interface AddPaymentScreenProps {
@@ -24,11 +24,9 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [paymentTypes, setPaymentTypes] = useState<any[]>([]);
   const [datePickerVisible, setDatePickerVisible] = useState(false);
-  const [paymentAccounts, setPaymentAccounts] = useState<any[]>([]);
+  const [paymentAccounts, setPaymentAccounts] = useState<PaymentAccount[]>([]);
   const [notification, setNotification] = useState<string | null>(null);
   const [optionsExpanded, setOptionsExpanded] = useState(false);
-
-  // No navigation listeners needed for this screen
 
   const [loadingPaymentTypes, setLoadingPaymentTypes] = useState(false);
   const [loadingPaymentAccounts, setLoadingPaymentAccounts] = useState(false);
@@ -46,6 +44,8 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     has_items: false,
     is_draft: false,
     is_scheduled: false,
+    payment_account_deposit: 0,
+    payment_account_deposit_to: 0,
   };
 
   const initialErrors = {
@@ -55,6 +55,8 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
     date: '',
     payment_account_id: '',
     payment_account_to_id: '',
+    payment_account_deposit: '',
+    payment_account_deposit_to: '',
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -100,13 +102,10 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
 
     try {
       const accounts = await paymentService.getPaymentAccounts(token);
-      setPaymentAccounts(accounts);
+      setPaymentAccounts(accounts.data);
 
-      if (accounts.length > 0) {
-        const defaultAccount = accounts.find((account) => account.is_default) || accounts[0];
-        const selected = defaultAccount.id.toString();
-
-        setFormData(prev => ({ ...prev, payment_account_id: selected }));
+      if (paymentAccounts.length > 0) {
+        setFormData(prev => ({ ...prev }));
       }
     } catch (error) {
       console.error('Error loading payment accounts:', error);
@@ -167,24 +166,40 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   };
 
   const handlePaymentAccountChange = (accountId: string) => {
+    const account = paymentAccounts.find(account => account.id.toString() === accountId);
+   
+    let temp = {
+      payment_account_id: accountId,
+      payment_account_deposit: 0
+    }
+
+    if (account) {
+      temp.payment_account_deposit = account.deposit;
+    }
+    
     setFormData(prev => ({
       ...prev,
-      payment_account_id: accountId
-    }));
-    if (errors.payment_account_id) {
-      setErrors(prev => ({ ...prev, payment_account_id: '' }));
-    }
+      ...temp
+    }))
   };
 
   const handlePaymentAccountToChange = (accountId: string) => {
+    const account = paymentAccounts.find(account => account.id.toString() === accountId);
+    
+    let temp = {
+      payment_account_to_id: accountId,
+      payment_account_deposit_to: 0
+    }
+
+    if (account) {
+      temp.payment_account_deposit_to = account.deposit;
+    }
+    
     setFormData(prev => ({
       ...prev,
-      payment_account_to_id: accountId
-    }));
-    if (errors.payment_account_to_id) {
-      setErrors(prev => ({ ...prev, payment_account_to_id: '' }));
-    }
-  };
+      ...temp
+    }))
+  }
 
   const handleToggleChange = (field: 'has_items' | 'is_draft' | 'is_scheduled', value: boolean) => {
     if (field === 'has_items' && value) {
@@ -224,16 +239,10 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-    if (!token) {
-      Alert.alert('Error', 'Authentication token not found. Please login again.');
-      return;
-    }
-
-    if (loading) {
-      return;
-    }
+    if (!token || loading) return;
 
     setLoading(true);
+
     try {
       let payment_account_to_id = isTransferOrWidrawal ? parseInt(formData.payment_account_to_id) : null;
 
@@ -364,7 +373,7 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
             />
 
             <Select
-              label="Akun Transaksi"
+              label={'Akun Transaksi (Rp' + (formData.payment_account_deposit ? `${formatAmount(formData.payment_account_deposit.toString())}` : '0') +') *'}
               value={formData.payment_account_id}
               onValueChange={handlePaymentAccountChange}
               options={paymentAccounts}
@@ -372,10 +381,11 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               error={errors.payment_account_id}
               style={styles.input}
               errorStyle={styles.helperText}
+              placeholder="Pilih akun transaksi"
             />
 
             <Select
-              label="Ke Akun Transaksi"
+              label={'Akun Tujuan (Rp' + (formData.payment_account_deposit_to ? `${formatAmount(formData.payment_account_deposit_to.toString())}` : '0') +') *'}
               value={formData.payment_account_to_id}
               onValueChange={handlePaymentAccountToChange}
               options={paymentAccounts}
@@ -384,9 +394,9 @@ const AddPaymentScreen: React.FC<AddPaymentScreenProps> = ({ navigation }) => {
               style={styles.input}
               errorStyle={styles.helperText}
               visible={isTransferOrWidrawal}
+              placeholder="Pilih akun transaksi tujuan"
             />
 
-            {/* Collapsible Options Section */}
             <List.Accordion
               title="Opsi Transaksi"
               description="Pengaturan tambahan"

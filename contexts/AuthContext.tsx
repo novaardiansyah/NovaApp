@@ -338,7 +338,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         'Authorization': `Bearer ${token}`,
       };
 
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/validate-token`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/auth/validate-token`, {
         method: 'GET',
         headers,
       });

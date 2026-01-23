@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { typography } from './common.styles';
 
 export const styles = StyleSheet.create({
   container: {
@@ -16,14 +17,15 @@ export const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   description: {
-    fontSize: 16,
+    fontSize: typography.label.large,
     color: '#6b7280',
-    marginBottom: 24,
-    lineHeight: 24,
+    marginBottom: 16,
+    lineHeight: 22,
   },
   input: {
     backgroundColor: '#ffffff',
     marginBottom: 16,
+    fontSize: typography.label.large,
   },
   helperText: {
     marginTop: -16,
@@ -36,7 +38,6 @@ export const styles = StyleSheet.create({
   cancelButton: {
     marginTop: -10,
   },
-  // Goal Info Card Styles
   goalInfoCard: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
@@ -49,15 +50,14 @@ export const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   goalName: {
-    fontSize: 18,
+    fontSize: typography.heading.small,
     fontWeight: '600',
     color: '#1f2937',
     marginBottom: 4,
   },
   goalDescription: {
-    fontSize: 14,
+    fontSize: typography.label.small,
     color: '#6b7280',
-    marginBottom: 16,
     lineHeight: 20,
   },
   goalProgress: {
@@ -70,11 +70,11 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   progressLabel: {
-    fontSize: 12,
+    fontSize: typography.label.small,
     color: '#6b7280',
   },
   progressValue: {
-    fontSize: 12,
+    fontSize: typography.label.small,
     fontWeight: '500',
     color: '#1f2937',
   },
@@ -93,7 +93,7 @@ export const styles = StyleSheet.create({
     borderRadius: 3,
   },
   progressText: {
-    fontSize: 11,
+    fontSize: typography.body.secondary,
     color: '#6b7280',
     textAlign: 'right',
     marginTop: 4,

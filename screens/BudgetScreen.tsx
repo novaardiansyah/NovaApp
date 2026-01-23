@@ -47,7 +47,7 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
     setLoading(true);
     try {
       const data = await PaymentService.getPaymentAccounts(token);
-      setPaymentAccounts(data);
+      setPaymentAccounts(data.data);
     } catch (error) {
       console.error('Error fetching payment accounts:', error);
     } finally {
@@ -171,7 +171,7 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
 
           {/* Accounts List */}
           <View style={styles.accountsSection}>
-            <Text style={[commonStyles.sectionTitle, { fontSize: typography.heading.large }]}>Akun Keuangan</Text>
+            <Text style={[commonStyles.sectionTitle, { fontSize: typography.heading.medium }]}>Akun Keuangan</Text>
 
             {loading ? (
               <AccountsListSkeleton count={5} />
@@ -189,7 +189,7 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
                             <View style={styles.accountLeft}>
                               <Avatar.Image
                                 size={48}
-                                source={{ uri: account.logo }}
+                                source={{ uri: account.formatted.logo }}
                                 style={styles.accountLogo}
                               />
                               <View style={styles.accountInfo}>
@@ -202,7 +202,7 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
                                       ? { color: '#f59e0b' }
                                       : { color: '#ef4444' }
                                 ]}>
-                                  {account.formatted_deposit}
+                                  {account.formatted.deposit}
                                 </Text>
                               </View>
                             </View>

@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Theme } from '@/constants/colors';
 import { FormButton, Select, Notification } from '@/components';
 import { styles } from '@/styles/AddFundsScreen.styles';
+import { typography } from '@/styles';
 import PaymentService, { PaymentAccount } from '@/services/paymentService';
 import PaymentGoalsService, { PaymentGoal, AddFundsData } from '@/services/paymentGoalsService';
 import { formatAmount } from '@/utils/transactionUtils';
@@ -33,11 +34,13 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
   const initialFormData = {
     amount: '',
     payment_account_id: '',
+    payment_account_deposit: 0,
   };
 
   const initialErrors = {
     amount: '',
     payment_account_id: '',
+    payment_account_deposit: '',
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -57,13 +60,10 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
 
     try {
       const accounts = await PaymentService.getPaymentAccounts(token);
-      setPaymentAccounts(accounts);
+      setPaymentAccounts(accounts.data);
 
-      if (accounts.length > 0) {
-        const defaultAccount = accounts.find((account) => account.is_default) || accounts[0];
-        const selected = defaultAccount.id.toString();
-
-        setFormData(prev => ({ ...prev, payment_account_id: selected }));
+      if (paymentAccounts.length > 0) {
+        setFormData(prev => ({ ...prev }));
       }
     } catch (error) {
       console.error('Error loading payment accounts:', error);
@@ -73,6 +73,13 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
   };
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
+    if (field === 'payment_account_id') {
+      const account = paymentAccounts.find(account => account.id === parseInt(value));
+      if (account) {
+        setFormData(prev => ({ ...prev, payment_account_deposit: account.deposit }));
+      }
+    }
+
     setFormData(prev => ({ ...prev, [field]: value }));
 
     if (errors[field as keyof typeof errors]) {
@@ -80,7 +87,6 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
     }
   };
 
-  
   const handleSubmit = async () => {
     if (!token || loading) {
       return;
@@ -93,7 +99,6 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
         payment_account_id: parseInt(formData.payment_account_id)
       };
 
-      // Call API to add funds to goal
       const response = await PaymentGoalsService.addFundsToGoal(token, goal.id, fundsData);
 
       if (response.success) {
@@ -127,7 +132,7 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation?.goBack()} />
-          <Appbar.Content title="Tambah Dana" />
+          <Appbar.Content title="Tambah Dana" titleStyle={typography.appbar.titleNormal} />
         </Appbar.Header>
 
         <KeyboardAvoidingView
@@ -142,8 +147,15 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
             {/* Goal Information */}
             <View style={styles.goalInfoCard}>
               <Text style={styles.goalName}>{goal.name}</Text>
-              <Text style={styles.goalDescription}>{goal.description}</Text>
+              
+              {
+                goal.description && (
+                  <Text style={styles.goalDescription}>{goal.description}</Text>
+                )
+              }
 
+              <View style={{ marginBottom: 16 }}></View>
+              
               <View style={styles.goalProgress}>
                 <View style={styles.progressRow}>
                   <Text style={styles.progressLabel}>Saat Ini</Text>
@@ -169,7 +181,7 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
             </View>
 
             <Select
-              label="Akun Pembayaran"
+              label={'Akun Transaksi (Rp' + (formData.payment_account_deposit ? `${formatAmount(formData.payment_account_deposit.toString())}` : '0') +') *'}
               value={formData.payment_account_id}
               onValueChange={(value) => handleInputChange('payment_account_id', value)}
               options={paymentAccounts}
@@ -177,6 +189,7 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
               error={errors.payment_account_id}
               style={styles.input}
               errorStyle={styles.helperText}
+              placeholder="Pilih akun transaksi"
             />
 
             <TextInput
@@ -189,9 +202,6 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
               style={styles.input}
               placeholder="Jumlah (Rp) *"
               keyboardType="numeric"
-              autoCapitalize="none"
-              autoCorrect={false}
-              left={<TextInput.Icon icon="currency-usd" color="#6b7280" />}
             />
             {errors.amount && <HelperText type="error" style={styles.helperText}>{errors.amount}</HelperText>}
 
@@ -199,7 +209,7 @@ const AddFundsScreen: React.FC<AddFundsScreenProps> = ({ navigation, route }) =>
               title="Tambah Dana"
               onPress={handleSubmit}
               loading={loading}
-              icon="plus"
+              icon="content-save"
               style={styles.addButton}
             />
 

@@ -12,9 +12,10 @@ export interface PaymentAccount {
   id: number;
   name: string;
   deposit: number;
-  formatted_deposit: string;
-  logo?: string;
-  is_default: boolean;
+  formatted: {
+    deposit: string;
+    logo: string;
+  }
 }
 
 export interface PaymentData {
@@ -237,9 +238,9 @@ class PaymentService {
     }
   }
 
-  async getPaymentAccounts(token: string): Promise<PaymentAccount[]> {
+  async getPaymentAccounts(token: string): Promise<ApiResponse<PaymentAccount[]>> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payment-accounts`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/payment-accounts/?per_page=20`, {
         method: 'GET',
         headers: this.getHeaders(token),
       });
