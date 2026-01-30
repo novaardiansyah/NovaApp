@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { Card, Divider } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
-import RecentTransactionsSkeleton from './RecentTransactionsSkeleton';
-import EmptyTransactionsCard from './EmptyTransactionsCard';
-import { useAuth } from '@/contexts/AuthContext';
-import { getTransactionColor, getTransactionIcon } from '@/utils/transactionUtils';
-import transactionService from '@/services/transactionService';
-import { typography } from '@/styles';
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Pressable } from "react-native";
+import { Card, Divider } from "react-native-paper";
+import { Ionicons } from "@expo/vector-icons";
+import RecentTransactionsSkeleton from "./RecentTransactionsSkeleton";
+import EmptyTransactionsCard from "./EmptyTransactionsCard";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  getTransactionColor,
+  getTransactionIcon,
+} from "@/utils/transactionUtils";
+import transactionService from "@/services/transactionService";
+import { typography } from "@/styles";
 
 interface RecentTransactionsProps {
   limit?: number;
@@ -22,45 +25,21 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   onSeeAll,
   onTransactionPress,
   style,
-  refreshTrigger
+  refreshTrigger,
 }) => {
-  const { token, validateToken, logout } = useAuth();
+  const { token } = useAuth();
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [hasValidated, setHasValidated] = useState(false);
-  const [lastRefreshTrigger, setLastRefreshTrigger] = useState<boolean | number | undefined>(undefined);
+  const [lastRefreshTrigger, setLastRefreshTrigger] = useState<
+    boolean | number | undefined
+  >(undefined);
   const [pressedCardId, setPressedCardId] = useState<number | null>(null);
-
-  const validateSession = async (): Promise<boolean> => {
-    if (!token || hasValidated) return false;
-
-    try {
-      const isValid = await validateToken();
-      setHasValidated(true);
-
-      if (!isValid) {
-        await logout();
-        return false;
-      }
-      return true;
-    } catch (error) {
-      console.error('Error validating session:', error);
-      setHasValidated(true);
-      return false;
-    }
-  };
 
   const loadTransactions = async () => {
     if (!token) return;
 
     try {
-      const isValid = await validateSession();
-      if (!isValid) {
-        setLoading(false);
-        return;
-      }
-
       if (!isRefreshing) {
         setLoading(true);
       }
@@ -68,7 +47,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
       const data = await transactionService.getRecentTransactions(token, limit);
       setTransactions(data);
     } catch (error) {
-      console.error('Error fetching recent transactions:', error);
+      console.error("Error fetching recent transactions:", error);
       setTransactions([]);
     } finally {
       if (!isRefreshing) {
@@ -87,7 +66,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
       const data = await transactionService.getRecentTransactions(token, limit);
       setTransactions(data);
     } catch (error) {
-      console.error('Error refreshing transactions:', error);
+      console.error("Error refreshing transactions:", error);
       setTransactions([]);
     } finally {
       setIsRefreshing(false);
@@ -115,7 +94,9 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
       <View style={styles.transactionsHeader}>
         <Text style={styles.sectionTitle}>Transaksi Terbaru</Text>
         {onSeeAll && (
-          <Text style={styles.seeAllText} onPress={onSeeAll}>Lihat semua</Text>
+          <Text style={styles.seeAllText} onPress={onSeeAll}>
+            Lihat semua
+          </Text>
         )}
       </View>
       {loading || isRefreshing ? (
@@ -124,16 +105,25 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
         <Card style={styles.transactionsCard}>
           <Card.Content style={styles.transactionsCardContent}>
             {transactions.length === 0 ? (
-              <EmptyTransactionsCard withoutCard={true} style={styles.emptyCardContent} />
+              <EmptyTransactionsCard
+                withoutCard={true}
+                style={styles.emptyCardContent}
+              />
             ) : (
               transactions.map((transaction, index) => {
                 const transactionContent = (
                   <View style={styles.transactionItem}>
                     <View style={styles.transactionLeft}>
-                      <View style={[
-                        styles.transactionIcon,
-                        { backgroundColor: getTransactionColor(transaction.type_id) }
-                      ]}>
+                      <View
+                        style={[
+                          styles.transactionIcon,
+                          {
+                            backgroundColor: getTransactionColor(
+                              transaction.type_id,
+                            ),
+                          },
+                        ]}
+                      >
                         <Ionicons
                           name={getTransactionIcon(transaction.type_id) as any}
                           size={16}
@@ -141,16 +131,26 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                         />
                       </View>
                       <View style={styles.transactionInfo}>
-                        <Text style={styles.transactionName} numberOfLines={1} ellipsizeMode="tail">{transaction.name || transaction.title}</Text>
-                        <Text style={styles.transactionDate}>{transaction.formatted_date}</Text>
+                        <Text
+                          style={styles.transactionName}
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {transaction.name || transaction.title}
+                        </Text>
+                        <Text style={styles.transactionDate}>
+                          {transaction.formatted_date}
+                        </Text>
                       </View>
                     </View>
                     <View style={styles.transactionRight}>
                       <View style={styles.transactionAmountContainer}>
-                        <Text style={[
-                          styles.transactionAmount,
-                          { color: getTransactionColor(transaction.type_id) }
-                        ]}>
+                        <Text
+                          style={[
+                            styles.transactionAmount,
+                            { color: getTransactionColor(transaction.type_id) },
+                          ]}
+                        >
                           {transaction.formatted_amount}
                         </Text>
                         <View style={styles.transactionIconsContainer}>
@@ -183,7 +183,10 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                         onPress={() => onTransactionPress(transaction)}
                         onPressIn={() => setPressedCardId(transaction.id)}
                         onPressOut={() => setPressedCardId(null)}
-                        style={pressedCardId === transaction.id && styles.transactionItemPressed}
+                        style={
+                          pressedCardId === transaction.id &&
+                          styles.transactionItemPressed
+                        }
                       >
                         {transactionContent}
                       </Pressable>
@@ -209,26 +212,26 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   transactionsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 14,
   },
   sectionTitle: {
     fontSize: typography.heading.large,
-    fontWeight: '600',
-    color: '#1f2937',
+    fontWeight: "600",
+    color: "#1f2937",
   },
   seeAllText: {
     fontSize: typography.label.large,
-    color: '#6366f1',
-    fontWeight: '500',
+    color: "#6366f1",
+    fontWeight: "500",
   },
   transactionsCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderRadius: 12,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -237,66 +240,64 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   emptyCardContent: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 32,
   },
   transactionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingVertical: 12,
   },
   transactionItemPressed: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     opacity: 0.7,
   },
   transactionLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     flex: 1,
   },
   transactionIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 16,
   },
   transactionInfo: {
     flex: 1,
-    maxWidth: '60%',
+    maxWidth: "60%",
   },
   transactionName: {
     fontSize: typography.body.primary,
-    fontWeight: '500',
-    color: '#1f2937',
+    fontWeight: "500",
+    color: "#1f2937",
     marginBottom: 4,
   },
   transactionDate: {
     fontSize: typography.body.secondary,
-    color: '#6b7280',
+    color: "#6b7280",
   },
   transactionRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   transactionAmountContainer: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
-  transactionItemsIcon: {
-  },
+  transactionItemsIcon: {},
   transactionIconsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
     marginTop: 2,
   },
-  transactionScheduledIcon: {
-  },
+  transactionScheduledIcon: {},
   transactionAmount: {
     fontSize: typography.body.primary,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   transactionDivider: {
     marginVertical: 0,
