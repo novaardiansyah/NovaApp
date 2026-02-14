@@ -123,7 +123,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         'Authorization': `Bearer ${tokenToUse}`,
       };
 
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/user`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/users/me`, {
         method: 'GET',
         headers,
       });

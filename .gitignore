@@ -54,6 +54,8 @@ service_account_playstore.json
 google-services.json
 _env
 todo.md
-.agent/.docs/notes.md
-.agent/.docs/task.md
-.antigravity/*
+.agent/
+.antigravity/
+.opencode/
+AGENTS.md
+Makefile
