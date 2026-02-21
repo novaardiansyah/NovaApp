@@ -220,7 +220,7 @@ class PaymentService {
 
   async getPaymentTypes(token: string): Promise<PaymentType[]> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payment-types`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/payment-types`, {
         method: 'GET',
         headers: this.getHeaders(token),
       });
@@ -228,7 +228,7 @@ class PaymentService {
       const data = await response.json();
 
       if (response.ok) {
-        return data;
+        return data.data;
       }
 
       throw new Error('Failed to fetch payment types');
@@ -289,7 +289,7 @@ class PaymentService {
 
   async createPayment(token: string, paymentData: PaymentData): Promise<ApiResponse<any>> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/payments`, {
         method: 'POST',
         headers: this.getHeaders(token),
         body: JSON.stringify(paymentData),
