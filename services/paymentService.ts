@@ -88,19 +88,20 @@ export interface PaymentItem {
   pivot_id?: number;
 }
 
-export interface Pagination {
-  current_page: number;
-  from: number;
-  last_page: number;
+export interface Meta {
+  total_records: number;
+  items_on_page: number;
   per_page: number;
-  to: number;
-  total: number;
+  current_page: number;
+  total_pages: number;
+  has_more_pages: boolean;
 }
 
 export interface PaymentItemsResponse {
   success: boolean;
+  message?: string;
   data: PaymentItem[];
-  pagination: Pagination;
+  meta: Meta;
 }
 
 export interface AttachMultipleItemsData {
@@ -388,7 +389,7 @@ class PaymentService {
 
   async getPaymentItemsSummary(token: string, paymentId: number): Promise<ApiResponse<PaymentItemsSummary>> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/items/summary`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/payments/${paymentId}/items/summary`, {
         method: 'GET',
         headers: this.getHeaders(token),
       });
@@ -403,7 +404,7 @@ class PaymentService {
 
   async getPaymentItems(token: string, paymentId: number, page: number = 1): Promise<PaymentItemsResponse> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/items/attached?page=${page}`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/payments/${paymentId}/items/attached?page=${page}`, {
         method: 'GET',
         headers: this.getHeaders(token),
       });
