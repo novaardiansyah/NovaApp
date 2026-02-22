@@ -79,6 +79,9 @@ export const styles = StyleSheet.create({
     marginTop: 14,
     marginBottom: 24,
   },
+  addButton: {
+    marginTop: 20
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

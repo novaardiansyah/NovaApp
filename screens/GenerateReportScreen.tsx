@@ -26,9 +26,9 @@ interface ReportTypeOption {
 }
 
 const reportTypeOptions: ReportTypeOption[] = [
-  { value: 'monthly', label: 'Laporan Bulanan (Email)', description: 'Laporan bulanan dikirim ke email' },
-  { value: 'daily', label: 'Laporan Harian (Email)', description: 'Laporan harian dikirim ke email' },
-  { value: 'date_range', label: 'Rentang Tanggal (PDF)', description: 'Laporan rentang tanggal sebagai PDF' },
+  { value: 'monthly', label: 'Laporan Bulanan', description: 'Laporan bulanan dikirim ke email' },
+  { value: 'daily', label: 'Laporan Harian', description: 'Laporan harian dikirim ke email' },
+  { value: 'date_range', label: 'Rentang Tanggal', description: 'Laporan rentang tanggal dikirim ke email' },
 ];
 
 const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation }) => {
@@ -58,7 +58,6 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
 
   const monthOptions = useMemo(() => {
     const now = new Date();
-    const year = now.getFullYear();
     const options: { value: string; label: string }[] = [];
 
     const monthNames = [
@@ -66,11 +65,14 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
       'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
     ];
 
-    for (let i = 0; i < 12; i++) {
-      const monthValue = `${year}-${String(i + 1).padStart(2, '0')}`;
+    for (let monthOffset = -12; monthOffset <= 3; monthOffset++) {
+      const targetDate = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+      const year = targetDate.getFullYear();
+      const month = targetDate.getMonth();
+      const monthValue = `${year}-${String(month + 1).padStart(2, '0')}`;
       options.push({
         value: monthValue,
-        label: `${monthNames[i]} ${year}`
+        label: `${monthNames[month]} ${year}`
       });
     }
 
@@ -280,28 +282,24 @@ const GenerateReportScreen: React.FC<GenerateReportScreenProps> = ({ navigation 
             </Card>
           )}
 
-          {/* Submit Button */}
-          <View style={styles.buttonContainer}>
-            <FormButton
-              title="Proses Laporan"
-              onPress={handleSubmit}
-              loading={submitting}
-              fullWidth
-            />
+          <FormButton
+            title="Proses Laporan"
+            onPress={handleSubmit}
+            loading={submitting}
+            style={styles.addButton}
+          />
 
-            <FormButton
-              title="Batal"
-              onPress={() => {
-                if (!submitting) {
-                  navigation.goBack();
-                }
-              }}
-              variant="outline"
-              loading={submitting}
-              fullWidth
-              style={styles.cancelButton}
-            />
-          </View>
+          <FormButton
+            title="Batal"
+            onPress={() => {
+              if (!submitting) {
+                navigation.goBack();
+              }
+            }}
+            variant="outline"
+            loading={submitting}
+            style={styles.cancelButton}
+          />
         </ScrollView>
 
         {/* Report Type Modal */}
