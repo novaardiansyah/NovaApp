@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, ScrollView, Text, KeyboardAvoidingView, Platform, Alert, RefreshControl, Modal, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Text, KeyboardAvoidingView, Platform, Alert, RefreshControl, Modal, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, Card, TextInput, Button, Appbar } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,7 +8,7 @@ import { FormButton, Notification, SearchResultsSkeleton } from '@/components';
 import { commonStyles, typography } from '@/styles';
 import { styles } from '@/styles/AddPaymentItemScreen.styles';
 import { useAuth } from '@/contexts/AuthContext';
-import paymentService, { SearchItem, AttachMultipleItemsData } from '@/services/paymentService';
+import paymentService, { SearchItem, AttachMultipleItemsData, Meta } from '@/services/paymentService';
 import { formatAmount } from '@/utils/transactionUtils';
 
 interface PaymentItem {
@@ -46,24 +46,42 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
   const [searchLoading, setSearchLoading] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [selectedItems, setSelectedItems] = useState<SearchItem[]>([]);
+  const [searchLoadingMore, setSearchLoadingMore] = useState(false);
+  const [searchPagination, setSearchPagination] = useState<Meta | null>(null);
+  const [searchCurrentPage, setSearchCurrentPage] = useState(1);
 
   // Load initial items when modal opens
   useEffect(() => {
     if (showSearchModal && searchResults.length === 0 && !searchQuery) {
-      loadInitialItems();
+      loadInitialItems(1);
     }
   }, [showSearchModal]);
 
-  const loadInitialItems = async () => {
-    setSearchLoading(true);
+  const loadInitialItems = async (page: number = 1) => {
+    if (page === 1) {
+      setSearchLoading(true);
+    } else {
+      setSearchLoadingMore(true);
+    }
+
     try {
-      const response = await paymentService.getNotAttachedItems(token, paymentId, 10);
-      setSearchResults(response.data);
+      const response = await paymentService.getNotAttachedItems(token, paymentId, 10, undefined, page);
+      if (page === 1) {
+        setSearchResults(response.data);
+      } else {
+        setSearchResults(prev => [...prev, ...response.data]);
+      }
+      setSearchPagination(response.meta);
+      setSearchCurrentPage(page);
     } catch (error) {
       setSearchResults([]);
       console.error('Error loading initial items:', error);
     } finally {
-      setSearchLoading(false);
+      if (page === 1) {
+        setSearchLoading(false);
+      } else {
+        setSearchLoadingMore(false);
+      }
     }
   };
 
@@ -112,21 +130,38 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
   };
 
   // Search functionality
-  const handleSearch = async () => {
+  const handleSearch = async (page: number = 1) => {
     if (searchQuery.trim().length < 2) {
       Alert.alert('Error Validasi', 'Masukkan minimal 2 karakter untuk mencari');
       return;
     }
 
-    setSearchLoading(true);
+    if (page === 1) {
+      setSearchLoading(true);
+    } else {
+      setSearchLoadingMore(true);
+    }
+
     try {
-      const response = await paymentService.searchNotAttachedItems(token, paymentId, searchQuery, 10);
-      setSearchResults(response.data);
+      const response = await paymentService.searchNotAttachedItems(token, paymentId, searchQuery, 10, page);
+      if (page === 1) {
+        setSearchResults(response.data);
+      } else {
+        setSearchResults(prev => [...prev, ...response.data]);
+      }
+      setSearchPagination(response.meta);
+      setSearchCurrentPage(page);
     } catch (error) {
-      setSearchResults([]);
+      if (page === 1) {
+        setSearchResults([]);
+      }
       Alert.alert('Error Pencarian', 'Gagal mencari item. Silakan coba lagi.');
     } finally {
-      setSearchLoading(false);
+      if (page === 1) {
+        setSearchLoading(false);
+      } else {
+        setSearchLoadingMore(false);
+      }
     }
   };
 
@@ -157,8 +192,26 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
 
   const clearSearch = () => {
     setSearchQuery('');
-    loadInitialItems(); // Reload initial items when clearing search
-    setSelectedItems([]); // Clear selected items when clearing search
+    setSearchResults([]);
+    setSearchPagination(null);
+    setSearchCurrentPage(1);
+    setSelectedItems([]);
+    loadInitialItems(1);
+  };
+
+  const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: any) => {
+    const paddingToBottom = 20;
+    return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+  };
+
+  const handleSearchLoadMore = () => {
+    if (searchPagination && searchPagination.has_more_pages && !searchLoading && !searchLoadingMore) {
+      if (searchQuery.trim().length >= 2) {
+        handleSearch(searchCurrentPage + 1);
+      } else {
+        loadInitialItems(searchCurrentPage + 1);
+      }
+    }
   };
 
   const addSelectedItems = () => {
@@ -440,7 +493,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
               <View style={styles.searchButtonContainer}>
                 <Button
                   mode="contained"
-                  onPress={handleSearch}
+                  onPress={() => handleSearch(1)}
                   loading={searchLoading}
                   disabled={searchLoading || searchQuery.trim().length < 2}
                   style={styles.searchActionButton}
@@ -455,7 +508,16 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
             )}
 
             {/* Search Results */}
-            <ScrollView style={styles.searchResultsContainer} contentContainerStyle={{ paddingBottom: 120 }}>
+            <ScrollView 
+              style={styles.searchResultsContainer} 
+              contentContainerStyle={{ paddingBottom: 120 }}
+              onScroll={({ nativeEvent }) => {
+                if (isCloseToBottom(nativeEvent)) {
+                  handleSearchLoadMore();
+                }
+              }}
+              scrollEventThrottle={400}
+            >
               {searchLoading ? (
                 <SearchResultsSkeleton count={5} />
               ) : searchResults.length > 0 ? (
@@ -510,6 +572,31 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                       );
                     })}
                   </View>
+
+                  {searchLoadingMore && (
+                    <View style={styles.loadingMoreContent}>
+                      <ActivityIndicator size={24} color="#6366f1" />
+                    </View>
+                  )}
+
+                  {searchPagination && !searchPagination.has_more_pages && searchResults.length > 0 ? (
+                    <View style={styles.endOfList}>
+                      <Text style={styles.endOfListText}>
+                        Menampilkan {searchResults.length} dari {searchPagination.total_records} item
+                      </Text>
+                    </View>
+                  ) : searchLoadingMore ? (
+                    <></>
+                  ) : searchResults.length > 0 && searchPagination && searchPagination.has_more_pages ? (
+                    <View style={styles.endOfList}>
+                      <TouchableOpacity
+                        style={styles.loadMoreButton}
+                        onPress={handleSearchLoadMore}
+                      >
+                        <Ionicons name="chevron-down" size={14} color="#6b7280" />
+                      </TouchableOpacity>
+                    </View>
+                  ) : null}
                 </View>
               ) : searchQuery.length > 0 ? (
                 <View style={styles.emptyContainer}>

@@ -334,9 +334,9 @@ class PaymentService {
     }
   }
 
-  async getNotAttachedItems(token: string, paymentId: number, limit: number = 10, searchQuery?: string): Promise<NotAttachedItemsResponse> {
+  async getNotAttachedItems(token: string, paymentId: number, limit: number = 10, searchQuery?: string, page: number = 1): Promise<NotAttachedItemsResponse> {
     try {
-      let url = `${APP_CONFIG.API_BASE_URL_GO}/payments/${paymentId}/items/not-attached?limit=${limit}`;
+      let url = `${APP_CONFIG.API_BASE_URL_GO}/payments/${paymentId}/items/not-attached?per_page=${limit}&page=${page}`;
 
       if (searchQuery && searchQuery.trim()) {
         url += `&search=${encodeURIComponent(searchQuery)}`;
@@ -355,8 +355,8 @@ class PaymentService {
     }
   }
 
-  async searchNotAttachedItems(token: string, paymentId: number, searchQuery: string, limit: number = 10): Promise<NotAttachedItemsResponse> {
-    return this.getNotAttachedItems(token, paymentId, limit, searchQuery);
+  async searchNotAttachedItems(token: string, paymentId: number, searchQuery: string, limit: number = 10, page: number = 1): Promise<NotAttachedItemsResponse> {
+    return this.getNotAttachedItems(token, paymentId, limit, searchQuery, page);
   }
 
   async attachMultipleItems(token: string, paymentId: number, itemsData: AttachMultipleItemsData): Promise<ApiResponse<any>> {

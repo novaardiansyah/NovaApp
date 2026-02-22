@@ -409,4 +409,34 @@ export const styles = StyleSheet.create({
     fontSize: typography.label.large,
     fontWeight: '600',
   },
+
+  loadingMoreContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 24,
+    paddingBottom: 100,
+  },
+
+  endOfList: {
+    alignItems: 'center',
+    paddingTop: 24,
+    paddingBottom: 100,
+  },
+
+  endOfListText: {
+    fontSize: typography.body.primary,
+    color: '#9ca3af',
+    fontStyle: 'italic',
+  },
+
+  loadMoreButton: {
+    backgroundColor: '#f3f4f6',
+    borderRadius: 50,
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 0,
+  },
 });
