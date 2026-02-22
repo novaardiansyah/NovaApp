@@ -334,9 +334,15 @@ class PaymentService {
     }
   }
 
-  async getNotAttachedItems(token: string, paymentId: number, limit: number = 10): Promise<NotAttachedItemsResponse> {
+  async getNotAttachedItems(token: string, paymentId: number, limit: number = 10, searchQuery?: string): Promise<NotAttachedItemsResponse> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/payments/${paymentId}/items/not-attached?limit=${limit}`, {
+      let url = `${APP_CONFIG.API_BASE_URL_GO}/payments/${paymentId}/items/not-attached?limit=${limit}`;
+
+      if (searchQuery && searchQuery.trim()) {
+        url += `&search=${encodeURIComponent(searchQuery)}`;
+      }
+
+      const response = await fetch(url, {
         method: 'GET',
         headers: this.getHeaders(token),
       });
@@ -350,24 +356,7 @@ class PaymentService {
   }
 
   async searchNotAttachedItems(token: string, paymentId: number, searchQuery: string, limit: number = 10): Promise<NotAttachedItemsResponse> {
-    try {
-      let baseUrl = `${APP_CONFIG.API_BASE_URL_GO}/payments/${paymentId}/items/not-attached?limit=${limit}`;
-
-      if (searchQuery.trim()) {
-        baseUrl += `&search=${encodeURIComponent(searchQuery)}`;
-      }
-
-      const response = await fetch(baseUrl, {
-        method: 'GET',
-        headers: this.getHeaders(token),
-      });
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error searching items:', error);
-      throw error;
-    }
+    return this.getNotAttachedItems(token, paymentId, limit, searchQuery);
   }
 
   async attachMultipleItems(token: string, paymentId: number, itemsData: AttachMultipleItemsData): Promise<ApiResponse<any>> {
