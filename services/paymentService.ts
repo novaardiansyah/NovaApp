@@ -119,6 +119,13 @@ export interface SearchItem {
   type_id: number;
 }
 
+export interface NotAttachedItemsResponse {
+  success: boolean;
+  message?: string;
+  data: SearchItem[];
+  meta: Meta;
+}
+
 export interface PaymentSummaryData {
   total_balance: number;
   initial_balance: number;
@@ -327,44 +334,36 @@ class PaymentService {
     }
   }
 
-  async getNotAttachedItems(token: string, paymentId: number, limit: number = 10): Promise<SearchItem[]> {
+  async getNotAttachedItems(token: string, paymentId: number, limit: number = 10): Promise<NotAttachedItemsResponse> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/items/not-attached?limit=${limit}`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/payments/${paymentId}/items/not-attached?limit=${limit}`, {
         method: 'GET',
         headers: this.getHeaders(token),
       });
 
       const data = await response.json();
-
-      if (response.ok && data.success) {
-        return data.data;
-      }
-
-      throw new Error('Failed to fetch items');
+      return data;
     } catch (error) {
       console.error('Error fetching items:', error);
       throw error;
     }
   }
 
-  async searchNotAttachedItems(token: string, paymentId: number, searchQuery: string, limit: number = 10): Promise<SearchItem[]> {
+  async searchNotAttachedItems(token: string, paymentId: number, searchQuery: string, limit: number = 10): Promise<NotAttachedItemsResponse> {
     try {
-      const url = searchQuery.trim()
-        ? `${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/items/not-attached?limit=${limit}&search=${encodeURIComponent(searchQuery)}`
-        : `${APP_CONFIG.API_BASE_URL}/payments/${paymentId}/items/not-attached?limit=${limit}`;
+      let baseUrl = `${APP_CONFIG.API_BASE_URL_GO}/payments/${paymentId}/items/not-attached?limit=${limit}`;
 
-      const response = await fetch(url, {
+      if (searchQuery.trim()) {
+        baseUrl += `&search=${encodeURIComponent(searchQuery)}`;
+      }
+
+      const response = await fetch(baseUrl, {
         method: 'GET',
         headers: this.getHeaders(token),
       });
 
       const data = await response.json();
-
-      if (response.ok && data.success) {
-        return data.data;
-      }
-
-      throw new Error('Failed to search items');
+      return data;
     } catch (error) {
       console.error('Error searching items:', error);
       throw error;

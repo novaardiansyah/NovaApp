@@ -57,8 +57,8 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
   const loadInitialItems = async () => {
     setSearchLoading(true);
     try {
-      const results = await paymentService.getNotAttachedItems(token, paymentId, 10);
-      setSearchResults(results);
+      const response = await paymentService.getNotAttachedItems(token, paymentId, 10);
+      setSearchResults(response.data);
     } catch (error) {
       setSearchResults([]);
       console.error('Error loading initial items:', error);
@@ -120,8 +120,8 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
 
     setSearchLoading(true);
     try {
-      const results = await paymentService.searchNotAttachedItems(token, paymentId, searchQuery, 10);
-      setSearchResults(results);
+      const response = await paymentService.searchNotAttachedItems(token, paymentId, searchQuery, 10);
+      setSearchResults(response.data);
     } catch (error) {
       setSearchResults([]);
       Alert.alert('Error Pencarian', 'Gagal mencari item. Silakan coba lagi.');

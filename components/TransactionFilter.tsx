@@ -93,10 +93,9 @@ const TransactionFilter: React.FC<TransactionFilterProps> = ({
 
     try {
       const accounts = await paymentService.getPaymentAccounts(token)
-      // Add "Semua" option as the first item
       const accountsWithAll = [
         { id: '', name: 'Semua' },
-        ...accounts
+        ...accounts.data
       ]
       setPaymentAccounts(accountsWithAll)
     } catch (error) {
