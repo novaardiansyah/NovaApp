@@ -414,14 +414,14 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 24,
-    paddingBottom: 100,
+    paddingTop: 15,
+    paddingBottom: 25,
   },
 
   endOfList: {
     alignItems: 'center',
-    paddingTop: 24,
-    paddingBottom: 100,
+    paddingTop: 15,
+    paddingBottom: 25,
   },
 
   endOfListText: {

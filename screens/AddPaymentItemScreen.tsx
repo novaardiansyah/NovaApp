@@ -510,7 +510,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
             {/* Search Results */}
             <ScrollView 
               style={styles.searchResultsContainer} 
-              contentContainerStyle={{ paddingBottom: 120 }}
+              contentContainerStyle={{ paddingBottom: 100 }}
               onScroll={({ nativeEvent }) => {
                 if (isCloseToBottom(nativeEvent)) {
                   handleSearchLoadMore();
@@ -530,7 +530,7 @@ const AddPaymentItemScreen: React.FC<AddPaymentItemScreenProps> = ({ navigation,
                     </View>
                   )}
 
-                  <View style={{ marginTop: 16, paddingBottom: 50 }}>
+                  <View style={{ marginTop: 16, paddingBottom: 8 }}>
                     {searchResults.map((item) => {
                       const isItemAdded = items.some(existingItem => existingItem.item_id === item.id);
                       const isSelected = selectedItems.some(selectedItem => selectedItem.id === item.id);
