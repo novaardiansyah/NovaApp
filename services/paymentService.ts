@@ -474,7 +474,7 @@ class PaymentService {
     end_date?: string;
   }): Promise<ApiResponse<any>> {
     try {
-      const response = await fetch(`${APP_CONFIG.API_BASE_URL}/payments/generate-report`, {
+      const response = await fetch(`${APP_CONFIG.API_BASE_URL_GO}/payments/generate-report`, {
         method: 'POST',
         headers: this.getHeaders(token),
         body: JSON.stringify(reportData),
